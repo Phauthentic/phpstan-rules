@@ -37,7 +37,7 @@ class ControlStructureNestingRule implements Rule
     {
         $this->setParentAttributesToEnableCorrectNestingDetection($node);
 
-        if (!$this->nodeIsAControllerStructure($node)) {
+        if (!$this->nodeIsAControlStructure($node)) {
             return [];
         }
 
@@ -50,7 +50,7 @@ class ControlStructureNestingRule implements Rule
         return $errors;
     }
 
-    private function nodeIsAControllerStructure(Node $node): bool
+    private function nodeIsAControlStructure(Node $node): bool
     {
         return $node instanceof If_ ||
             $node instanceof Else_ ||
@@ -62,7 +62,7 @@ class ControlStructureNestingRule implements Rule
     private function getNestingLevel(Node $node, int $currentLevel = 1): int
     {
         $parent = $node->getAttribute('parent');
-        if ($this->nodeIsAControllerStructure($parent)) {
+        if ($this->nodeIsAControlStructure($parent)) {
             return $this->getNestingLevel($parent, $currentLevel + 1);
         }
 
@@ -76,26 +76,7 @@ class ControlStructureNestingRule implements Rule
     public function setParentAttributesToEnableCorrectNestingDetection(Node $node): void
     {
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(
-            new class extends NodeVisitorAbstract {
-                public function enterNode(Node $node)
-                {
-                    foreach ($node->getSubNodeNames() as $subNodeName) {
-                        $subNode = $node->$subNodeName;
-                        if (is_array($subNode)) {
-                            foreach ($subNode as $childNode) {
-                                if ($childNode instanceof Node) {
-                                    $childNode->setAttribute('parent', $node);
-                                }
-                            }
-                        } elseif ($subNode instanceof Node) {
-                            $subNode->setAttribute('parent', $node);
-                        }
-                    }
-                }
-            }
-        );
-
+        $traverser->addVisitor($this->createNodeVisitor());
         $traverser->traverse([$node]);
     }
 
@@ -107,13 +88,38 @@ class ControlStructureNestingRule implements Rule
      */
     public function addError(int $nestingLevel, Else_|If_|Catch_|ElseIf_|TryCatch $node, array $errors): array
     {
-        $errors[] = RuleErrorBuilder::message(
-            sprintf(
-                'Nesting level of %d exceeded. Maximum allowed is %d.',
-                $nestingLevel,
-                $this->maxNestingLevel
-            )
-        )->line($node->getLine())->build();
+        $errorMessage = sprintf(
+            'Nesting level of %d exceeded. Maximum allowed is %d.',
+            $nestingLevel,
+            $this->maxNestingLevel
+        );
+
+        $errors[] = RuleErrorBuilder::message($errorMessage)->line($node->getLine())->build();
+
         return $errors;
+    }
+
+    public function createNodeVisitor(): object
+    {
+        return new class extends NodeVisitorAbstract {
+            public function enterNode(Node $node)
+            {
+                foreach ($node->getSubNodeNames() as $subNodeName) {
+                    $subNode = $node->$subNodeName;
+                    if (is_array($subNode)) {
+                        foreach ($subNode as $childNode) {
+                            if ($childNode instanceof Node) {
+                                $childNode->setAttribute('parent', $node);
+                            }
+                        }
+                        continue;
+                    }
+
+                    if ($subNode instanceof Node) {
+                        $subNode->setAttribute('parent', $node);
+                    }
+                }
+            }
+        };
     }
 }

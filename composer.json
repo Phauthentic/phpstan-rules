@@ -18,5 +18,16 @@
     ],
     "config": {
         "bin-dir": "bin"
+    },
+    "scripts": {
+        "test": [
+            "phpunit"
+        ],
+        "test-coverage": [
+            "phpunit --coverage-text"
+        ],
+        "test-coverage-html": [
+            "phpunit --coverage-html tmp/coverage/"
+        ]
     }
 }
