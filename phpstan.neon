@@ -1,0 +1,35 @@
+parameters:
+    level: 8
+    paths:
+        - src
+        - test
+    parallel:
+        maximumNumberOfProcesses: 8
+
+services:
+    -
+        class: Phauthentic\PhpstanRules\ControlStructureNestingRule
+        arguments:
+            maxNestingLevel: 2
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Phauthentic\PhpstanRules\TooManyArgumentsRule
+        arguments:
+            maxArguments: 3
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Phauthentic\PhpstanRules\ReadonlyClassRule
+        arguments:
+            patterns: ['/^App\\Controller\\/']
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Phauthentic\PhpstanRules\DependencyConstraintsRule
+        arguments:
+            namespaceDependencies: [
+                'App\\Domain\\': ['/^App\\Controller\\/']
+            ]
+        tags:
+            - phpstan.rules.rule
