@@ -15,6 +15,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class TooManyArgumentsRule implements Rule
 {
+    private const ERROR_MESSAGE = 'Method %s::%s has too many arguments (%d). Maximum allowed is %d.';
+
     private int $maxArguments;
     private array $patterns;
 
@@ -46,7 +48,7 @@ class TooManyArgumentsRule implements Rule
         return [
             RuleErrorBuilder::message(
                 sprintf(
-                    'Method %s::%s has too many arguments (%d). Maximum allowed is %d.',
+                    self::ERROR_MESSAGE,
                     $scope->getClassReflection()->getName(),
                     $node->name->toString(),
                     count($node->params),

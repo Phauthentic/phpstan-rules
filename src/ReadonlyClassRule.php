@@ -12,6 +12,8 @@ use PHPStan\Rules\RuleErrorBuilder;
 
 class ReadonlyClassRule implements Rule
 {
+    private const ERROR_MESSAGE = 'Class %s must be readonly.';
+
     protected array $patterns;
 
     public function __construct(array $patterns)
@@ -37,7 +39,7 @@ class ReadonlyClassRule implements Rule
         foreach ($this->patterns as $pattern) {
             if (preg_match($pattern, $fullClassName) && !$node->isReadonly()) {
                 return [
-                    RuleErrorBuilder::message("Class {$fullClassName} must be readonly.")
+                    RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
                         ->build(),
                 ];
             }

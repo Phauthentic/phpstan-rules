@@ -21,6 +21,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ControlStructureNestingRule implements Rule
 {
+    private const ERROR_MESSAGE = 'Nesting level of %d exceeded. Maximum allowed is %d.';
+
     private int $maxNestingLevel;
 
     public function __construct(int $maxNestingLevel)
@@ -89,7 +91,7 @@ class ControlStructureNestingRule implements Rule
     public function addError(int $nestingLevel, Else_|If_|Catch_|ElseIf_|TryCatch $node, array $errors): array
     {
         $errorMessage = sprintf(
-            'Nesting level of %d exceeded. Maximum allowed is %d.',
+            self::ERROR_MESSAGE,
             $nestingLevel,
             $this->maxNestingLevel
         );

@@ -19,6 +19,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class DependencyConstraintsRule implements Rule
 {
+    private const ERROR_MESSAGE = 'Class %s has a dependency on %s, which is not allowed.';
+
     private array $namespaceDependencies;
 
     public function __construct(array $namespaceDependencies)
@@ -47,23 +49,34 @@ class DependencyConstraintsRule implements Rule
         $errors = [];
         foreach ($node->uses as $use) {
             $useNamespace = $use->name->toString();
+
             foreach ($this->namespaceDependencies as $dependencyPatterns) {
-                $errors = $this->checkForDependencyViolations($dependencyPatterns, $useNamespace, $scope, $node, $errors);
+                $errors = $this->checkForDependencyViolations(
+                    $dependencyPatterns, $useNamespace, $scope, $node, $errors
+                );
             }
         }
 
         return $errors;
     }
 
-    public function checkForDependencyViolations(mixed $dependencyPatterns, string $useNamespace, Scope $scope, Use_ $node, array $errors): array
-    {
+    public function checkForDependencyViolations(
+        mixed $dependencyPatterns,
+        string $useNamespace,
+        Scope $scope,
+        Use_ $node,
+        array $errors
+    ): array {
         foreach ($dependencyPatterns as $dependencyPattern) {
             if (preg_match($dependencyPattern, $useNamespace)) {
-                $errors[] = RuleErrorBuilder::message("Class {$scope->getNamespace()} has a dependency on {$useNamespace}, which is not allowed.")
+                $errorMessage = sprintf(self::ERROR_MESSAGE, $scope->getNamespace(), $useNamespace);
+
+                $errors[] = RuleErrorBuilder::message($errorMessage)
                     ->line($node->getLine())
                     ->build();
             }
         }
+
         return $errors;
     }
 }
