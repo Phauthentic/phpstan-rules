@@ -64,7 +64,7 @@ class ControlStructureNestingRule implements Rule
     private function getNestingLevel(Node $node, int $currentLevel = 1): int
     {
         $parent = $node->getAttribute('parent');
-        if ($this->nodeIsAControlStructure($parent)) {
+        if ($parent !== null && $this->nodeIsAControlStructure($parent)) {
             return $this->getNestingLevel($parent, $currentLevel + 1);
         }
 
