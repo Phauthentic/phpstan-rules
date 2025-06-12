@@ -73,6 +73,38 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
             - phpstan.rules.rule
 ```
 
+### Final Class Rule
+
+Ensures that classes matching specified patterns are declared as `final`.
+
+**Configuration Example:**
+```neon
+    -
+        class: Phauthentic\PhpstanRules\FinalClassRule
+        arguments:
+            patterns: ['/^App\\Service\\/']
+        tags:
+            - phpstan.rules.rule
+```
+
+### Namespace Class Pattern Rule
+
+Ensures that classes inside namespaces matching a given regex must have names matching at least one of the provided patterns.
+
+**Configuration Example:**
+```neon
+    -
+        class: Phauthentic\PhpstanRules\NamespaceClassPatternRule
+        arguments:
+            -
+                -   namespace: '/^App\\\\Service$/'
+                    classPatterns:
+                        - '/Service$/'
+                        - '/Manager$/'
+        tags:
+            - phpstan.rules.rule
+```
+
 ## License
 
 This library is under the MIT license.
