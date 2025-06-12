@@ -1,6 +1,6 @@
 # PHPStan Rules
 
-Additional rules for PHPStan. Mostly focused on clean code and architecture.
+Additional rules for PHPStan, mostly focused on Clean Code and architecture conventions.
 
 ## Usage
 
