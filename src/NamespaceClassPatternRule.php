@@ -17,9 +17,9 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class NamespaceClassPatternRule implements Rule
 {
-    private const ERROR_MESSAGE = 'Class %s in namespace %s does not match any of the required patterns:';
-
-    /** @var array{namespace: string, classPatterns: string[]}[] */
+    /**
+     * @var array{namespace: string, classPatterns: string[]}[]
+     */
     private array $namespaceClassPatterns;
 
     /**
@@ -37,41 +37,82 @@ class NamespaceClassPatternRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        $errors = [];
-
         if (!$node instanceof Namespace_) {
             return [];
         }
 
         $namespaceName = $node->name ? $node->name->toString() : '';
+        $errors = [];
 
         foreach ($this->namespaceClassPatterns as $config) {
-            if (preg_match($config['namespace'], $namespaceName)) {
-                foreach ($node->stmts as $stmt) {
-                    if ($stmt instanceof Class_) {
-                        $className = $stmt->name ? $stmt->name->toString() : '';
-                        $matches = false;
-                        foreach ($config['classPatterns'] as $pattern) {
-                            if (preg_match($pattern, $className)) {
-                                $matches = true;
-                                break;
-                            }
-                        }
+            if (!$this->namespaceMatches($namespaceName, $config['namespace'])) {
+                continue;
+            }
 
-                        if (!$matches) {
-                            $fqcn = $namespaceName ? $namespaceName . '\\' . $className : $className;
-                            $patterns = [];
-                            foreach ($config['classPatterns'] as $pattern) {
-                                $patterns[] = ' - ' . $pattern;
-                            }
-                            $errors[] = RuleErrorBuilder::message(
-                                sprintf(self::ERROR_MESSAGE, $fqcn, $namespaceName) . PHP_EOL . implode(PHP_EOL, $patterns)
-                            )->line($stmt->getLine())->build();
-                        }
-                    }
+            foreach ($node->stmts as $stmt) {
+                if (!$stmt instanceof Class_) {
+                    continue;
+                }
+
+                $className = $stmt->name ? $stmt->name->toString() : '';
+                if (!$this->classNameMatches($className, $config['classPatterns'])) {
+                    $errors = $this->buildRuleError($namespaceName, $className, $config['classPatterns'], $stmt, $errors);
                 }
             }
         }
+
+        return $errors;
+    }
+
+    private function namespaceMatches(string $namespace, string $namespacePattern): bool
+    {
+        return preg_match($namespacePattern, $namespace) === 1;
+    }
+
+    /**
+     * @param string[] $classPatterns
+     */
+    private function classNameMatches(string $className, array $classPatterns): bool
+    {
+        foreach ($classPatterns as $pattern) {
+            if (preg_match($pattern, $className)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string[] $patterns
+     */
+    private function buildErrorMessage(string $fqcn, string $namespace, array $patterns): string
+    {
+        $lines = [
+            sprintf('Class %s in namespace %s does not match any of the required patterns:', $fqcn, $namespace),
+        ];
+
+        foreach ($patterns as $pattern) {
+            $lines[] = ' - ' . $pattern;
+        }
+
+        return implode(PHP_EOL, $lines);
+    }
+
+    /**
+     * @param string $namespaceName
+     * @param string $className
+     * @param $classPatterns
+     * @param Class_ $stmt
+     * @param array $errors
+     * @return array
+     */
+    public function buildRuleError(string $namespaceName, string $className, $classPatterns, Class_ $stmt, array $errors): array
+    {
+        $fqcn = $namespaceName ? $namespaceName . '\\' . $className : $className;
+        $errors[] = RuleErrorBuilder::message(
+            $this->buildErrorMessage($fqcn, $namespaceName, $classPatterns)
+        )->line($stmt->getLine())->build();
 
         return $errors;
     }
