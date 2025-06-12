@@ -1,6 +1,6 @@
 # PHPStan Rules
 
-Additional rules for PHPStan. Mostly focused on clean code and architecture.
+Additional rules for PHPStan, mostly focused on Clean Code and architecture conventions.
 
 ## Usage
 
@@ -68,6 +68,39 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
         arguments:
             namespaceDependencies: [
                 'App\\Domain\\': ['/^App\\Controller\\/']
+            ]
+        tags:
+            - phpstan.rules.rule
+```
+
+### Final Class Rule
+
+Ensures that classes matching specified patterns are declared as `final`.
+
+**Configuration Example:**
+```neon
+    -
+        class: Phauthentic\PhpstanRules\FinalClassRule
+        arguments:
+            patterns: ['/^App\\Service\\/']
+        tags:
+            - phpstan.rules.rule
+```
+
+### Namespace Class Pattern Rule
+
+Ensures that classes inside namespaces matching a given regex must have names matching at least one of the provided patterns.
+
+**Configuration Example:**
+```neon
+    -
+        class: Phauthentic\PhpstanRules\NamespaceClassPatternRule
+        arguments:
+            namespaceClassPatterns: [
+                [
+                    namespace: '/^App\\Service$/',
+                    classPatterns: ['/Class$/']
+                ]
             ]
         tags:
             - phpstan.rules.rule
