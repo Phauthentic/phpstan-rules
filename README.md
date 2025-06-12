@@ -96,11 +96,12 @@ Ensures that classes inside namespaces matching a given regex must have names ma
     -
         class: Phauthentic\PhpstanRules\NamespaceClassPatternRule
         arguments:
-            -
-                -   namespace: '/^App\\\\Service$/'
-                    classPatterns:
-                        - '/Service$/'
-                        - '/Manager$/'
+            namespaceClassPatterns: [
+                [
+                    namespace: '/^App\\Service$/',
+                    classPatterns: ['/Class$/']
+                ]
+            ]
         tags:
             - phpstan.rules.rule
 ```

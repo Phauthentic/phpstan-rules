@@ -27,7 +27,9 @@ class NamespaceClassPatternRuleTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../data/Service/InvalidServiceClass.php'], [
             [
-                'Class App\Service\InvalidClass in namespace App\Service does not match any of the required patterns.',
+                'Class App\Service\InvalidClass in namespace App\Service does not match any of the required patterns:'
+                . PHP_EOL . ' - /Service$/'
+                . PHP_EOL . ' - /Manager$/',
                 5,
             ],
         ]);

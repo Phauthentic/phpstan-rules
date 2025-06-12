@@ -17,7 +17,7 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class NamespaceClassPatternRule implements Rule
 {
-    private const ERROR_MESSAGE = 'Class %s in namespace %s does not match any of the required patterns.';
+    private const ERROR_MESSAGE = 'Class %s in namespace %s does not match any of the required patterns:';
 
     /** @var array{namespace: string, classPatterns: string[]}[] */
     private array $namespaceClassPatterns;
@@ -57,10 +57,15 @@ class NamespaceClassPatternRule implements Rule
                                 break;
                             }
                         }
+
                         if (!$matches) {
                             $fqcn = $namespaceName ? $namespaceName . '\\' . $className : $className;
+                            $patterns = [];
+                            foreach ($config['classPatterns'] as $pattern) {
+                                $patterns[] = ' - ' . $pattern;
+                            }
                             $errors[] = RuleErrorBuilder::message(
-                                sprintf(self::ERROR_MESSAGE, $fqcn, $namespaceName)
+                                sprintf(self::ERROR_MESSAGE, $fqcn, $namespaceName) . PHP_EOL . implode(PHP_EOL, $patterns)
                             )->line($stmt->getLine())->build();
                         }
                     }

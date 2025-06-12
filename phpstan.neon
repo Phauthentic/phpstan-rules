@@ -1,8 +1,7 @@
 parameters:
     level: 8
     paths:
-        - src
-        - test
+        - data
     parallel:
         maximumNumberOfProcesses: 8
 
@@ -30,6 +29,23 @@ services:
         arguments:
             namespaceDependencies: [
                 'App\\Domain\\': ['/^App\\Controller\\/']
+            ]
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Phauthentic\PhpstanRules\FinalClassRule
+        arguments:
+            patterns: ['/^App\\Service\\/']
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Phauthentic\PhpstanRules\NamespaceClassPatternRule
+        arguments:
+            namespaceClassPatterns: [
+                [
+                    namespace: '/^App\\Service$/',
+                    classPatterns: ['/Class$/']
+                ]
             ]
         tags:
             - phpstan.rules.rule
