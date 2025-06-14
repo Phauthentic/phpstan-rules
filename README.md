@@ -5,106 +5,26 @@ Additional rules for PHPStan, mostly focused on Clean Code and architecture conv
 ## Usage
 
 ```bash
-composer require/phauthentic/phpstan-rules --dev
+composer require phauthentic/phpstan-rules --dev
 ```
 
 ## Rules
 
-Add them to your `phpstan.neon` configuration file under the section `services`.
+See [Rules documentation](docs/Rules.md) for a list of available rules and configuration examples.
 
-### Control Structure Nesting Rule
+**Available Rules:**
+- [Control Structure Nesting Rule](docs/Rules.md#control-structure-nesting-rule)
+- [Too Many Arguments Rule](docs/Rules.md#too-many-arguments-rule)
+- [Readonly Class Rule](docs/Rules.md#readonly-class-rule)
+- [Dependency Constraints Rule](docs/Rules.md#dependency-constraints-rule)
+- [Final Class Rule](docs/Rules.md#final-class-rule)
+- [Namespace Class Pattern Rule](docs/Rules.md#namespace-class-pattern-rule)
 
-Ensures that the nesting level of `if` and `try-catch` statements does not exceed a specified limit.
+### Using Regex in Rules
 
-**Configuration Example:**
-```neon
-    -
-        class: Phauthentic\PhpstanRules\ControlStructureNestingRule
-        arguments:
-            maxNestingLevel: 2
-        tags:
-            - phpstan.rules.rule
-```
+A lot of the rules use regex patterns to match things. Many people are not good in writing them but thankfully there is AI today.
 
-### Too Many Arguments Rule
-
-Checks that methods do not have more than a specified number of arguments.
-
-**Configuration Example:**
-```neon
-    -
-        class: Phauthentic\PhpstanRules\TooManyArgumentsRule
-        arguments:
-            maxArguments: 3
-        tags:
-            - phpstan.rules.rule
-```
-### Readonly Class Rule
-
-Ensures that classes matching specified patterns are declared as `readonly`.
-
-**Configuration Example:**
-```neon
-    -
-        class: Phauthentic\PhpstanRules\ReadonlyClassRule
-        arguments:
-            patterns: ['/^App\\Controller\\/']
-        tags:
-            - phpstan.rules.rule
-```
-
-### Dependency Constraints Rule
-
-Enforces dependency constraints between namespaces by checking `use` statements.
-
-The constructor takes an array of namespace dependencies. The key is the namespace that should not depend on the namespaces in the array of values.
-
-In the example below nothing from `App\Domain` can depend on anything from `App\Controller`.
-
-**Configuration Example:**
-```neon
-    -
-        class: Phauthentic\PhpstanRules\DependencyConstraintsRule
-        arguments:
-            namespaceDependencies: [
-                'App\\Domain\\': ['/^App\\Controller\\/']
-            ]
-        tags:
-            - phpstan.rules.rule
-```
-
-### Final Class Rule
-
-Ensures that classes matching specified patterns are declared as `final`.
-
-**Configuration Example:**
-```neon
-    -
-        class: Phauthentic\PhpstanRules\FinalClassRule
-        arguments:
-            patterns: ['/^App\\Service\\/']
-        tags:
-            - phpstan.rules.rule
-```
-
-### Namespace Class Pattern Rule
-
-Ensures that classes inside namespaces matching a given regex must have names matching at least one of the provided patterns.
-
-**Configuration Example:**
-```neon
-    -
-        class: Phauthentic\PhpstanRules\NamespaceClassPatternRule
-        arguments:
-            namespaceClassPatterns: [
-                [
-                    namespace: '/^App\\Service$/',
-                    classPatterns: ['/Class$/']
-                ]
-            ]
-        tags:
-            - phpstan.rules.rule
-```
+If you struggle to write the regex patterns you need, you can use AI tools like [ChatGPT](https://chat.openai.com/) to help you generate them. Just describe what you want to match, and it can provide you with a regex pattern that fits your needs.  The regex can be tested using online tools like [regex101](https://regex101.com/).
 
 ## License
 

@@ -1,8 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App;
 
 use Phauthentic\PhpstanRules\DependencyConstraintsRule;
+use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 
 /**
@@ -10,10 +13,10 @@ use PHPStan\Testing\RuleTestCase;
  */
 class NamespaceDependencyRuleTest extends RuleTestCase
 {
-    protected function getRule(): \PHPStan\Rules\Rule
+    protected function getRule(): Rule
     {
         return new DependencyConstraintsRule([
-            '/^App\\\Domain/' => ['/^App\\\Controller\\\/']
+            '/^App\\\\Domain(?:\\\\\\w+)*$/' => ['/^App\\\Controller\\\/']
         ]);
     }
 
@@ -21,7 +24,7 @@ class NamespaceDependencyRuleTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../data/DependencyRuleTest/Domain/Aggregate.php'], [
             [
-                'Class App\Domain has a dependency on App\Controller\MissingReadonlyRuleController, which is not allowed.',
+                'Dependency violation: A class in namespace `App\Domain` is not allowed to depend on `App\Controller\MissingReadonlyRuleController`.',
                 7,
             ],
         ]);

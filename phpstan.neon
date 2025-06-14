@@ -1,7 +1,7 @@
 parameters:
     level: 8
     paths:
-        - data
+        - src
     parallel:
         maximumNumberOfProcesses: 8
 
@@ -27,8 +27,8 @@ services:
     -
         class: Phauthentic\PhpstanRules\DependencyConstraintsRule
         arguments:
-            namespaceDependencies: [
-                'App\\Domain\\': ['/^App\\Controller\\/']
+            forbiddenDependencies: [
+                '/^App\\Domain(?:\\\w+)*$/': ['/^App\\Controller\\/']
             ]
         tags:
             - phpstan.rules.rule

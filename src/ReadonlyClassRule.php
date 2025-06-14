@@ -10,12 +10,21 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
+/**
+ * @implements Rule<Class_>
+ */
 class ReadonlyClassRule implements Rule
 {
     private const ERROR_MESSAGE = 'Class %s must be readonly.';
 
+    /**
+     * @var string[]
+     */
     protected array $patterns;
 
+    /**
+     * @param string[] $patterns
+     */
     public function __construct(array $patterns)
     {
         $this->patterns = $patterns;
