@@ -3,8 +3,6 @@
 
 Add them to your `phpstan.neon` configuration file under the section `services`.
 
----
-
 ## Control Structure Nesting Rule
 
 Ensures that the nesting level of `if` and `try-catch` statements does not exceed a specified limit.
@@ -12,14 +10,12 @@ Ensures that the nesting level of `if` and `try-catch` statements does not excee
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\ControlStructureNestingRule
+        class: Phauthentic\PhpstanRules\CleanCode\ControlStructureNestingRule
         arguments:
             maxNestingLevel: 2
         tags:
             - phpstan.rules.rule
 ```
-
----
 
 ## Too Many Arguments Rule
 
@@ -28,14 +24,12 @@ Checks that methods do not have more than a specified number of arguments.
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\TooManyArgumentsRule
+        class: Phauthentic\PhpstanRules\CleanCode\TooManyArgumentsRule
         arguments:
             maxArguments: 3
         tags:
             - phpstan.rules.rule
 ```
-
----
 
 ## Readonly Class Rule
 
@@ -44,14 +38,12 @@ Ensures that classes matching specified patterns are declared as `readonly`.
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\ReadonlyClassRule
+        class: Phauthentic\PhpstanRules\Architecture\ReadonlyClassRule
         arguments:
             patterns: ['/^App\\Controller\\/']
         tags:
             - phpstan.rules.rule
 ```
-
----
 
 ## Dependency Constraints Rule
 
@@ -64,7 +56,7 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\DependencyConstraintsRule
+        class: Phauthentic\PhpstanRules\Architecture\DependencyConstraintsRule
         arguments:
             forbiddenDependencies: [
                 '/^App\\Domain(?:\\\w+)*$/': ['/^App\\Controller\\/']
@@ -73,8 +65,6 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
             - phpstan.rules.rule
 ```
 
----
-
 ## Final Class Rule
 
 Ensures that classes matching specified patterns are declared as `final`.
@@ -82,14 +72,12 @@ Ensures that classes matching specified patterns are declared as `final`.
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\FinalClassRule
+        class: Phauthentic\PhpstanRules\Architecture\FinalClassRule
         arguments:
             patterns: ['/^App\\Service\\/']
         tags:
             - phpstan.rules.rule
 ```
-
----
 
 ## Namespace Class Pattern Rule
 
@@ -98,12 +86,14 @@ Ensures that classes inside namespaces matching a given regex must have names ma
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\NamespaceClassPatternRule
+        class: Phauthentic\PhpstanRules\Architecture\NamespaceClassPatternRule
         arguments:
             namespaceClassPatterns: [
                 [
                     namespace: '/^App\\Service$/',
-                    classPatterns: ['/Class$/']
+                    classPatterns: [
+                        '/Class$/'
+                    ]
                 ]
             ]
         tags:
