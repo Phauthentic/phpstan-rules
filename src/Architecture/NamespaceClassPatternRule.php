@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phauthentic\PhpstanRules;
+namespace Phauthentic\PHPStanRules\Architecture;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Namespace_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;

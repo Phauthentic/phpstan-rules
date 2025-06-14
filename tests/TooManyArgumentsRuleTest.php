@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use Phauthentic\PhpstanRules\TooManyArgumentsRule;
+use Phauthentic\PhpstanRules\CleanCode\TooManyArgumentsRule;
 use PHPStan\Testing\RuleTestCase;
 
 /**

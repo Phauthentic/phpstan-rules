@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use Phauthentic\PhpstanRules\ReadonlyClassRule;
+use Phauthentic\PhpstanRules\Architecture\ReadonlyClassRule;
 use PHPStan\Testing\RuleTestCase;
 
 /**

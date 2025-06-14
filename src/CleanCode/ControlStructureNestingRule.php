@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Phauthentic\PhpstanRules;
+namespace Phauthentic\PHPStanRules\CleanCode;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\ElseIf_;
+use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\TryCatch;
-use PhpParser\Node\Stmt\Catch_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PHPStan\Analyser\Scope;

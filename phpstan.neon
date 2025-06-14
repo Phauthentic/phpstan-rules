@@ -7,25 +7,25 @@ parameters:
 
 services:
     -
-        class: Phauthentic\PhpstanRules\ControlStructureNestingRule
+        class: Phauthentic\PhpstanRules\CleanCode\ControlStructureNestingRule
         arguments:
             maxNestingLevel: 2
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PhpstanRules\TooManyArgumentsRule
+        class: Phauthentic\PhpstanRules\CleanCode\TooManyArgumentsRule
         arguments:
             maxArguments: 3
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PhpstanRules\ReadonlyClassRule
+        class: Phauthentic\PhpstanRules\Architecture\ReadonlyClassRule
         arguments:
             patterns: ['/^App\\Controller\\/']
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PhpstanRules\DependencyConstraintsRule
+        class: Phauthentic\PhpstanRules\Architecture\DependencyConstraintsRule
         arguments:
             forbiddenDependencies: [
                 '/^App\\Domain(?:\\\w+)*$/': ['/^App\\Controller\\/']
@@ -33,13 +33,13 @@ services:
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PhpstanRules\FinalClassRule
+        class: Phauthentic\PhpstanRules\Architecture\FinalClassRule
         arguments:
             patterns: ['/^App\\Service\\/']
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PhpstanRules\NamespaceClassPatternRule
+        class: Phauthentic\PhpstanRules\Architecture\NamespaceClassPatternRule
         arguments:
             namespaceClassPatterns: [
                 [

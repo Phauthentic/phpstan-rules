@@ -22,7 +22,7 @@ See [Rules documentation](docs/Rules.md) for a list of available rules and confi
 
 ### Using Regex in Rules
 
-A lot of the rules use regex patterns to match things. Many people are not good in writing them but thankfully there is AI today.
+A lot of the rules use regex patterns to match things. Many people are not good at writing them but thankfully there is AI today.
 
 If you struggle to write the regex patterns you need, you can use AI tools like [ChatGPT](https://chat.openai.com/) to help you generate them. Just describe what you want to match, and it can provide you with a regex pattern that fits your needs.  The regex can be tested using online tools like [regex101](https://regex101.com/).
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use Phauthentic\PhpstanRules\ControlStructureNestingRule;
+use Phauthentic\PhpstanRules\CleanCode\ControlStructureNestingRule;
 use PHPStan\Testing\RuleTestCase;
 
 /**

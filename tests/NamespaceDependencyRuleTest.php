@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use Phauthentic\PhpstanRules\DependencyConstraintsRule;
+use Phauthentic\PhpstanRules\Architecture\DependencyConstraintsRule;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 

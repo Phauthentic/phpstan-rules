@@ -12,7 +12,7 @@ Ensures that the nesting level of `if` and `try-catch` statements does not excee
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\ControlStructureNestingRule
+        class: Phauthentic\PhpstanRules\CleanCode\ControlStructureNestingRule
         arguments:
             maxNestingLevel: 2
         tags:
@@ -28,7 +28,7 @@ Checks that methods do not have more than a specified number of arguments.
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\TooManyArgumentsRule
+        class: Phauthentic\PhpstanRules\CleanCode\TooManyArgumentsRule
         arguments:
             maxArguments: 3
         tags:
@@ -44,7 +44,7 @@ Ensures that classes matching specified patterns are declared as `readonly`.
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\ReadonlyClassRule
+        class: Phauthentic\PhpstanRules\Architecture\ReadonlyClassRule
         arguments:
             patterns: ['/^App\\Controller\\/']
         tags:
@@ -64,7 +64,7 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\DependencyConstraintsRule
+        class: Phauthentic\PhpstanRules\Architecture\DependencyConstraintsRule
         arguments:
             forbiddenDependencies: [
                 '/^App\\Domain(?:\\\w+)*$/': ['/^App\\Controller\\/']
@@ -82,7 +82,7 @@ Ensures that classes matching specified patterns are declared as `final`.
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\FinalClassRule
+        class: Phauthentic\PhpstanRules\Architecture\FinalClassRule
         arguments:
             patterns: ['/^App\\Service\\/']
         tags:
@@ -98,12 +98,14 @@ Ensures that classes inside namespaces matching a given regex must have names ma
 **Configuration Example:**
 ```neon
     -
-        class: Phauthentic\PhpstanRules\NamespaceClassPatternRule
+        class: Phauthentic\PhpstanRules\Architecture\NamespaceClassPatternRule
         arguments:
             namespaceClassPatterns: [
                 [
                     namespace: '/^App\\Service$/',
-                    classPatterns: ['/Class$/']
+                    classPatterns: [
+                        '/Class$/'
+                    ]
                 ]
             ]
         tags:

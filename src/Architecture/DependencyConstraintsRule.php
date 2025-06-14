@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phauthentic\PhpstanRules;
+namespace Phauthentic\PHPStanRules\Architecture;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Use_;

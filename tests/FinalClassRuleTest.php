@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use Phauthentic\PhpstanRules\FinalClassRule;
+use Phauthentic\PhpstanRules\Architecture\FinalClassRule;
 use PHPStan\Testing\RuleTestCase;
 
 /**
