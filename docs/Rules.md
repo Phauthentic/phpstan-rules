@@ -3,8 +3,6 @@
 
 Add them to your `phpstan.neon` configuration file under the section `services`.
 
----
-
 ## Control Structure Nesting Rule
 
 Ensures that the nesting level of `if` and `try-catch` statements does not exceed a specified limit.
@@ -18,8 +16,6 @@ Ensures that the nesting level of `if` and `try-catch` statements does not excee
         tags:
             - phpstan.rules.rule
 ```
-
----
 
 ## Too Many Arguments Rule
 
@@ -35,8 +31,6 @@ Checks that methods do not have more than a specified number of arguments.
             - phpstan.rules.rule
 ```
 
----
-
 ## Readonly Class Rule
 
 Ensures that classes matching specified patterns are declared as `readonly`.
@@ -50,8 +44,6 @@ Ensures that classes matching specified patterns are declared as `readonly`.
         tags:
             - phpstan.rules.rule
 ```
-
----
 
 ## Dependency Constraints Rule
 
@@ -73,8 +65,6 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
             - phpstan.rules.rule
 ```
 
----
-
 ## Final Class Rule
 
 Ensures that classes matching specified patterns are declared as `final`.
@@ -88,8 +78,6 @@ Ensures that classes matching specified patterns are declared as `final`.
         tags:
             - phpstan.rules.rule
 ```
-
----
 
 ## Namespace Class Pattern Rule
 
