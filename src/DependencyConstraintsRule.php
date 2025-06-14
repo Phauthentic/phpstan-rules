@@ -8,6 +8,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Use_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
@@ -56,20 +57,33 @@ class DependencyConstraintsRule implements Rule
                 continue;
             }
 
-            foreach ($node->uses as $use) {
-                $usedClassName = $use->name->toString();
-                foreach ($disallowedDependencyPatterns as $disallowedPattern) {
-                    if (preg_match($disallowedPattern, $usedClassName)) {
-                        $errors[] = RuleErrorBuilder::message(sprintf(
-                            self::ERROR_MESSAGE,
-                            $currentNamespace,
-                            $usedClassName
-                        ))
-                        ->line($use->getStartLine())
-                        ->nonIgnorable()
-                        ->build();
+            $errors = $this->validateUseStatements($node, $disallowedDependencyPatterns, $currentNamespace, $errors);
+        }
 
-                    }
+        return $errors;
+    }
+
+    /**
+     * @param Node $node
+     * @param array<string> $disallowedDependencyPatterns
+     * @param string $currentNamespace
+     * @param array<RuleError> $errors
+     * @return array<RuleError>
+     * @throws \PHPStan\ShouldNotHappenException
+     */
+    public function validateUseStatements(Node $node, array $disallowedDependencyPatterns, string $currentNamespace, array $errors): array
+    {
+        foreach ($node->uses as $use) {
+            $usedClassName = $use->name->toString();
+            foreach ($disallowedDependencyPatterns as $disallowedPattern) {
+                if (preg_match($disallowedPattern, $usedClassName)) {
+                    $errors[] = RuleErrorBuilder::message(sprintf(
+                        self::ERROR_MESSAGE,
+                        $currentNamespace,
+                        $usedClassName
+                    ))
+                    ->line($use->getStartLine())
+                    ->build();
                 }
             }
         }

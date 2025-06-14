@@ -1,7 +1,7 @@
 parameters:
     level: 8
     paths:
-        - data
+        - src
     parallel:
         maximumNumberOfProcesses: 8
 

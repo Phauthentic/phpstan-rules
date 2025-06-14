@@ -18,6 +18,8 @@ use PHPStan\Rules\RuleErrorBuilder;
 
 /**
  * A rule to check the nesting level of control structures (if, else, elseif, try, catch).
+ *
+ * @implements Rule<Node>
  */
 class ControlStructureNestingRule implements Rule
 {

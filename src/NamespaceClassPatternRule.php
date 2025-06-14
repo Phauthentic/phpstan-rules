@@ -14,6 +14,8 @@ use PHPStan\Rules\RuleErrorBuilder;
 /**
  * PHPStan rule to ensure that classes inside namespaces matching a given regex
  * must have names matching at least one of the provided patterns.
+ *
+ * @implements Rule<Namespace_>
  */
 class NamespaceClassPatternRule implements Rule
 {
