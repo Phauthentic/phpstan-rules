@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace Phauthentic\PHPStanRules\Tests\TestCases\CleanCode;
 
-use Phauthentic\PhpstanRules\ControlStructureNestingRule;
+use Phauthentic\PHPStanRules\CleanCode\ControlStructureNestingRule;
 use PHPStan\Testing\RuleTestCase;
 
 /**
@@ -19,7 +19,7 @@ class ControlStructureNestingRuleTest extends RuleTestCase
 
     public function testRule(): void
     {
-        $this->analyse([__DIR__ . '/../data/NestedControlStructures.php'], [
+        $this->analyse([__DIR__ . '/../../../data/NestedControlStructures.php'], [
             [
                 'Nesting level of 3 exceeded. Maximum allowed is 2.',
                 11,

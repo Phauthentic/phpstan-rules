@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phauthentic\PhpstanRules;
+namespace Phauthentic\PHPStanRules\Architecture;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
@@ -13,19 +13,19 @@ use PHPStan\Rules\RuleErrorBuilder;
 /**
  * @implements Rule<Class_>
  */
-class FinalClassRule implements Rule
+class ClassMustBeReadonlyRule implements Rule
 {
-    private const ERROR_MESSAGE = 'Class %s must be final.';
+    private const ERROR_MESSAGE = 'Class %s must be readonly.';
+
+    private const IDENTIFIER = 'phauthentic.architecture.classMustBeReadonly';
 
     /**
-     * @var array<string> An array of regex patterns to match against class names.
-     * e.g., ['#^App\\Domain\\.*#', '#^App\\Service\\.*#']
+     * @var string[]
      */
     protected array $patterns;
 
     /**
-     * @param array<string> $patterns An array of regex patterns to match against class names.
-     * Each pattern should be a valid PCRE regex.
+     * @param string[] $patterns
      */
     public function __construct(array $patterns)
     {
@@ -48,9 +48,10 @@ class FinalClassRule implements Rule
         $fullClassName = $namespaceName . '\\' . $className;
 
         foreach ($this->patterns as $pattern) {
-            if (preg_match($pattern, $fullClassName) && !$node->isFinal()) {
+            if (preg_match($pattern, $fullClassName) && !$node->isReadonly()) {
                 return [
                     RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
+                        ->identifier(self::IDENTIFIER)
                         ->build(),
                 ];
             }

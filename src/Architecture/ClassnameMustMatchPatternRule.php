@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Phauthentic\PhpstanRules;
+namespace Phauthentic\PHPStanRules\Architecture;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Namespace_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\ShouldNotHappenException;
 
 /**
  * PHPStan rule to ensure that classes inside namespaces matching a given regex
@@ -17,8 +18,12 @@ use PHPStan\Rules\RuleErrorBuilder;
  *
  * @implements Rule<Namespace_>
  */
-class NamespaceClassPatternRule implements Rule
+class ClassnameMustMatchPatternRule implements Rule
 {
+    private const ERROR_MESSAGE = 'Class %s in namespace %s does not match any of the required patterns:';
+
+    private const IDENTIFIER = 'phauthentic.architecture.classnameMustMatchPattern';
+
     /**
      * @var array{namespace: string, classPatterns: string[]}[]
      */
@@ -91,7 +96,7 @@ class NamespaceClassPatternRule implements Rule
     private function buildErrorMessage(string $fqcn, string $namespace, array $patterns): string
     {
         $lines = [
-            sprintf('Class %s in namespace %s does not match any of the required patterns:', $fqcn, $namespace),
+            sprintf(self::ERROR_MESSAGE, $fqcn, $namespace),
         ];
 
         foreach ($patterns as $pattern) {
@@ -108,13 +113,22 @@ class NamespaceClassPatternRule implements Rule
      * @param Class_ $stmt
      * @param array $errors
      * @return array
+     * @throws ShouldNotHappenException
      */
-    public function buildRuleError(string $namespaceName, string $className, $classPatterns, Class_ $stmt, array $errors): array
-    {
+    public function buildRuleError(
+        string $namespaceName,
+        string $className,
+        $classPatterns,
+        Class_ $stmt,
+        array $errors
+    ): array {
         $fqcn = $namespaceName ? $namespaceName . '\\' . $className : $className;
         $errors[] = RuleErrorBuilder::message(
-            $this->buildErrorMessage($fqcn, $namespaceName, $classPatterns)
-        )->line($stmt->getLine())->build();
+                $this->buildErrorMessage($fqcn, $namespaceName, $classPatterns)
+            )
+            ->line($stmt->getLine())
+            ->identifier(self::IDENTIFIER)
+            ->build();
 
         return $errors;
     }

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace Phauthentic\PHPStanRules\Tests\TestCases\Architecture;
 
-use Phauthentic\PhpstanRules\DependencyConstraintsRule;
+use Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 
@@ -22,7 +22,7 @@ class NamespaceDependencyRuleTest extends RuleTestCase
 
     public function testRule(): void
     {
-        $this->analyse([__DIR__ . '/../data/DependencyRuleTest/Domain/Aggregate.php'], [
+        $this->analyse([__DIR__ . '/../../../data/DependencyRuleTest/Domain/Aggregate.php'], [
             [
                 'Dependency violation: A class in namespace `App\Domain` is not allowed to depend on `App\Controller\MissingReadonlyRuleController`.',
                 7,

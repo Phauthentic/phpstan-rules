@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phauthentic\PhpstanRules;
+namespace Phauthentic\PHPStanRules\Architecture;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Use_;
@@ -10,6 +10,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\ShouldNotHappenException;
 
 /**
  * A PHPStan rule to enforce dependency constraints between namespaces.
@@ -21,6 +22,8 @@ use PHPStan\Rules\RuleErrorBuilder;
 class DependencyConstraintsRule implements Rule
 {
     private const ERROR_MESSAGE = 'Dependency violation: A class in namespace `%s` is not allowed to depend on `%s`.';
+
+    private const IDENTIFIER = 'phauthentic.architecture.dependencyConstraints';
 
     /**
      * @var array<string, array<string>>
@@ -43,6 +46,9 @@ class DependencyConstraintsRule implements Rule
         return Use_::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         $currentNamespace = $scope->getNamespace();
@@ -69,7 +75,7 @@ class DependencyConstraintsRule implements Rule
      * @param string $currentNamespace
      * @param array<RuleError> $errors
      * @return array<RuleError>
-     * @throws \PHPStan\ShouldNotHappenException
+     * @throws ShouldNotHappenException
      */
     public function validateUseStatements(Node $node, array $disallowedDependencyPatterns, string $currentNamespace, array $errors): array
     {
@@ -82,6 +88,7 @@ class DependencyConstraintsRule implements Rule
                         $currentNamespace,
                         $usedClassName
                     ))
+                    ->identifier(self::IDENTIFIER)
                     ->line($use->getStartLine())
                     ->build();
                 }

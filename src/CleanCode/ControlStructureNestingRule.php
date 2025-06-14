@@ -2,19 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Phauthentic\PhpstanRules;
+namespace Phauthentic\PHPStanRules\CleanCode;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\ElseIf_;
+use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\TryCatch;
-use PhpParser\Node\Stmt\Catch_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\ShouldNotHappenException;
 
 /**
  * A rule to check the nesting level of control structures (if, else, elseif, try, catch).
@@ -24,6 +25,8 @@ use PHPStan\Rules\RuleErrorBuilder;
 class ControlStructureNestingRule implements Rule
 {
     private const ERROR_MESSAGE = 'Nesting level of %d exceeded. Maximum allowed is %d.';
+
+    private const IDENTIFIER = 'phauthentic.cleancode.controlStructureNesting';
 
     private int $maxNestingLevel;
 
@@ -37,6 +40,9 @@ class ControlStructureNestingRule implements Rule
         return Node::class; // Process all nodes
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         $this->setParentAttributesToEnableCorrectNestingDetection($node);
@@ -47,6 +53,7 @@ class ControlStructureNestingRule implements Rule
 
         $errors = [];
         $nestingLevel = $this->getNestingLevel($node);
+
         if ($nestingLevel > $this->maxNestingLevel) {
             $errors = $this->addError($nestingLevel, $node, $errors);
         }
@@ -89,6 +96,7 @@ class ControlStructureNestingRule implements Rule
      * @param Else_|If_|Catch_|ElseIf_|TryCatch $node
      * @param array $errors
      * @return array
+     * @throws ShouldNotHappenException
      */
     public function addError(int $nestingLevel, Else_|If_|Catch_|ElseIf_|TryCatch $node, array $errors): array
     {
@@ -98,7 +106,10 @@ class ControlStructureNestingRule implements Rule
             $this->maxNestingLevel
         );
 
-        $errors[] = RuleErrorBuilder::message($errorMessage)->line($node->getLine())->build();
+        $errors[] = RuleErrorBuilder::message($errorMessage)
+            ->line($node->getLine())
+            ->identifier(self::IDENTIFIER)
+            ->build();
 
         return $errors;
     }
