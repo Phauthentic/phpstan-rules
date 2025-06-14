@@ -9,6 +9,7 @@ use PhpParser\Node\Stmt\Class_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\ShouldNotHappenException;
 
 /**
  * @implements Rule<Class_>
@@ -16,6 +17,8 @@ use PHPStan\Rules\RuleErrorBuilder;
 class FinalClassRule implements Rule
 {
     private const ERROR_MESSAGE = 'Class %s must be final.';
+
+    private const IDENTIFIER = 'phauthentic.architecture.finalClass';
 
     /**
      * @var array<string> An array of regex patterns to match against class names.
@@ -37,6 +40,9 @@ class FinalClassRule implements Rule
         return Class_::class;
     }
 
+    /**
+     * @throws ShouldNotHappenException
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         if (!$node instanceof Class_ || !isset($node->name)) {
@@ -51,6 +57,7 @@ class FinalClassRule implements Rule
             if (preg_match($pattern, $fullClassName) && !$node->isFinal()) {
                 return [
                     RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
+                        ->identifier(self::IDENTIFIER)
                         ->build(),
                 ];
             }

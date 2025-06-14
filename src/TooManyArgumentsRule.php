@@ -7,7 +7,6 @@ namespace Phauthentic\PhpstanRules;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
-use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -21,6 +20,8 @@ use PHPStan\ShouldNotHappenException;
 class TooManyArgumentsRule implements Rule
 {
     private const ERROR_MESSAGE = 'Method %s::%s has too many arguments (%d). Maximum allowed is %d.';
+
+    private const IDENTIFIER = 'phauthentic.cleancode.tooManyArguments';
 
     private int $maxArguments;
 
@@ -66,16 +67,11 @@ class TooManyArgumentsRule implements Rule
             return [];
         }
 
+        $message = $this->buildErrorMessage($scope, $node);
+
         return [
-            RuleErrorBuilder::message(
-                sprintf(
-                    self::ERROR_MESSAGE,
-                    $scope->getClassReflection()->getName(),
-                    $node->name->toString(),
-                    count($node->params),
-                    $this->maxArguments
-                )
-            )
+            RuleErrorBuilder::message($message)
+            ->identifier(self::IDENTIFIER)
             ->build()
         ];
     }
@@ -102,5 +98,21 @@ class TooManyArgumentsRule implements Rule
         }
 
         return false;
+    }
+
+    /**
+     * @param Scope $scope
+     * @param Node $node
+     * @return string
+     */
+    public function buildErrorMessage(Scope $scope, Node $node): string
+    {
+        return sprintf(
+            self::ERROR_MESSAGE,
+            $scope->getClassReflection()->getName(),
+            $node->name->toString(),
+            count($node->params),
+            $this->maxArguments
+        );
     }
 }

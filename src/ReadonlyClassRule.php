@@ -17,6 +17,8 @@ class ReadonlyClassRule implements Rule
 {
     private const ERROR_MESSAGE = 'Class %s must be readonly.';
 
+    private const IDENTIFIER = 'phauthentic.architecture.readonlyClass';
+
     /**
      * @var string[]
      */
@@ -49,6 +51,7 @@ class ReadonlyClassRule implements Rule
             if (preg_match($pattern, $fullClassName) && !$node->isReadonly()) {
                 return [
                     RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
+                        ->identifier(self::IDENTIFIER)
                         ->build(),
                 ];
             }
