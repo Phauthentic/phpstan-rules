@@ -12,68 +12,65 @@ use PHPStan\Rules\RuleErrorBuilder;
 
 /**
  * A PHPStan rule to enforce dependency constraints between namespaces.
- * 
+ *
  * This rule checks the `use` statements in your PHP code and ensures that
  * certain namespaces do not depend on other namespaces as specified in the
  * configuration.
  */
 class DependencyConstraintsRule implements Rule
 {
-    private const ERROR_MESSAGE = 'Class %s has a dependency on %s, which is not allowed.';
+    private const ERROR_MESSAGE = 'Dependency violation: A class in namespace `%s` is not allowed to depend on `%s`.';
 
-    private array $namespaceDependencies;
+    /**
+     * @var array<string, array<string>>
+     * An array where the key is a regex for the source namespace and the value is
+     * an array of regexes for disallowed dependency namespaces.
+     * e.g., ['#^App\\Domain\\.*#' => ['#^App\\Infrastructure\\.*#']]
+     */
+    private array $forbiddenDependencies;
 
-    public function __construct(array $namespaceDependencies)
+    /**
+     * @param array<string, array<string>> $forbiddenDependencies
+     */
+    public function __construct(array $forbiddenDependencies)
     {
-        $this->namespaceDependencies = $namespaceDependencies;
+        $this->forbiddenDependencies = $forbiddenDependencies;
     }
 
     public function getNodeType(): string
     {
-        return Node::class;
+        return Use_::class;
     }
 
     public function processNode(Node $node, Scope $scope): array
     {
-        $errors = [];
-
-        if ($node instanceof Use_) {
-            $errors = array_merge($errors, $this->checkUseDependencies($node, $scope));
+        $currentNamespace = $scope->getNamespace();
+        if ($currentNamespace === null) {
+            return [];
         }
 
-        return $errors;
-    }
-
-    private function checkUseDependencies(Use_ $node, Scope $scope): array
-    {
         $errors = [];
-        foreach ($node->uses as $use) {
-            $useNamespace = $use->name->toString();
 
-            foreach ($this->namespaceDependencies as $dependencyPatterns) {
-                $errors = $this->checkForDependencyViolations(
-                    $dependencyPatterns, $useNamespace, $scope, $node, $errors
-                );
+        foreach ($this->forbiddenDependencies as $sourceNamespacePattern => $disallowedDependencyPatterns) {
+            if (!preg_match($sourceNamespacePattern, $currentNamespace)) {
+                continue;
             }
-        }
 
-        return $errors;
-    }
+            foreach ($node->uses as $use) {
+                $usedClassName = $use->name->toString();
+                foreach ($disallowedDependencyPatterns as $disallowedPattern) {
+                    if (preg_match($disallowedPattern, $usedClassName)) {
+                        $errors[] = RuleErrorBuilder::message(sprintf(
+                            self::ERROR_MESSAGE,
+                            $currentNamespace,
+                            $usedClassName
+                        ))
+                        ->line($use->getStartLine())
+                        ->nonIgnorable()
+                        ->build();
 
-    public function checkForDependencyViolations(
-        mixed $dependencyPatterns,
-        string $useNamespace,
-        Scope $scope,
-        Use_ $node,
-        array $errors
-    ): array {
-        foreach ($dependencyPatterns as $dependencyPattern) {
-            if (preg_match($dependencyPattern, $useNamespace)) {
-                $errorMessage = sprintf(self::ERROR_MESSAGE, $scope->getNamespace(), $useNamespace);
-
-                $errors[] = RuleErrorBuilder::message($errorMessage)
-                    ->line($node->getLine())
-                    ->build();
+                    }
+                }
             }
         }
 
