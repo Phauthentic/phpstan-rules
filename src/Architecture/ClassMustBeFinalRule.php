@@ -14,11 +14,11 @@ use PHPStan\ShouldNotHappenException;
 /**
  * @implements Rule<Class_>
  */
-class FinalClassRule implements Rule
+class ClassMustBeFinalRule implements Rule
 {
     private const ERROR_MESSAGE = 'Class %s must be final.';
 
-    private const IDENTIFIER = 'phauthentic.architecture.finalClass';
+    private const IDENTIFIER = 'phauthentic.architecture.classMustBeFinal';
 
     /**
      * @var array<string> An array of regex patterns to match against class names.

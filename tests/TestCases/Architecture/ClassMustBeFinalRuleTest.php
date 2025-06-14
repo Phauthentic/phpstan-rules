@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace Phauthentic\PHPStanRules\Tests\TestCases\Architecture;
 
-use Phauthentic\PhpstanRules\Architecture\FinalClassRule;
+use Phauthentic\PHPStanRules\Architecture\ClassMustBeFinalRule;
 use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<FinalClassRule>
+ * @extends RuleTestCase<ClassMustBeFinalRule>
  */
-class FinalClassRuleTest extends RuleTestCase
+class ClassMustBeFinalRuleTest extends RuleTestCase
 {
     protected function getRule(): \PHPStan\Rules\Rule
     {
-        return new FinalClassRule([
+        return new ClassMustBeFinalRule([
             '/Service$/', // all classes that end with "Service"
         ]);
     }
 
     public function testRule(): void
     {
-        $this->analyse([__DIR__ . '/../data/Service/MissingFinalRuleService.php'], [
+        $this->analyse([__DIR__ . '/../../../data/Service/MissingFinalRuleService.php'], [
             [
                 'Class App\Service\MissingFinalRuleService must be final.',
                 5,

@@ -18,11 +18,11 @@ use PHPStan\ShouldNotHappenException;
  *
  * @implements Rule<Namespace_>
  */
-class NamespaceClassPatternRule implements Rule
+class ClassnameMustMatchPatternRule implements Rule
 {
     private const ERROR_MESSAGE = 'Class %s in namespace %s does not match any of the required patterns:';
 
-    private const IDENTIFIER = 'phauthentic.architecture.namespaceClassPattern';
+    private const IDENTIFIER = 'phauthentic.architecture.classnameMustMatchPattern';
 
     /**
      * @var array{namespace: string, classPatterns: string[]}[]

@@ -11,6 +11,11 @@
             "Phauthentic\\PHPStanRules\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Phauthentic\\PHPStanRules\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Florian Krämer"

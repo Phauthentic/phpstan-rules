@@ -13,11 +13,11 @@ use PHPStan\Rules\RuleErrorBuilder;
 /**
  * @implements Rule<Class_>
  */
-class ReadonlyClassRule implements Rule
+class ClassMustBeReadonlyRule implements Rule
 {
     private const ERROR_MESSAGE = 'Class %s must be readonly.';
 
-    private const IDENTIFIER = 'phauthentic.architecture.readonlyClass';
+    private const IDENTIFIER = 'phauthentic.architecture.classMustBeReadonly';
 
     /**
      * @var string[]

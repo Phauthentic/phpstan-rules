@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace Phauthentic\PHPStanRules\Tests\TestCases\Architecture;
 
-use Phauthentic\PhpstanRules\Architecture\NamespaceClassPatternRule;
+use Phauthentic\PHPStanRules\Architecture\ClassnameMustMatchPatternRule;
 use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NamespaceClassPatternRule>
+ * @extends RuleTestCase<ClassnameMustMatchPatternRule>
  */
-class NamespaceClassPatternRuleTest extends RuleTestCase
+class ClassnameMustMatchPatternRuleTest extends RuleTestCase
 {
     protected function getRule(): \PHPStan\Rules\Rule
     {
-        return new NamespaceClassPatternRule([
+        return new ClassnameMustMatchPatternRule([
             [
                 'namespace' => '/^App\\\\Service$/',
                 'classPatterns' => [
@@ -27,7 +27,7 @@ class NamespaceClassPatternRuleTest extends RuleTestCase
 
     public function testRule(): void
     {
-        $this->analyse([__DIR__ . '/../data/Service/InvalidServiceClass.php'], [
+        $this->analyse([__DIR__ . '/../../../data/Service/InvalidServiceClass.php'], [
             [
                 'Class App\Service\InvalidClass in namespace App\Service does not match any of the required patterns:'
                 . PHP_EOL . ' - /Service$/'
@@ -36,6 +36,6 @@ class NamespaceClassPatternRuleTest extends RuleTestCase
             ],
         ]);
 
-        $this->analyse([__DIR__ . '/../data/Service/ValidServiceClass.php'], []);
+        $this->analyse([__DIR__ . '/../../../data/Service/ValidServiceClass.php'], []);
     }
 }
