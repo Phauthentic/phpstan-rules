@@ -34,11 +34,12 @@ It is also more or less easy to write your own rules if you need to enforce some
 
 ### Alternative Tools
 
-If you don't like this library, you can also check out other tools:
+If you don't like this library, you can also check out other tools. Some of them provide a fluent interface instead of a Regex. If this feels more comfortable for you, you might want to check them out:
 
-* [Deptrac](https://github.com/deptrac/deptrac)
-* [PHP Architecture Tester](https://www.phpat.dev/)
-* [PHPArkitect](https://github.com/phparkitect/arkitect)
+* [Deptrac](https://github.com/deptrac/deptrac) - Checks dependencies between namespaces and classes.
+* [PHP Architecture Tester](https://www.phpat.dev/) - A tool to enforce architectural rules in PHP applications.
+* [PHPArkitect](https://github.com/phparkitect/arkitect) - A tool to enforce architectural rules in PHP applications.
+* [PHPMD](https://phpmd.org/) - A tool that scans PHP source code and looks for potential problems.
 
 ## License
 
