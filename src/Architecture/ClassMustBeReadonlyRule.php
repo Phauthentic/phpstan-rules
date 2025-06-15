@@ -12,6 +12,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 
 /**
  * Specification:
+ * - A matching class must be declared as readonly.
  * @implements Rule<Class_>
  */
 class ClassMustBeReadonlyRule implements Rule

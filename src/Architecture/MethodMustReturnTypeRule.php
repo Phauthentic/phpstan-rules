@@ -14,6 +14,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
+ * Specification:
  * - Checks if the classname plus method name matches a given regex pattern.
  * - Checks if the method returns the expected type or object, is nullable or void.
  * - Check if the types of the parameters match the expected types.
