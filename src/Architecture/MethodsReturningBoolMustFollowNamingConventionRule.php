@@ -21,6 +21,9 @@ use PHPStan\Type\TypeWithClassName;
  */
 class MethodsReturningBoolMustFollowNamingConventionRule implements Rule
 {
+    private const ERROR_MESSAGE = 'Method %s::%s() returns boolean but does not follow naming convention (regex: %s).';
+    private const IDENTIFIER = 'phauthentic.architecture.methodsReturningBoolMustFollowNamingConvention';
+
     public function __construct(
         protected string $regex = '/^(is|has|can|should|was|will)[A-Z_]/'
     ) {
@@ -48,7 +51,6 @@ class MethodsReturningBoolMustFollowNamingConventionRule implements Rule
 
     private function hasBooleanReturnType(Node $node, Scope $scope): bool
     {
-        // Get the method reflection
         $classReflection = $scope->getClassReflection();
         if ($classReflection === null) {
             return false;
@@ -58,11 +60,10 @@ class MethodsReturningBoolMustFollowNamingConventionRule implements Rule
             return false;
         }
 
-        $methodReflection = $classReflection->getMethod($node->name->toString(), $scope);
+        $returnType = $classReflection->getMethod($node->name->toString(), $scope)
+            ->getVariants()[0]
+            ->getReturnType();
 
-        $returnType = $methodReflection->getVariants()[0]->getReturnType();
-
-        // Check if the return type is boolean
         if (!$returnType instanceof BooleanType) {
             return false;
         }
@@ -89,11 +90,14 @@ class MethodsReturningBoolMustFollowNamingConventionRule implements Rule
         if (!preg_match($this->regex, $methodName)) {
             return [
                 RuleErrorBuilder::message(sprintf(
-                    'Method %s::%s() returns boolean but does not follow naming convention (regex: %s).',
+                    self::ERROR_MESSAGE,
                     $scope->getClassReflection()->getName(),
                     $methodName,
                     $this->regex
-                ))->line($node->getLine())->build()
+                ))
+                ->identifier(self::IDENTIFIER)
+                ->line($node->getLine())
+                ->build()
             ];
         }
 
