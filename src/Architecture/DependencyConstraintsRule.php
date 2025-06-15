@@ -18,6 +18,10 @@ use PHPStan\ShouldNotHappenException;
  * This rule checks the `use` statements in your PHP code and ensures that
  * certain namespaces do not depend on other namespaces as specified in the
  * configuration.
+ *
+ * Specification:
+ * - A class in a namespace matching a given regex is not allowed to depend on any namespace defined by a set of
+ * other regexes.
  */
 class DependencyConstraintsRule implements Rule
 {

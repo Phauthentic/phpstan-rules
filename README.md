@@ -2,6 +2,10 @@
 
 Additional rules for PHPStan, mostly focused on Clean Code and architecture conventions.
 
+The rules help with enforcing certain method signatures, return types and dependency constraints in your codebase.
+
+All controllers in your application should be `readonly`, no method should have more than 3 arguments, and no class should have more than 2 nested control structures.
+
 ## Usage
 
 ```bash
@@ -12,13 +16,16 @@ composer require phauthentic/phpstan-rules --dev
 
 See [Rules documentation](docs/Rules.md) for a list of available rules and configuration examples.
 
-**Available Rules:**
-- [Control Structure Nesting Rule](docs/Rules.md#control-structure-nesting-rule)
-- [Too Many Arguments Rule](docs/Rules.md#too-many-arguments-rule)
-- [Readonly Class Rule](docs/Rules.md#readonly-class-rule)
-- [Dependency Constraints Rule](docs/Rules.md#dependency-constraints-rule)
-- [Final Class Rule](docs/Rules.md#final-class-rule)
-- [Namespace Class Pattern Rule](docs/Rules.md#namespace-class-pattern-rule)
+- Architecture Rules:
+  - [Dependency Constraints Rule](docs/Rules.md#dependency-constraints-rule)
+  - [Readonly Class Rule](docs/Rules.md#readonly-class-rule)
+  - [Final Class Rule](docs/Rules.md#final-class-rule)
+  - [Namespace Class Pattern Rule](docs/Rules.md#namespace-class-pattern-rule)
+  - [Method Signature Must Match Rule](docs/Rules.md#method-signature-must-match-rule)
+  - [Method Must Return Type Rule](docs/Rules.md#method-must-return-type-rule)
+- Clean Code Rules:
+  - [Control Structure Nesting Rule](docs/Rules.md#control-structure-nesting-rule)
+  - [Too Many Arguments Rule](docs/Rules.md#too-many-arguments-rule)
 
 ### Using Regex in Rules
 
