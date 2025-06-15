@@ -15,24 +15,20 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
+ * Specification:
  * - Checks if the classname plus method name matches a given regex pattern.
  * - Check the min and max number of parameters.
  * - Check if the types of the parameters match the expected types.
  */
 class MethodSignatureMustMatchRule implements Rule
 {
-    /**
-     * @var array<array{
-     *     pattern: string,
-     *     minParameters: null|int,
-     *     maxParameters: null|int,
-     *     signature: array<array{
-     *         type: string,
-     *         pattern: string|null,
-     *     }>
-     * }>
-     */
-    private array $signaturePatterns;
+    private const IDENTIFIER = 'phauthentic.architecture.methodSignatureMustMatch';
+
+    private const ERROR_MESSAGE_MISSING_PARAMETER = 'Method %s is missing parameter #%d of type %s.';
+    private const ERROR_MESSAGE_WRONG_TYPE = 'Method %s parameter #%d should be of type %s, %s given.';
+    private const ERROR_MESSAGE_NAME_PATTERN = 'Method %s parameter #%d name "%s" does not match pattern %s.';
+    private const ERROR_MESSAGE_MIN_PARAMETERS = 'Method %s has %d parameters, but at least %d required.';
+    private const ERROR_MESSAGE_MAX_PARAMETERS = 'Method %s has %d parameters, but at most %d allowed.';
 
     /**
      * @param array<array{
@@ -45,9 +41,9 @@ class MethodSignatureMustMatchRule implements Rule
      *     }>
      * }> $signaturePatterns
      */
-    public function __construct(array $signaturePatterns)
-    {
-        $this->signaturePatterns = $signaturePatterns;
+    public function __construct(
+        protected array $signaturePatterns
+    ) {
     }
 
     public function getNodeType(): string
@@ -76,10 +72,21 @@ class MethodSignatureMustMatchRule implements Rule
 
                 $paramCount = count($method->params);
 
-                foreach ([
-                    $this->checkMinParameters($patternConfig, $paramCount, $fullName, $method),
-                    $this->checkMaxParameters($patternConfig, $paramCount, $fullName, $method)
-                ] as $paramErrors) {
+                $minParamErrors = $this->checkMinParameters(
+                    patternConfig: $patternConfig,
+                    paramCount: $paramCount,
+                    fullName: $fullName,
+                    method: $method
+                );
+
+                $maxParamErrors = $this->checkMaxParameters(
+                    patternConfig: $patternConfig,
+                    paramCount: $paramCount,
+                    fullName: $fullName,
+                    method: $method
+                );
+
+                foreach ([$minParamErrors, $maxParamErrors] as $paramErrors) {
                     foreach ($paramErrors as $error) {
                         $errors[] = $error;
                     }
@@ -90,40 +97,51 @@ class MethodSignatureMustMatchRule implements Rule
                     foreach ($patternConfig['signature'] as $i => $expected) {
                         if (!isset($method->params[$i])) {
                             $errors[] = RuleErrorBuilder::message(
-                                sprintf(
-                                    'Method %s is missing parameter #%d of type %s.',
+                                message: sprintf(
+                                    self::ERROR_MESSAGE_MISSING_PARAMETER,
                                     $fullName,
                                     $i + 1,
                                     $expected['type']
                                 )
-                            )->line($method->getLine())->build();
+                            )
+                            ->identifier(self::IDENTIFIER)
+                            ->line($method->getLine())
+                            ->build();
+
                             continue;
                         }
+
                         $param = $method->params[$i];
                         $paramType = $param->type ? $this->getTypeAsString($param->type) : null;
 
                         if ($paramType !== $expected['type']) {
                             $errors[] = RuleErrorBuilder::message(
-                                sprintf(
-                                    'Method %s parameter #%d should be of type %s, %s given.',
+                                message: sprintf(
+                                    self::ERROR_MESSAGE_WRONG_TYPE,
                                     $fullName,
                                     $i + 1,
                                     $expected['type'],
                                     $paramType ?? 'none'
                                 )
-                            )->line($param->getLine())->build();
+                            )
+                            ->identifier(identifier: self::IDENTIFIER)
+                            ->line(line: $param->getLine())
+                            ->build();
                         }
 
-                        if ($this->isInvalidParameterName($expected, $param)) {
+                        if ($this->isInvalidParameterName(expected: $expected, param: $param)) {
                             $errors[] = RuleErrorBuilder::message(
-                                sprintf(
-                                    'Method %s parameter #%d name "%s" does not match pattern %s.',
+                                message: sprintf(
+                                    self::ERROR_MESSAGE_NAME_PATTERN,
                                     $fullName,
                                     $i + 1,
                                     $param->var->name,
                                     $expected['pattern']
                                 )
-                            )->line($param->getLine())->build();
+                            )
+                            ->identifier(self::IDENTIFIER)
+                            ->line($param->getLine())
+                            ->build();
                         }
                     }
                 }
@@ -140,23 +158,31 @@ class MethodSignatureMustMatchRule implements Rule
      * @param ClassMethod $method
      * @return array
      */
-    private function checkMinParameters(array $patternConfig, int $paramCount, string $fullName, ClassMethod $method): array
-    {
+    private function checkMinParameters(
+        array $patternConfig,
+        int $paramCount,
+        string $fullName,
+        ClassMethod $method
+    ): array {
         if (
             $patternConfig['minParameters'] !== null &&
             $paramCount < $patternConfig['minParameters']
         ) {
             return [
                 RuleErrorBuilder::message(
-                    sprintf(
-                        'Method %s has %d parameters, but at least %d required.',
+                    message: sprintf(
+                        self::ERROR_MESSAGE_MIN_PARAMETERS,
                         $fullName,
                         $paramCount,
                         $patternConfig['minParameters']
                     )
-                )->line($method->getLine())->build()
+                )
+                ->identifier(self::IDENTIFIER)
+                ->line($method->getLine())
+                ->build()
             ];
         }
+
         return [];
     }
 
@@ -167,21 +193,28 @@ class MethodSignatureMustMatchRule implements Rule
      * @param ClassMethod $method
      * @return array
      */
-    private function checkMaxParameters(array $patternConfig, int $paramCount, string $fullName, ClassMethod $method): array
-    {
+    private function checkMaxParameters(
+        array $patternConfig,
+        int $paramCount,
+        string $fullName,
+        ClassMethod $method
+    ): array {
         if (
             $patternConfig['maxParameters'] !== null &&
             $paramCount > $patternConfig['maxParameters']
         ) {
             return [
                 RuleErrorBuilder::message(
-                    sprintf(
-                        'Method %s has %d parameters, but at most %d allowed.',
+                    message: sprintf(
+                        self::ERROR_MESSAGE_MAX_PARAMETERS,
                         $fullName,
                         $paramCount,
                         $patternConfig['maxParameters']
                     )
-                )->line($method->getLine())->build()
+                )
+                ->identifier(self::IDENTIFIER)
+                ->line($method->getLine())
+                ->build()
             ];
         }
         return [];
@@ -208,7 +241,8 @@ class MethodSignatureMustMatchRule implements Rule
             $type === null => null,
             $type instanceof Identifier => $type->name,
             $type instanceof Name => $type->toString(),
-            $type instanceof NullableType => ($inner = $this->getTypeAsString($type->type)) !== null ? '?' . $inner : null,
+            $type instanceof NullableType =>
+                ($inner = $this->getTypeAsString($type->type)) !== null ? '?' . $inner : null,
             default => null,
         };
     }

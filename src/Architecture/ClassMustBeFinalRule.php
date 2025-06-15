@@ -12,6 +12,10 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
 /**
+ * Specification:
+ * - Checks if a class matches a given regex pattern.
+ * - Checks if the class is declared as final.
+ *
  * @implements Rule<Class_>
  */
 class ClassMustBeFinalRule implements Rule
@@ -21,18 +25,12 @@ class ClassMustBeFinalRule implements Rule
     private const IDENTIFIER = 'phauthentic.architecture.classMustBeFinal';
 
     /**
-     * @var array<string> An array of regex patterns to match against class names.
-     * e.g., ['#^App\\Domain\\.*#', '#^App\\Service\\.*#']
-     */
-    protected array $patterns;
-
-    /**
      * @param array<string> $patterns An array of regex patterns to match against class names.
      * Each pattern should be a valid PCRE regex.
      */
-    public function __construct(array $patterns)
-    {
-        $this->patterns = $patterns;
+    public function __construct(
+        protected array $patterns
+    ) {
     }
 
     public function getNodeType(): string
@@ -55,14 +53,17 @@ class ClassMustBeFinalRule implements Rule
 
         foreach ($this->patterns as $pattern) {
             if (preg_match($pattern, $fullClassName) && !$node->isFinal()) {
-                return [
-                    RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
-                        ->identifier(self::IDENTIFIER)
-                        ->build(),
-                ];
+                return [$this->buildRuleError($fullClassName)];
             }
         }
 
         return [];
+    }
+
+    private function buildRuleError(string $fullClassName)
+    {
+        return RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
+            ->identifier(self::IDENTIFIER)
+            ->build();
     }
 }

@@ -18,6 +18,8 @@ use PHPStan\ShouldNotHappenException;
  * This rule checks the `use` statements in your PHP code and ensures that
  * certain namespaces do not depend on other namespaces as specified in the
  * configuration.
+ *
+ * Specification:
  */
 class DependencyConstraintsRule implements Rule
 {

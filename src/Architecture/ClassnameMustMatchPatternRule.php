@@ -13,6 +13,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
 /**
+ * Specification:
  * PHPStan rule to ensure that classes inside namespaces matching a given regex
  * must have names matching at least one of the provided patterns.
  *
@@ -25,16 +26,11 @@ class ClassnameMustMatchPatternRule implements Rule
     private const IDENTIFIER = 'phauthentic.architecture.classnameMustMatchPattern';
 
     /**
-     * @var array{namespace: string, classPatterns: string[]}[]
-     */
-    private array $namespaceClassPatterns;
-
-    /**
      * @param array{namespace: string, classPatterns: string[]}[] $namespaceClassPatterns
      */
-    public function __construct(array $namespaceClassPatterns)
-    {
-        $this->namespaceClassPatterns = $namespaceClassPatterns;
+    public function __construct(
+        protected array $namespaceClassPatterns
+    ) {
     }
 
     public function getNodeType(): string
@@ -124,8 +120,8 @@ class ClassnameMustMatchPatternRule implements Rule
     ): array {
         $fqcn = $namespaceName ? $namespaceName . '\\' . $className : $className;
         $errors[] = RuleErrorBuilder::message(
-                $this->buildErrorMessage($fqcn, $namespaceName, $classPatterns)
-            )
+            $this->buildErrorMessage($fqcn, $namespaceName, $classPatterns)
+        )
             ->line($stmt->getLine())
             ->identifier(self::IDENTIFIER)
             ->build();

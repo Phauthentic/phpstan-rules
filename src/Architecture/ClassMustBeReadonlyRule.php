@@ -11,6 +11,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
+ * Specification:
  * @implements Rule<Class_>
  */
 class ClassMustBeReadonlyRule implements Rule
