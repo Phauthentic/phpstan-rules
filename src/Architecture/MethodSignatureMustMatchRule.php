@@ -17,8 +17,10 @@ use PHPStan\Rules\RuleErrorBuilder;
 /**
  * Specification:
  * - Checks if the classname plus method name matches a given regex pattern.
- * - Check the min and max number of parameters.
- * - Check if the types of the parameters match the expected types.
+ * - Checks the min and max number of parameters.
+ * - Checks if the types of the parameters match the expected types.
+ * - Checks if the parameter names match the expected patterns.
+ * - Checks if the method has the required visibility scope if specified (public, protected, private).
  */
 class MethodSignatureMustMatchRule implements Rule
 {
@@ -29,6 +31,7 @@ class MethodSignatureMustMatchRule implements Rule
     private const ERROR_MESSAGE_NAME_PATTERN = 'Method %s parameter #%d name "%s" does not match pattern %s.';
     private const ERROR_MESSAGE_MIN_PARAMETERS = 'Method %s has %d parameters, but at least %d required.';
     private const ERROR_MESSAGE_MAX_PARAMETERS = 'Method %s has %d parameters, but at most %d allowed.';
+    private const ERROR_MESSAGE_VISIBILITY_SCOPE = 'Method %s must be %s.';
 
     /**
      * @param array<array{
@@ -38,7 +41,8 @@ class MethodSignatureMustMatchRule implements Rule
      *     signature: array<array{
      *         type: string,
      *         pattern: string|null,
-     *     }>
+     *     }>,
+     *     visibilityScope?: string|null
      * }> $signaturePatterns
      */
     public function __construct(
@@ -145,10 +149,33 @@ class MethodSignatureMustMatchRule implements Rule
                         }
                     }
                 }
+
+                if (!$this->isValidVisibilityScope($patternConfig, $method)) {
+                    $errors[] = RuleErrorBuilder::message(
+                        sprintf(self::ERROR_MESSAGE_VISIBILITY_SCOPE, $fullName, $patternConfig['visibilityScope'])
+                    )
+                    ->identifier(self::IDENTIFIER)
+                    ->line($method->getLine())
+                    ->build();
+                }
             }
         }
 
         return $errors;
+    }
+
+    private function isValidVisibilityScope(array $patternConfig, $method): bool
+    {
+        if (!isset($patternConfig['visibilityScope']) || $patternConfig['visibilityScope'] === null) {
+            return true;
+        }
+
+        return match ($patternConfig['visibilityScope']) {
+            'public' => $method->isPublic(),
+            'protected' => $method->isProtected(),
+            'private' => $method->isPrivate(),
+            default => true,
+        };
     }
 
     /**
@@ -164,10 +191,7 @@ class MethodSignatureMustMatchRule implements Rule
         string $fullName,
         ClassMethod $method
     ): array {
-        if (
-            $patternConfig['minParameters'] !== null &&
-            $paramCount < $patternConfig['minParameters']
-        ) {
+        if ($this->isBelowMinParameters($patternConfig, $paramCount)) {
             return [
                 RuleErrorBuilder::message(
                     message: sprintf(
@@ -187,6 +211,19 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
+     * Checks if the parameter count is below the minimum required.
+     *
+     * @param array $patternConfig
+     * @param int $paramCount
+     * @return bool
+     */
+    private function isBelowMinParameters(array $patternConfig, int $paramCount): bool
+    {
+        return $patternConfig['minParameters'] !== null
+            && $paramCount < $patternConfig['minParameters'];
+    }
+
+    /**
      * @param array $patternConfig
      * @param int $paramCount
      * @param string $fullName
@@ -199,10 +236,7 @@ class MethodSignatureMustMatchRule implements Rule
         string $fullName,
         ClassMethod $method
     ): array {
-        if (
-            $patternConfig['maxParameters'] !== null &&
-            $paramCount > $patternConfig['maxParameters']
-        ) {
+        if ($this->isAboveMaxParameters($patternConfig, $paramCount)) {
             return [
                 RuleErrorBuilder::message(
                     message: sprintf(
@@ -218,6 +252,19 @@ class MethodSignatureMustMatchRule implements Rule
             ];
         }
         return [];
+    }
+
+    /**
+     * Checks if the parameter count is above the maximum allowed.
+     *
+     * @param array $patternConfig
+     * @param int $paramCount
+     * @return bool
+     */
+    private function isAboveMaxParameters(array $patternConfig, int $paramCount): bool
+    {
+        return $patternConfig['maxParameters'] !== null
+            && $paramCount > $patternConfig['maxParameters'];
     }
 
     /**

@@ -126,6 +126,7 @@ Ensures that methods matching a class and method name pattern have a specific si
 - `pattern`: Regex for `ClassName::methodName`.
 - `minParameters`/`maxParameters`: Minimum/maximum number of parameters.
 - `signature`: List of expected parameter types and (optionally) name patterns.
+- `visibilityScope`: Optional visibility scope (e.g., `public`, `protected`, `private`).
 
 ## Method Must Return Type Rule
 
@@ -148,7 +149,7 @@ Ensures that methods matching a class and method name pattern have a specific re
                     type: 'object'
                     nullable: true
                     void: false
-                    objectTypePattern: '/^App\\\\Entity\\\\User$/'
+                    objectTypePattern: '/^App\\Entity\\User$/'
                 -
                     pattern: '/^MyClass::reset$/'
                     type: 'void'

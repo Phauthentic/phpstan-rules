@@ -24,6 +24,7 @@ class MethodSignatureMustMatchRuleTest extends RuleTestCase
                     ['type' => 'int', 'pattern' => '/^a/'],
                     ['type' => 'string', 'pattern' => '/^b/'],
                 ],
+                'visibilityScope' => 'private',
             ],
         ]);
     }
@@ -37,6 +38,10 @@ class MethodSignatureMustMatchRuleTest extends RuleTestCase
             ],
             [
                 'Method TestClass::testMethod is missing parameter #2 of type string.',
+                5,
+            ],
+            [
+                'Method TestClass::testMethod must be private.',
                 5,
             ],
         ]);
