@@ -99,3 +99,17 @@ Ensures that classes inside namespaces matching a given regex must have names ma
         tags:
             - phpstan.rules.rule
 ```
+
+## Catch Exception of Type Not Allowed Rule
+
+Ensures that specific exception types are not caught in catch blocks. This is useful for preventing the catching of overly broad exception types like `Exception`, `Error`, or `Throwable`.
+
+**Configuration Example:**
+```neon
+    -
+        class: Phauthentic\PhpstanRules\Architecture\CatchExceptionOfTypeNotAllowedRule
+        arguments:
+            forbiddenExceptionTypes: ['Exception', 'Error', 'Throwable']
+        tags:
+            - phpstan.rules.rule
+```
