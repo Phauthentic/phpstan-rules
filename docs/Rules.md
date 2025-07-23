@@ -1,4 +1,3 @@
-
 # Rules
 
 Add them to your `phpstan.neon` configuration file under the section `services`.
@@ -113,3 +112,68 @@ Ensures that specific exception types are not caught in catch blocks. This is us
         tags:
             - phpstan.rules.rule
 ```
+
+## Method Signature Must Match Rule
+
+Ensures that methods matching a class and method name pattern have a specific signature, including parameter types, names, and count.
+
+**Configuration Example:**
+```neon
+    -
+        class: Phauthentic\PhpstanRules\Architecture\MethodSignatureMustMatchRule
+        arguments:
+            signaturePatterns:
+                -
+                    pattern: '/^MyClass::myMethod$/'
+                    minParameters: 2
+                    maxParameters: 2
+                    signature:
+                        -
+                            type: 'int'
+                            pattern: '/^id$/'
+                        -
+                            type: 'string'
+                            pattern: '/^name$/'
+        tags:
+            - phpstan.rules.rule
+```
+- `pattern`: Regex for `ClassName::methodName`.
+- `minParameters`/`maxParameters`: Minimum/maximum number of parameters.
+- `signature`: List of expected parameter types and (optionally) name patterns.
+
+## Method Must Return Type Rule
+
+Ensures that methods matching a class and method name pattern have a specific return type, nullability, or are void.
+
+**Configuration Example:**
+```neon
+    -
+        class: Phauthentic\PhpstanRules\Architecture\MethodMustReturnTypeRule
+        arguments:
+            returnTypePatterns:
+                -
+                    pattern: '/^MyClass::getId$/'
+                    type: 'int'
+                    nullable: false
+                    void: false
+                    objectTypePattern: null
+                -
+                    pattern: '/^MyClass::findUser$/'
+                    type: 'object'
+                    nullable: true
+                    void: false
+                    objectTypePattern: '/^App\\\\Entity\\\\User$/'
+                -
+                    pattern: '/^MyClass::reset$/'
+                    type: 'void'
+                    nullable: false
+                    void: true
+                    objectTypePattern: null
+        tags:
+            - phpstan.rules.rule
+```
+- `pattern`: Regex for `ClassName::methodName`.
+- `type`: Expected return type (`int`, `string`, `object`, etc.).
+- `nullable`: Whether the return type must be nullable.
+- `void`: Whether the method must return void.
+- `objectTypePattern`: Regex for object return types (if `type` is `object`).
