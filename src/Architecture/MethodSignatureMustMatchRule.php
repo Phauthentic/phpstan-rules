@@ -17,8 +17,10 @@ use PHPStan\Rules\RuleErrorBuilder;
 /**
  * Specification:
  * - Checks if the classname plus method name matches a given regex pattern.
- * - Check the min and max number of parameters.
- * - Check if the types of the parameters match the expected types.
+ * - Checks the min and max number of parameters.
+ * - Checks if the types of the parameters match the expected types.
+ * - Checks if the parameter names match the expected patterns.
+ * - Checks if the method has the required visibility scope if specified (public, protected, private).
  */
 class MethodSignatureMustMatchRule implements Rule
 {
@@ -29,6 +31,7 @@ class MethodSignatureMustMatchRule implements Rule
     private const ERROR_MESSAGE_NAME_PATTERN = 'Method %s parameter #%d name "%s" does not match pattern %s.';
     private const ERROR_MESSAGE_MIN_PARAMETERS = 'Method %s has %d parameters, but at least %d required.';
     private const ERROR_MESSAGE_MAX_PARAMETERS = 'Method %s has %d parameters, but at most %d allowed.';
+    private const ERROR_MESSAGE_VISIBILITY_SCOPE = 'Method %s must be %s.';
 
     /**
      * @param array<array{
@@ -38,7 +41,8 @@ class MethodSignatureMustMatchRule implements Rule
      *     signature: array<array{
      *         type: string,
      *         pattern: string|null,
-     *     }>
+     *     }>,
+     *     visibilityScope?: string|null
      * }> $signaturePatterns
      */
     public function __construct(
@@ -95,60 +99,110 @@ class MethodSignatureMustMatchRule implements Rule
                 // Check parameter types and patterns
                 if (!empty($patternConfig['signature'])) {
                     foreach ($patternConfig['signature'] as $i => $expected) {
-                        if (!isset($method->params[$i])) {
-                            $errors[] = RuleErrorBuilder::message(
-                                message: sprintf(
-                                    self::ERROR_MESSAGE_MISSING_PARAMETER,
-                                    $fullName,
-                                    $i + 1,
-                                    $expected['type']
-                                )
-                            )
-                            ->identifier(self::IDENTIFIER)
-                            ->line($method->getLine())
-                            ->build();
-
-                            continue;
-                        }
-
-                        $param = $method->params[$i];
-                        $paramType = $param->type ? $this->getTypeAsString($param->type) : null;
-
-                        if ($paramType !== $expected['type']) {
-                            $errors[] = RuleErrorBuilder::message(
-                                message: sprintf(
-                                    self::ERROR_MESSAGE_WRONG_TYPE,
-                                    $fullName,
-                                    $i + 1,
-                                    $expected['type'],
-                                    $paramType ?? 'none'
-                                )
-                            )
-                            ->identifier(identifier: self::IDENTIFIER)
-                            ->line(line: $param->getLine())
-                            ->build();
-                        }
-
-                        if ($this->isInvalidParameterName(expected: $expected, param: $param)) {
-                            $errors[] = RuleErrorBuilder::message(
-                                message: sprintf(
-                                    self::ERROR_MESSAGE_NAME_PATTERN,
-                                    $fullName,
-                                    $i + 1,
-                                    $param->var->name,
-                                    $expected['pattern']
-                                )
-                            )
-                            ->identifier(self::IDENTIFIER)
-                            ->line($param->getLine())
-                            ->build();
+                        $validationResult = $this->validateParameter($expected, $method, $i, $fullName);
+                        if ($validationResult !== null) {
+                            $errors[] = $validationResult;
                         }
                     }
+                }
+
+                if (!$this->isValidVisibilityScope($patternConfig, $method)) {
+                    $errors[] = RuleErrorBuilder::message(
+                        sprintf(self::ERROR_MESSAGE_VISIBILITY_SCOPE, $fullName, $patternConfig['visibilityScope'])
+                    )
+                    ->identifier(self::IDENTIFIER)
+                    ->line($method->getLine())
+                    ->build();
                 }
             }
         }
 
         return $errors;
+    }
+
+    private function validateParameter(array $expected, $method, int $i, string $fullName): ?\PHPStan\Rules\RuleError
+    {
+        $validationCase = $this->determineValidationCase($expected, $method, $i);
+
+        return match ($validationCase) {
+            'missing_parameter' => RuleErrorBuilder::message(
+                sprintf(
+                    self::ERROR_MESSAGE_MISSING_PARAMETER,
+                    $fullName,
+                    $i + 1,
+                    $expected['type']
+                )
+            )
+            ->identifier(self::IDENTIFIER)
+            ->line($method->getLine())
+            ->build(),
+
+            'wrong_type' => RuleErrorBuilder::message(
+                sprintf(
+                    self::ERROR_MESSAGE_WRONG_TYPE,
+                    $fullName,
+                    $i + 1,
+                    $expected['type'],
+                    $this->getTypeAsString($method->params[$i]->type) ?? 'none'
+                )
+            )
+            ->identifier(self::IDENTIFIER)
+            ->line($method->params[$i]->getLine())
+            ->build(),
+
+            'invalid_name' => RuleErrorBuilder::message(
+                sprintf(
+                    self::ERROR_MESSAGE_NAME_PATTERN,
+                    $fullName,
+                    $i + 1,
+                    $method->params[$i]->var->name,
+                    $expected['pattern']
+                )
+            )
+            ->identifier(self::IDENTIFIER)
+            ->line($method->params[$i]->getLine())
+            ->build(),
+
+            default => null,
+        };
+    }
+
+    private function determineValidationCase(array $expected, $method, int $i): string
+    {
+        if (!isset($method->params[$i])) {
+            return 'missing_parameter';
+        }
+
+        $param = $method->params[$i];
+
+        // Check type if specified in configuration
+        if (isset($expected['type']) && $expected['type'] !== null) {
+            $paramType = $param->type ? $this->getTypeAsString($param->type) : null;
+            if ($paramType !== $expected['type']) {
+                return 'wrong_type';
+            }
+        }
+
+        // Check name pattern
+        if ($this->isInvalidParameterName(expected: $expected, param: $param)) {
+            return 'invalid_name';
+        }
+
+        return 'valid';
+    }
+
+    private function isValidVisibilityScope(array $patternConfig, $method): bool
+    {
+        if (!isset($patternConfig['visibilityScope']) || $patternConfig['visibilityScope'] === null) {
+            return true;
+        }
+
+        return match ($patternConfig['visibilityScope']) {
+            'public' => $method->isPublic(),
+            'protected' => $method->isProtected(),
+            'private' => $method->isPrivate(),
+            default => true,
+        };
     }
 
     /**
@@ -164,10 +218,7 @@ class MethodSignatureMustMatchRule implements Rule
         string $fullName,
         ClassMethod $method
     ): array {
-        if (
-            $patternConfig['minParameters'] !== null &&
-            $paramCount < $patternConfig['minParameters']
-        ) {
+        if ($this->isBelowMinParameters($patternConfig, $paramCount)) {
             return [
                 RuleErrorBuilder::message(
                     message: sprintf(
@@ -187,6 +238,19 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
+     * Checks if the parameter count is below the minimum required.
+     *
+     * @param array $patternConfig
+     * @param int $paramCount
+     * @return bool
+     */
+    private function isBelowMinParameters(array $patternConfig, int $paramCount): bool
+    {
+        return $patternConfig['minParameters'] !== null
+            && $paramCount < $patternConfig['minParameters'];
+    }
+
+    /**
      * @param array $patternConfig
      * @param int $paramCount
      * @param string $fullName
@@ -199,10 +263,7 @@ class MethodSignatureMustMatchRule implements Rule
         string $fullName,
         ClassMethod $method
     ): array {
-        if (
-            $patternConfig['maxParameters'] !== null &&
-            $paramCount > $patternConfig['maxParameters']
-        ) {
+        if ($this->isAboveMaxParameters($patternConfig, $paramCount)) {
             return [
                 RuleErrorBuilder::message(
                     message: sprintf(
@@ -218,6 +279,19 @@ class MethodSignatureMustMatchRule implements Rule
             ];
         }
         return [];
+    }
+
+    /**
+     * Checks if the parameter count is above the maximum allowed.
+     *
+     * @param array $patternConfig
+     * @param int $paramCount
+     * @return bool
+     */
+    private function isAboveMaxParameters(array $patternConfig, int $paramCount): bool
+    {
+        return $patternConfig['maxParameters'] !== null
+            && $paramCount > $patternConfig['maxParameters'];
     }
 
     /**
