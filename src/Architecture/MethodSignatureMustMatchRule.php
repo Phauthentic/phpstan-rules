@@ -116,21 +116,25 @@ class MethodSignatureMustMatchRule implements Rule
                         }
 
                         $param = $method->params[$i];
-                        $paramType = $param->type ? $this->getTypeAsString($param->type) : null;
+                        
+                        // Only check type if it's specified in the configuration
+                        if (isset($expected['type']) && $expected['type'] !== null) {
+                            $paramType = $param->type ? $this->getTypeAsString($param->type) : null;
 
-                        if ($paramType !== $expected['type']) {
-                            $errors[] = RuleErrorBuilder::message(
-                                message: sprintf(
-                                    self::ERROR_MESSAGE_WRONG_TYPE,
-                                    $fullName,
-                                    $i + 1,
-                                    $expected['type'],
-                                    $paramType ?? 'none'
+                            if ($paramType !== $expected['type']) {
+                                $errors[] = RuleErrorBuilder::message(
+                                    message: sprintf(
+                                        self::ERROR_MESSAGE_WRONG_TYPE,
+                                        $fullName,
+                                        $i + 1,
+                                        $expected['type'],
+                                        $paramType ?? 'none'
+                                    )
                                 )
-                            )
-                            ->identifier(identifier: self::IDENTIFIER)
-                            ->line(line: $param->getLine())
-                            ->build();
+                                ->identifier(identifier: self::IDENTIFIER)
+                                ->line(line: $param->getLine())
+                                ->build();
+                            }
                         }
 
                         if ($this->isInvalidParameterName(expected: $expected, param: $param)) {
