@@ -1,31 +1,31 @@
 parameters:
     level: 8
     paths:
-        - data
+        - src
     parallel:
         maximumNumberOfProcesses: 8
 
 services:
     -
-        class: Phauthentic\PHPStanRules\CleanCode\ControlStructureNestingRule
+        class: Phauthentic\PhpstanRules\CleanCode\ControlStructureNestingRule
         arguments:
             maxNestingLevel: 2
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PHPStanRules\CleanCode\TooManyArgumentsRule
+        class: Phauthentic\PhpstanRules\CleanCode\TooManyArgumentsRule
         arguments:
             maxArguments: 3
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PHPStanRules\Architecture\ClassMustBeReadonlyRule
+        class: Phauthentic\PhpstanRules\Architecture\ReadonlyClassRule
         arguments:
             patterns: ['/^App\\Controller\\/']
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule
+        class: Phauthentic\PhpstanRules\Architecture\DependencyConstraintsRule
         arguments:
             forbiddenDependencies: [
                 '/^App\\Domain(?:\\\w+)*$/': ['/^App\\Controller\\/']
@@ -33,13 +33,14 @@ services:
         tags:
             - phpstan.rules.rule
     -
-        class: Phauthentic\PHPStanRules\Architecture\ClassMustBeFinalRule
+        class: Phauthentic\PhpstanRules\Architecture\FinalClassRule
         arguments:
             patterns: ['/^App\\Service\\/']
         tags:
             - phpstan.rules.rule
     -
         class: Phauthentic\PHPStanRules\Architecture\ClassnameMustMatchPatternRule
+
         arguments:
             namespaceClassPatterns: [
                 [
