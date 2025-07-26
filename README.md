@@ -4,7 +4,7 @@ Additional rules for PHPStan, mostly focused on Clean Code and architecture conv
 
 The rules help with enforcing certain method signatures, return types and dependency constraints in your codebase.
 
-All controllers in your application should be `readonly`, no method should have more than 3 arguments, and no class should have more than 2 nested control structures.
+For example, you can configure the rules so that all controllers in your application must be `readonly`, no method should have more than 3 arguments, and no class should have more than 2 nested control structures.
 
 ## Usage
 
@@ -21,6 +21,8 @@ See [Rules documentation](docs/Rules.md) for a list of available rules and confi
   - [Readonly Class Rule](docs/Rules.md#readonly-class-rule)
   - [Final Class Rule](docs/Rules.md#final-class-rule)
   - [Namespace Class Pattern Rule](docs/Rules.md#namespace-class-pattern-rule)
+  - [Catch Exception of Type Not Allowed Rule](docs/Rules.md#catch-exception-of-type-not-allowed-rule)
+  - [Methods Returning Bool Must Follow Naming Convention Rule](docs/Rules.md#methods-returning-bool-must-follow-naming-convention-rule)
   - [Method Signature Must Match Rule](docs/Rules.md#method-signature-must-match-rule)
   - [Method Must Return Type Rule](docs/Rules.md#method-must-return-type-rule)
 - Clean Code Rules:
