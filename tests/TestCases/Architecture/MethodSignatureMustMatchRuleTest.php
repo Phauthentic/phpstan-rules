@@ -70,7 +70,7 @@ class MethodSignatureMustMatchRuleTest extends RuleTestCase
             // - Second parameter has correct type (string) and name matches pattern
             // - Parameter count is within limits (1-2)
             // - Visibility is correct (public)
-            
+
             // Error for testMethodWithWrongType:
             // - First parameter has wrong type (int instead of string)
             // - Second parameter has no type specified, so type checking is skipped
