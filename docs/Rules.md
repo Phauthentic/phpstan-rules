@@ -211,6 +211,10 @@ Ensures that methods matching a class and method name pattern have a specific re
                     pattern: '/^MyClass::getAnyType$/'
                     anyOf: ['object', 'void']
                     objectTypePattern: null
+                -
+                    pattern: '/^MyClass::getEntity$/'
+                    anyOf: ['regex:/^App\\Entity\\/', 'void']
+                    objectTypePattern: null
         tags:
             - phpstan.rules.rule
 ```
@@ -223,3 +227,7 @@ Ensures that methods matching a class and method name pattern have a specific re
 - `oneOf`: Array of types where one must match (for union types).
 - `allOf`: Array of types where all must be present in the union type.
 - `anyOf`: Alias for `oneOf` - array of types where one must match.
+
+**Regex Support**: You can use regex patterns in `oneOf`, `allOf`, and `anyOf` arrays by prefixing them with `regex:`. For example:
+- `'regex:/^App\\Entity\\/'` - matches any class starting with "App\Entity\"
+- `'regex:/^UserEntity$/'` - matches exactly "UserEntity"

@@ -232,7 +232,7 @@ class MethodMustReturnTypeRule implements Rule
         }
 
         foreach ($expectedTypes as $expectedType) {
-            if ($this->isTypeMatch($returnType, $expectedType)) {
+            if ($this->isTypeMatchWithRegex($returnType, $expectedType)) {
                 return false;
             }
         }
@@ -268,7 +268,7 @@ class MethodMustReturnTypeRule implements Rule
         foreach ($expectedTypes as $expectedType) {
             $found = false;
             foreach ($actualTypes as $actualType) {
-                if ($this->isTypeMatch($actualType, $expectedType)) {
+                if ($this->isTypeMatchWithRegex($actualType, $expectedType)) {
                     $found = true;
                     break;
                 }
@@ -304,6 +304,22 @@ class MethodMustReturnTypeRule implements Rule
 
         // Simple union type parsing - split by '|' and trim
         return array_map('trim', explode('|', $type));
+    }
+
+    private function isTypeMatchWithRegex(?string $actual, string $expected): bool
+    {
+        if ($actual === null) {
+            return false;
+        }
+
+        // Check if expected type is a regex pattern
+        if (str_starts_with($expected, 'regex:')) {
+            $pattern = substr($expected, 6); // Remove 'regex:' prefix
+            return (bool) preg_match($pattern, $actual);
+        }
+
+        // Use the original isTypeMatch for non-regex types
+        return $this->isTypeMatch($actual, $expected);
     }
 
     private function isTypeMatch(?string $actual, string $expected): bool
