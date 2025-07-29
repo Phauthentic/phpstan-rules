@@ -34,6 +34,12 @@ class MethodMustReturnTypeRuleTest extends RuleTestCase
                 'pattern' => '/^ReturnTypeTestClass::mustReturnVoid$/',
                 'type' => 'void',
                 'nullable' => false,
+                'void' => false,
+                'objectTypePattern' => null,
+            ],
+            [
+                'pattern' => '/^ReturnTypeTestClass::mustReturnVoidLegacy$/',
+                'nullable' => false,
                 'void' => true,
                 'objectTypePattern' => null,
             ],
@@ -44,6 +50,27 @@ class MethodMustReturnTypeRuleTest extends RuleTestCase
                 'void' => false,
                 'objectTypePattern' => '/^SomeObject$/',
             ],
+            [
+                'pattern' => '/^ReturnTypeTestClass::mustReturnOneOf$/',
+                'nullable' => false,
+                'void' => false,
+                'oneOf' => ['int', 'string', 'bool'],
+                'objectTypePattern' => null,
+            ],
+            [
+                'pattern' => '/^ReturnTypeTestClass::mustReturnAllOf$/',
+                'nullable' => false,
+                'void' => false,
+                'allOf' => ['int', 'string'],
+                'objectTypePattern' => null,
+            ],
+            [
+                'pattern' => '/^ReturnTypeTestClass::mustReturnOneOfNullable$/',
+                'nullable' => true,
+                'void' => false,
+                'oneOf' => ['int', 'string'],
+                'objectTypePattern' => null,
+            ],
         ]);
     }
 
@@ -52,19 +79,35 @@ class MethodMustReturnTypeRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/../../../data/MethodMustReturnType/ReturnTypeTestClass.php'], [
             [
                 'Method ReturnTypeTestClass::mustReturnInt must have return type int, void given.',
-                5,
-            ],
-            [
-                'Method ReturnTypeTestClass::mustReturnNullableString return type nullability does not match: expected nullable.',
                 6,
             ],
             [
-                'Method ReturnTypeTestClass::mustReturnVoid must have a void return type.',
+                'Method ReturnTypeTestClass::mustReturnNullableString return type nullability does not match: expected nullable.',
                 7,
             ],
             [
-                'Method ReturnTypeTestClass::mustReturnSpecificObject must return an object matching pattern /^SomeObject$/, OtherObject given.',
+                'Method ReturnTypeTestClass::mustReturnVoid must have return type void, int given.',
                 8,
+            ],
+            [
+                'Method ReturnTypeTestClass::mustReturnVoidLegacy must have a void return type.',
+                9,
+            ],
+            [
+                'Method ReturnTypeTestClass::mustReturnSpecificObject must return an object matching pattern /^SomeObject$/, OtherObject given.',
+                10,
+            ],
+            [
+                'Method ReturnTypeTestClass::mustReturnOneOf must have one of the return types: int, string, bool, float given.',
+                11,
+            ],
+            [
+                'Method ReturnTypeTestClass::mustReturnAllOf must have all of the return types: int, string, int given.',
+                12,
+            ],
+            [
+                'Method ReturnTypeTestClass::mustReturnOneOfNullable return type nullability does not match: expected nullable.',
+                13,
             ],
         ]);
     }

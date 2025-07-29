@@ -20,6 +20,7 @@ use PHPStan\Rules\RuleErrorBuilder;
  * - Checks if the method returns the expected type or object, is nullable or void.
  * - Check if the types of the parameters match the expected types.
  * - If an object type is expected, it can match a specific class or a pattern.
+ * - Supports union types with "oneOf" (one type must match) and "allOf" (all types must match).
  */
 class MethodMustReturnTypeRule implements Rule
 {
@@ -31,14 +32,18 @@ class MethodMustReturnTypeRule implements Rule
     private const ERROR_MESSAGE_OBJECT_TYPE_PATTERN = 'Method %s must return an object matching pattern %s, %s given.';
     private const ERROR_MESSAGE_OBJECT_TYPE = 'Method %s must return an object type.';
     private const ERROR_MESSAGE_TYPE_MISMATCH = 'Method %s must have return type %s, %s given.';
+    private const ERROR_MESSAGE_ONE_OF_MISMATCH = 'Method %s must have one of the return types: %s, %s given.';
+    private const ERROR_MESSAGE_ALL_OF_MISMATCH = 'Method %s must have all of the return types: %s, %s given.';
 
     /**
      * @param array<array{
      *     pattern: string,
-     *     type: string,
+     *     type?: string,
      *     nullable: bool,
      *     void: bool,
      *     objectTypePattern: string|null,
+     *     oneOf?: array<string>,
+     *     allOf?: array<string>,
      * }> $returnTypePatterns
      */
     public function __construct(
@@ -81,7 +86,8 @@ class MethodMustReturnTypeRule implements Rule
 
                 // Check for missing return type
                 if ($this->shouldErrorOnMissingReturnType($returnType)) {
-                    $errors[] = $this->buildMissingReturnTypeError($fullName, $patternConfig['type'], $method->getLine());
+                    $expectedType = $this->getExpectedTypeDescription($patternConfig);
+                    $errors[] = $this->buildMissingReturnTypeError($fullName, $expectedType, $method->getLine());
                     continue;
                 }
 
@@ -92,18 +98,32 @@ class MethodMustReturnTypeRule implements Rule
                     $errors[] = $this->buildNullabilityError($fullName, $patternConfig['nullable'], $method->getLine());
                 }
 
-                // Check for type
-                if ($patternConfig['type'] === 'object') {
-                    if ($returnTypeNode instanceof Name) {
-                        $objectType = $returnTypeNode->toString();
-                        if ($this->shouldErrorOnObjectTypePattern($patternConfig, $objectType)) {
-                            $errors[] = $this->buildObjectTypePatternError($fullName, $patternConfig['objectTypePattern'], $objectType, $method->getLine());
-                        }
-                    } else {
-                        $errors[] = $this->buildObjectTypeError($fullName, $method->getLine());
+                // Check for union types (oneOf/allOf)
+                if (isset($patternConfig['oneOf'])) {
+                    if ($this->shouldErrorOnOneOf($patternConfig['oneOf'], $returnType)) {
+                        $errors[] = $this->buildOneOfError($fullName, $patternConfig['oneOf'], $returnType, $method->getLine());
+                        continue;
                     }
-                } elseif ($this->shouldErrorOnTypeMismatch($returnType, $patternConfig['type'])) {
-                    $errors[] = $this->buildTypeMismatchError($fullName, $patternConfig['type'], $returnType, $method->getLine());
+                } elseif (isset($patternConfig['allOf'])) {
+                    if ($this->shouldErrorOnAllOf($patternConfig['allOf'], $returnType)) {
+                        $errors[] = $this->buildAllOfError($fullName, $patternConfig['allOf'], $returnType, $method->getLine());
+                        continue;
+                    }
+                } else {
+                    // Check for single type
+                    $expectedType = $patternConfig['type'] ?? 'void';
+                    if ($expectedType === 'object') {
+                        if ($returnTypeNode instanceof Name) {
+                            $objectType = $returnTypeNode->toString();
+                            if ($this->shouldErrorOnObjectTypePattern($patternConfig, $objectType)) {
+                                $errors[] = $this->buildObjectTypePatternError($fullName, $patternConfig['objectTypePattern'], $objectType, $method->getLine());
+                            }
+                        } else {
+                            $errors[] = $this->buildObjectTypeError($fullName, $method->getLine());
+                        }
+                    } elseif ($this->shouldErrorOnTypeMismatch($returnType, $expectedType)) {
+                        $errors[] = $this->buildTypeMismatchError($fullName, $expectedType, $returnType, $method->getLine());
+                    }
                 }
             }
         }
@@ -132,6 +152,17 @@ class MethodMustReturnTypeRule implements Rule
     private function shouldErrorOnMissingReturnType(?string $returnType): bool
     {
         return $returnType === null;
+    }
+
+    private function getExpectedTypeDescription(array $patternConfig): string
+    {
+        if (isset($patternConfig['oneOf'])) {
+            return 'one of: ' . implode(', ', $patternConfig['oneOf']);
+        }
+        if (isset($patternConfig['allOf'])) {
+            return 'all of: ' . implode(', ', $patternConfig['allOf']);
+        }
+        return $patternConfig['type'] ?? 'void';
     }
 
     private function buildMissingReturnTypeError(string $fullName, string $expectedType, int $line)
@@ -165,6 +196,114 @@ class MethodMustReturnTypeRule implements Rule
         ->identifier(self::IDENTIFIER)
         ->line($line)
         ->build();
+    }
+
+    private function shouldErrorOnOneOf(array $expectedTypes, ?string $returnType): bool
+    {
+        if ($returnType === null) {
+            return true;
+        }
+
+        foreach ($expectedTypes as $expectedType) {
+            if ($this->isTypeMatch($returnType, $expectedType)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function buildOneOfError(string $fullName, array $expectedTypes, ?string $actualType, int $line)
+    {
+        return RuleErrorBuilder::message(
+            sprintf(
+                self::ERROR_MESSAGE_ONE_OF_MISMATCH,
+                $fullName,
+                implode(', ', $expectedTypes),
+                $actualType ?? 'no return type'
+            )
+        )
+        ->identifier(self::IDENTIFIER)
+        ->line($line)
+        ->build();
+    }
+
+    private function shouldErrorOnAllOf(array $expectedTypes, ?string $returnType): bool
+    {
+        if ($returnType === null) {
+            return true;
+        }
+
+        // For allOf, we need to check if the return type is a union type that contains all expected types
+        // This is a simplified implementation - in practice, you might need more sophisticated union type parsing
+        $actualTypes = $this->parseUnionType($returnType);
+
+        foreach ($expectedTypes as $expectedType) {
+            $found = false;
+            foreach ($actualTypes as $actualType) {
+                if ($this->isTypeMatch($actualType, $expectedType)) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function buildAllOfError(string $fullName, array $expectedTypes, ?string $actualType, int $line)
+    {
+        return RuleErrorBuilder::message(
+            sprintf(
+                self::ERROR_MESSAGE_ALL_OF_MISMATCH,
+                $fullName,
+                implode(', ', $expectedTypes),
+                $actualType ?? 'no return type'
+            )
+        )
+        ->identifier(self::IDENTIFIER)
+        ->line($line)
+        ->build();
+    }
+
+    private function parseUnionType(?string $type): array
+    {
+        if ($type === null) {
+            return [];
+        }
+
+        // Simple union type parsing - split by '|' and trim
+        return array_map('trim', explode('|', $type));
+    }
+
+    private function isTypeMatch(?string $actual, string $expected): bool
+    {
+        if ($actual === null) {
+            return false;
+        }
+
+        // Direct match
+        if ($actual === $expected) {
+            return true;
+        }
+
+        // Handle nullable types
+        if ($this->isNullableMatch($actual, $expected)) {
+            return true;
+        }
+
+        // Handle union types
+        $actualTypes = $this->parseUnionType($actual);
+        foreach ($actualTypes as $actualType) {
+            if ($actualType === $expected || $this->isNullableMatch($actualType, $expected)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function shouldErrorOnObjectTypePattern(array $patternConfig, string $objectType): bool
@@ -203,7 +342,7 @@ class MethodMustReturnTypeRule implements Rule
 
     private function shouldErrorOnTypeMismatch(?string $returnType, string $expectedType): bool
     {
-        return $returnType !== $expectedType && !$this->isNullableMatch($returnType, $expectedType);
+        return !$this->isTypeMatch($returnType, $expectedType);
     }
 
     private function buildTypeMismatchError(string $fullName, string $expectedType, ?string $actualType, int $line)
@@ -213,7 +352,7 @@ class MethodMustReturnTypeRule implements Rule
                 self::ERROR_MESSAGE_TYPE_MISMATCH,
                 $fullName,
                 $expectedType,
-                $actualType
+                $actualType ?? 'no return type'
             )
         )
         ->identifier(self::IDENTIFIER)
