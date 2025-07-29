@@ -207,6 +207,10 @@ Ensures that methods matching a class and method name pattern have a specific re
                     void: false
                     allOf: ['int', 'string']
                     objectTypePattern: null
+                -
+                    pattern: '/^MyClass::getAnyType$/'
+                    anyOf: ['object', 'void']
+                    objectTypePattern: null
         tags:
             - phpstan.rules.rule
 ```
@@ -218,3 +222,4 @@ Ensures that methods matching a class and method name pattern have a specific re
 - `objectTypePattern`: Regex for object return types (if `type` is `object`).
 - `oneOf`: Array of types where one must match (for union types).
 - `allOf`: Array of types where all must be present in the union type.
+- `anyOf`: Alias for `oneOf` - array of types where one must match.

@@ -39,11 +39,12 @@ class MethodMustReturnTypeRule implements Rule
      * @param array<array{
      *     pattern: string,
      *     type?: string,
-     *     nullable: bool,
-     *     void: bool,
-     *     objectTypePattern: string|null,
+     *     nullable?: bool,
+     *     void?: bool,
+     *     objectTypePattern?: string|null,
      *     oneOf?: array<string>,
      *     allOf?: array<string>,
+     *     anyOf?: array<string>,
      * }> $returnTypePatterns
      */
     public function __construct(
@@ -75,18 +76,21 @@ class MethodMustReturnTypeRule implements Rule
                     continue;
                 }
 
+                // Normalize configuration with defaults
+                $config = $this->normalizeConfig($patternConfig);
+
                 $returnTypeNode = $method->getReturnType();
                 $returnType = $this->getTypeAsString($returnTypeNode);
 
                 // Check for void
-                if ($this->shouldErrorOnVoid($patternConfig, $returnType)) {
+                if ($this->shouldErrorOnVoid($config, $returnType)) {
                     $errors[] = $this->buildVoidError($fullName, $method->getLine());
                     continue;
                 }
 
                 // Check for missing return type
                 if ($this->shouldErrorOnMissingReturnType($returnType)) {
-                    $expectedType = $this->getExpectedTypeDescription($patternConfig);
+                    $expectedType = $this->getExpectedTypeDescription($config);
                     $errors[] = $this->buildMissingReturnTypeError($fullName, $expectedType, $method->getLine());
                     continue;
                 }
@@ -94,29 +98,29 @@ class MethodMustReturnTypeRule implements Rule
                 // Check for nullable
                 $isNullable = $this->isNullableType($returnTypeNode);
 
-                if ($this->shouldErrorOnNullability($patternConfig, $isNullable)) {
-                    $errors[] = $this->buildNullabilityError($fullName, $patternConfig['nullable'], $method->getLine());
+                if ($this->shouldErrorOnNullability($config, $isNullable)) {
+                    $errors[] = $this->buildNullabilityError($fullName, $config['nullable'], $method->getLine());
                 }
 
-                // Check for union types (oneOf/allOf)
-                if (isset($patternConfig['oneOf'])) {
-                    if ($this->shouldErrorOnOneOf($patternConfig['oneOf'], $returnType)) {
-                        $errors[] = $this->buildOneOfError($fullName, $patternConfig['oneOf'], $returnType, $method->getLine());
+                // Check for union types (oneOf/allOf/anyOf)
+                if (isset($config['oneOf'])) {
+                    if ($this->shouldErrorOnOneOf($config['oneOf'], $returnType)) {
+                        $errors[] = $this->buildOneOfError($fullName, $config['oneOf'], $returnType, $method->getLine());
                         continue;
                     }
-                } elseif (isset($patternConfig['allOf'])) {
-                    if ($this->shouldErrorOnAllOf($patternConfig['allOf'], $returnType)) {
-                        $errors[] = $this->buildAllOfError($fullName, $patternConfig['allOf'], $returnType, $method->getLine());
+                } elseif (isset($config['allOf'])) {
+                    if ($this->shouldErrorOnAllOf($config['allOf'], $returnType)) {
+                        $errors[] = $this->buildAllOfError($fullName, $config['allOf'], $returnType, $method->getLine());
                         continue;
                     }
                 } else {
                     // Check for single type
-                    $expectedType = $patternConfig['type'] ?? 'void';
+                    $expectedType = $config['type'] ?? 'void';
                     if ($expectedType === 'object') {
                         if ($returnTypeNode instanceof Name) {
                             $objectType = $returnTypeNode->toString();
-                            if ($this->shouldErrorOnObjectTypePattern($patternConfig, $objectType)) {
-                                $errors[] = $this->buildObjectTypePatternError($fullName, $patternConfig['objectTypePattern'], $objectType, $method->getLine());
+                            if ($this->shouldErrorOnObjectTypePattern($config, $objectType)) {
+                                $errors[] = $this->buildObjectTypePatternError($fullName, $config['objectTypePattern'], $objectType, $method->getLine());
                             }
                         } else {
                             $errors[] = $this->buildObjectTypeError($fullName, $method->getLine());
@@ -129,6 +133,29 @@ class MethodMustReturnTypeRule implements Rule
         }
 
         return $errors;
+    }
+
+    /**
+     * Normalize configuration with defaults
+     * 
+     * @param array $config
+     * @return array
+     */
+    private function normalizeConfig(array $config): array
+    {
+        $normalized = $config;
+        
+        // Set defaults
+        $normalized['nullable'] = $config['nullable'] ?? false;
+        $normalized['void'] = $config['void'] ?? false;
+        $normalized['objectTypePattern'] = $config['objectTypePattern'] ?? null;
+        
+        // Support 'anyOf' as alias for 'oneOf'
+        if (isset($config['anyOf']) && !isset($config['oneOf'])) {
+            $normalized['oneOf'] = $config['anyOf'];
+        }
+        
+        return $normalized;
     }
 
     private function shouldErrorOnVoid(array $patternConfig, ?string $returnType): bool
