@@ -7,6 +7,7 @@ Add them to your `phpstan.neon` configuration file under the section `services`.
 Ensures that the nesting level of `if` and `try-catch` statements does not exceed a specified limit.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\CleanCode\ControlStructureNestingRule
@@ -21,6 +22,7 @@ Ensures that the nesting level of `if` and `try-catch` statements does not excee
 Checks that methods do not have more than a specified number of arguments.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\CleanCode\TooManyArgumentsRule
@@ -35,6 +37,7 @@ Checks that methods do not have more than a specified number of arguments.
 Ensures that classes matching specified patterns are declared as `readonly`.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\ClassMustBeReadonlyRule
@@ -53,6 +56,7 @@ The constructor takes an array of namespace dependencies. The key is the namespa
 In the example below nothing from `App\Domain` can depend on anything from `App\Controller`.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule
@@ -69,6 +73,7 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
 Ensures that classes matching specified patterns are declared as `final`.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\ClassMustBeFinalRule
@@ -83,6 +88,7 @@ Ensures that classes matching specified patterns are declared as `final`.
 Ensures that classes inside namespaces matching a given regex must have names matching at least one of the provided patterns.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\ClassnameMustMatchPatternRule
@@ -104,6 +110,7 @@ Ensures that classes inside namespaces matching a given regex must have names ma
 Ensures that specific exception types are not caught in catch blocks. This is useful for preventing the catching of overly broad exception types like `Exception`, `Error`, or `Throwable`.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\CatchExceptionOfTypeNotAllowedRule
@@ -118,6 +125,7 @@ Ensures that specific exception types are not caught in catch blocks. This is us
 Ensures that methods returning boolean values follow a specific naming convention. By default, boolean methods should start with `is`, `has`, `can`, `should`, `was`, or `will`.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\MethodsReturningBoolMustFollowNamingConventionRule
@@ -132,6 +140,7 @@ Ensures that methods returning boolean values follow a specific naming conventio
 Ensures that methods matching a class and method name pattern have a specific signature, including parameter types, names, and count.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\MethodSignatureMustMatchRule
@@ -151,6 +160,7 @@ Ensures that methods matching a class and method name pattern have a specific si
         tags:
             - phpstan.rules.rule
 ```
+
 - `pattern`: Regex for `ClassName::methodName`.
 - `minParameters`/`maxParameters`: Minimum/maximum number of parameters.
 - `signature`: List of expected parameter types and (optionally) name patterns.
@@ -158,9 +168,10 @@ Ensures that methods matching a class and method name pattern have a specific si
 
 ## Method Must Return Type Rule {#method-must-return-type-rule}
 
-Ensures that methods matching a class and method name pattern have a specific return type, nullability, or are void.
+Ensures that methods matching a class and method name pattern have a specific return type, nullability, or are void. Supports union types with "oneOf" and "allOf" configurations.
 
 **Configuration Example:**
+
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\MethodMustReturnTypeRule
@@ -182,13 +193,41 @@ Ensures that methods matching a class and method name pattern have a specific re
                     pattern: '/^MyClass::reset$/'
                     type: 'void'
                     nullable: false
-                    void: true
+                    void: false
+                    objectTypePattern: null
+                -
+                    pattern: '/^MyClass::getValue$/'
+                    nullable: false
+                    void: false
+                    oneOf: ['int', 'string', 'bool']
+                    objectTypePattern: null
+                -
+                    pattern: '/^MyClass::getUnionType$/'
+                    nullable: false
+                    void: false
+                    allOf: ['int', 'string']
+                    objectTypePattern: null
+                -
+                    pattern: '/^MyClass::getAnyType$/'
+                    anyOf: ['object', 'void']
+                    objectTypePattern: null
+                -
+                    pattern: '/^MyClass::getEntity$/'
+                    anyOf: ['regex:/^App\\Entity\\/', 'void']
                     objectTypePattern: null
         tags:
             - phpstan.rules.rule
 ```
+
 - `pattern`: Regex for `ClassName::methodName`.
-- `type`: Expected return type (`int`, `string`, `object`, etc.).
+- `type`: Expected return type (`int`, `string`, `object`, `void`, etc.). When using `oneOf` or `allOf`, this field is optional.
 - `nullable`: Whether the return type must be nullable.
-- `void`: Whether the method must return void.
+- `void`: Legacy field for void return types (use `type: 'void'` instead).
 - `objectTypePattern`: Regex for object return types (if `type` is `object`).
+- `oneOf`: Array of types where one must match (for union types).
+- `allOf`: Array of types where all must be present in the union type.
+- `anyOf`: Alias for `oneOf` - array of types where one must match.
+
+**Regex Support**: You can use regex patterns in `oneOf`, `allOf`, and `anyOf` arrays by prefixing them with `regex:`. For example:
+- `'regex:/^App\\Entity\\/'` - matches any class starting with "App\Entity\"
+- `'regex:/^UserEntity$/'` - matches exactly "UserEntity"
