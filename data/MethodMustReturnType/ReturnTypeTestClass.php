@@ -2,10 +2,15 @@
 
 class ReturnTypeTestClass
 {
-    public function mustReturnInt(): void {}
-    public function mustReturnNullableString(): string {}
-    public function mustReturnVoid(): int {}
-    public function mustReturnSpecificObject(): OtherObject {}
+    // Invalid cases (should trigger errors)
+    public function mustReturnInt(): void { return; }
+    public function mustReturnNullableString(): string { return 'test'; }
+    public function mustReturnVoid(): int { return 1; }
+    public function mustReturnVoidLegacy(): int { return 1; }
+    public function mustReturnSpecificObject(): OtherObject { return new OtherObject(); }
+    public function mustReturnOneOf(): float { return 1.0; }
+    public function mustReturnAllOf(): int { return 1; }
+    public function mustReturnOneOfNullable(): string { return 'test'; }
 }
 
 class SomeObject {}
