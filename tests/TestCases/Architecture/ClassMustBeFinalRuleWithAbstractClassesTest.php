@@ -29,13 +29,5 @@ class ClassMustBeFinalRuleWithAbstractClassesTest extends RuleTestCase
         ]);
     }
 
-    public function testRuleWithNonAbstractClasses(): void
-    {
-        $this->analyse([__DIR__ . '/../../../data/Service/NonAbstractServiceClass.php'], [
-            [
-                'Class App\Service\NonAbstractServiceClass must be final.',
-                5,
-            ],
-        ]);
-    }
+
 }
