@@ -28,4 +28,9 @@ class ClassMustBeFinalRuleTest extends RuleTestCase
             ],
         ]);
     }
+
+    public function testRuleIgnoresAbstractClassesByDefault(): void
+    {
+        $this->analyse([__DIR__ . '/../../../data/Service/AbstractServiceClass.php'], []);
+    }
 }

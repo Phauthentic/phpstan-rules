@@ -29,7 +29,8 @@ class ClassMustBeFinalRule implements Rule
      * Each pattern should be a valid PCRE regex.
      */
     public function __construct(
-        protected array $patterns
+        protected array $patterns,
+        protected bool $ignoreAbstractClasses = true
     ) {
     }
 
@@ -44,6 +45,11 @@ class ClassMustBeFinalRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         if (!$node instanceof Class_ || !isset($node->name)) {
+            return [];
+        }
+
+        // Skip abstract classes if configured to ignore them
+        if ($this->ignoreAbstractClasses && $node->isAbstract()) {
             return [];
         }
 
