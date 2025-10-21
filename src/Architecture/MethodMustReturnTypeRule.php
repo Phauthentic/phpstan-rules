@@ -137,24 +137,24 @@ class MethodMustReturnTypeRule implements Rule
 
     /**
      * Normalize configuration with defaults
-     * 
+     *
      * @param array $config
      * @return array
      */
     private function normalizeConfig(array $config): array
     {
         $normalized = $config;
-        
+
         // Set defaults
         $normalized['nullable'] = $config['nullable'] ?? false;
         $normalized['void'] = $config['void'] ?? false;
         $normalized['objectTypePattern'] = $config['objectTypePattern'] ?? null;
-        
+
         // Support 'anyOf' as alias for 'oneOf'
         if (isset($config['anyOf']) && !isset($config['oneOf'])) {
             $normalized['oneOf'] = $config['anyOf'];
         }
-        
+
         return $normalized;
     }
 

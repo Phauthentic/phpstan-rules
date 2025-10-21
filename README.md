@@ -18,6 +18,7 @@ See [Rules documentation](docs/Rules.md) for a list of available rules and confi
 
 - Architecture Rules:
   - [Dependency Constraints Rule](docs/Rules.md#dependency-constraints-rule)
+  - [Forbidden Namespaces Rule](docs/Rules.md#forbidden-namespaces-rule)
   - [Readonly Class Rule](docs/Rules.md#readonly-class-rule)
   - [Final Class Rule](docs/Rules.md#final-class-rule)
   - [Namespace Class Pattern Rule](docs/Rules.md#namespace-class-pattern-rule)
@@ -28,6 +29,7 @@ See [Rules documentation](docs/Rules.md) for a list of available rules and confi
 - Clean Code Rules:
   - [Control Structure Nesting Rule](docs/Rules.md#control-structure-nesting-rule)
   - [Too Many Arguments Rule](docs/Rules.md#too-many-arguments-rule)
+  - [Max Line Length Rule](docs/Rules.md#max-line-length-rule)
 
 ### Using Regex in Rules
 
