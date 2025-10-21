@@ -2,7 +2,7 @@
 
 Add them to your `phpstan.neon` configuration file under the section `services`.
 
-## Control Structure Nesting Rule {#control-structure-nesting-rule}
+## Control Structure Nesting Rule
 
 Ensures that the nesting level of `if` and `try-catch` statements does not exceed a specified limit.
 
@@ -17,7 +17,7 @@ Ensures that the nesting level of `if` and `try-catch` statements does not excee
             - phpstan.rules.rule
 ```
 
-## Too Many Arguments Rule {#too-many-arguments-rule}
+## Too Many Arguments Rule
 
 Checks that methods do not have more than a specified number of arguments.
 
@@ -32,7 +32,7 @@ Checks that methods do not have more than a specified number of arguments.
             - phpstan.rules.rule
 ```
 
-## Max Line Length Rule {#max-line-length-rule}
+## Max Line Length Rule
 
 Checks that lines do not exceed a specified maximum length. Provides options to exclude files by pattern and ignore use statements.
 
@@ -53,7 +53,7 @@ Checks that lines do not exceed a specified maximum length. Provides options to 
 - `excludePatterns`: Array of regex patterns to exclude files from checking (optional).
 - `ignoreUseStatements`: Whether to ignore use statement lines (default: false).
 
-## Readonly Class Rule {#readonly-class-rule}
+## Readonly Class Rule
 
 Ensures that classes matching specified patterns are declared as `readonly`.
 
@@ -68,7 +68,7 @@ Ensures that classes matching specified patterns are declared as `readonly`.
             - phpstan.rules.rule
 ```
 
-## Dependency Constraints Rule {#dependency-constraints-rule}
+## Dependency Constraints Rule
 
 Enforces dependency constraints between namespaces by checking `use` statements.
 
@@ -89,7 +89,7 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
             - phpstan.rules.rule
 ```
 
-## Forbidden Namespaces Rule {#forbidden-namespaces-rule}
+## Forbidden Namespaces Rule
 
 Enforces that certain namespaces cannot be declared in your codebase. This rule checks the `namespace` keyword and prevents the declaration of namespaces matching specified regex patterns, helping to enforce architectural constraints.
 
@@ -109,7 +109,7 @@ Enforces that certain namespaces cannot be declared in your codebase. This rule 
 
 - `forbiddenNamespaces`: Array of regex patterns matching namespaces that are not allowed to be declared.
 
-## Final Class Rule {#final-class-rule}
+## Final Class Rule
 
 Ensures that classes matching specified patterns are declared as `final`.
 
@@ -128,7 +128,7 @@ Ensures that classes matching specified patterns are declared as `final`.
 - `patterns`: Array of regex patterns to match against class names.
 - `ignoreAbstractClasses`: Whether to ignore abstract classes (default: `true`).
 
-## Namespace Class Pattern Rule {#namespace-class-pattern-rule}
+## Namespace Class Pattern Rule
 
 Ensures that classes inside namespaces matching a given regex must have names matching at least one of the provided patterns.
 
@@ -150,7 +150,7 @@ Ensures that classes inside namespaces matching a given regex must have names ma
             - phpstan.rules.rule
 ```
 
-## Catch Exception of Type Not Allowed Rule {#catch-exception-of-type-not-allowed-rule}
+## Catch Exception of Type Not Allowed Rule
 
 Ensures that specific exception types are not caught in catch blocks. This is useful for preventing the catching of overly broad exception types like `Exception`, `Error`, or `Throwable`.
 
@@ -165,7 +165,7 @@ Ensures that specific exception types are not caught in catch blocks. This is us
             - phpstan.rules.rule
 ```
 
-## Methods Returning Bool Must Follow Naming Convention Rule {#methods-returning-bool-must-follow-naming-convention-rule}
+## Methods Returning Bool Must Follow Naming Convention Rule
 
 Ensures that methods returning boolean values follow a specific naming convention. By default, boolean methods should start with `is`, `has`, `can`, `should`, `was`, or `will`.
 
@@ -180,7 +180,7 @@ Ensures that methods returning boolean values follow a specific naming conventio
             - phpstan.rules.rule
 ```
 
-## Method Signature Must Match Rule {#method-signature-must-match-rule}
+## Method Signature Must Match Rule
 
 Ensures that methods matching a class and method name pattern have a specific signature, including parameter types, names, and count.
 
@@ -211,7 +211,7 @@ Ensures that methods matching a class and method name pattern have a specific si
 - `signature`: List of expected parameter types and (optionally) name patterns.
 - `visibilityScope`: Optional visibility scope (e.g., `public`, `protected`, `private`).
 
-## Method Must Return Type Rule {#method-must-return-type-rule}
+## Method Must Return Type Rule
 
 Ensures that methods matching a class and method name pattern have a specific return type, nullability, or are void. Supports union types with "oneOf" and "allOf" configurations.
 
