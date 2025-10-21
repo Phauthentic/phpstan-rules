@@ -36,4 +36,4 @@ class EntityRegexRuleTest extends RuleTestCase
             ],
         ]);
     }
-} 
+}

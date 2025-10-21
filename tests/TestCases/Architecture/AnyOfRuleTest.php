@@ -36,4 +36,4 @@ class AnyOfRuleTest extends RuleTestCase
             ],
         ]);
     }
-} 
+}

@@ -56,4 +56,4 @@ class RegexRuleTest extends RuleTestCase
             ],
         ]);
     }
-} 
+}

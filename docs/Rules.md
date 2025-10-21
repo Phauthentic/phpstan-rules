@@ -32,6 +32,27 @@ Checks that methods do not have more than a specified number of arguments.
             - phpstan.rules.rule
 ```
 
+## Max Line Length Rule {#max-line-length-rule}
+
+Checks that lines do not exceed a specified maximum length. Provides options to exclude files by pattern and ignore use statements.
+
+**Configuration Example:**
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\CleanCode\MaxLineLengthRule
+        arguments:
+            maxLineLength: 80
+            excludePatterns: ['/.*\.generated\.php$/', '/.*vendor.*/']
+            ignoreUseStatements: false
+        tags:
+            - phpstan.rules.rule
+```
+
+- `maxLineLength`: Maximum allowed line length in characters (default: 80).
+- `excludePatterns`: Array of regex patterns to exclude files from checking (optional).
+- `ignoreUseStatements`: Whether to ignore use statement lines (default: false).
+
 ## Readonly Class Rule {#readonly-class-rule}
 
 Ensures that classes matching specified patterns are declared as `readonly`.
@@ -67,6 +88,26 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
         tags:
             - phpstan.rules.rule
 ```
+
+## Forbidden Namespaces Rule {#forbidden-namespaces-rule}
+
+Enforces that certain namespaces cannot be declared in your codebase. This rule checks the `namespace` keyword and prevents the declaration of namespaces matching specified regex patterns, helping to enforce architectural constraints.
+
+**Configuration Example:**
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenNamespacesRule
+        arguments:
+            forbiddenNamespaces: [
+                '/^App\\Legacy\\.*/',
+                '/^App\\Deprecated\\.*/'
+            ]
+        tags:
+            - phpstan.rules.rule
+```
+
+- `forbiddenNamespaces`: Array of regex patterns matching namespaces that are not allowed to be declared.
 
 ## Final Class Rule {#final-class-rule}
 

@@ -36,4 +36,4 @@ class FacadeRuleTest extends RuleTestCase
             ],
         ]);
     }
-} 
+}
