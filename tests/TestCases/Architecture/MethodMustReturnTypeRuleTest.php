@@ -71,6 +71,13 @@ class MethodMustReturnTypeRuleTest extends RuleTestCase
                 'oneOf' => ['int', 'string'],
                 'objectTypePattern' => null,
             ],
+            [
+                'pattern' => '/^ReturnTypeTestClass::mustReturnNullableObject$/',
+                'type' => 'object',
+                'nullable' => true,
+                'void' => false,
+                'objectTypePattern' => null,
+            ],
         ]);
     }
 
@@ -108,6 +115,10 @@ class MethodMustReturnTypeRuleTest extends RuleTestCase
             [
                 'Method ReturnTypeTestClass::mustReturnOneOfNullable return type nullability does not match: expected nullable.',
                 13,
+            ],
+            [
+                'Method ReturnTypeTestClass::mustReturnNullableObject return type nullability does not match: expected nullable.',
+                14,
             ],
         ]);
     }

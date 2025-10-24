@@ -11,6 +11,7 @@ class ReturnTypeTestClass
     public function mustReturnOneOf(): float { return 1.0; }
     public function mustReturnAllOf(): int { return 1; }
     public function mustReturnOneOfNullable(): string { return 'test'; }
+    public function mustReturnNullableObject(): SomeObject { return new SomeObject(); }
 }
 
 class SomeObject {}
