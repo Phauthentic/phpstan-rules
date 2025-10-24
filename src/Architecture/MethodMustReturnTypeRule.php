@@ -117,8 +117,13 @@ class MethodMustReturnTypeRule implements Rule
                     // Check for single type
                     $expectedType = $config['type'] ?? 'void';
                     if ($expectedType === 'object') {
-                        if ($returnTypeNode instanceof Name) {
-                            $objectType = $returnTypeNode->toString();
+                        // Unwrap NullableType to get the inner type
+                        $innerType = $returnTypeNode instanceof NullableType
+                            ? $returnTypeNode->type
+                            : $returnTypeNode;
+
+                        if ($innerType instanceof Name) {
+                            $objectType = $innerType->toString();
                             if ($this->shouldErrorOnObjectTypePattern($config, $objectType)) {
                                 $errors[] = $this->buildObjectTypePatternError($fullName, $config['objectTypePattern'], $objectType, $method->getLine());
                             }
