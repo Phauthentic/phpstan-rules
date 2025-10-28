@@ -190,10 +190,15 @@ src/Capability/
   - Format: `LayerName: [AllowedDependency1, AllowedDependency2, ...]`
   - Default layers: Domain, Application, Infrastructure, Presentation
   - You can define any custom layer names you need
-- `allowedCrossModulePatterns`: **Required** - Regex patterns for class names that can be imported across modules.
+- `allowedCrossModulePatterns`: **Required** - Regex patterns for fully qualified class names that can be imported across modules.
   - **No defaults** - you must explicitly configure which classes can cross module boundaries
-  - Common patterns: `/Facade$/`, `/FacadeInterface$/`, `/Input$/`, `/Result$/`
-  - Each pattern is a regex that matches against the class name (not the full namespace)
+  - Patterns match against the **fully qualified class name** (e.g., `App\Capability\User\UserFacade`)
+  - Common patterns:
+    - `/Facade$/` - Classes ending with "Facade"
+    - `/FacadeInterface$/` - Classes ending with "FacadeInterface"
+    - `/Input$/` - Classes ending with "Input"
+    - `/Result$/` - Classes ending with "Result"
+    - `/^App\\Capability\\.*\\Application\\Queries\\.*$/` - All classes in Application\Queries namespace
   - Empty array `[]` = no cross-module imports allowed (complete module isolation)
 
 **Example Violations:**
@@ -308,7 +313,22 @@ allowedCrossModulePatterns:
     - '/^I[A-Z]/'           # Any interface starting with "I" (e.g., IUserService)
 ```
 
-**Note:** Patterns are matched against the class name only (not the full namespace), so `UserManagementFacade` matches `/Facade$/`.
+**Pattern Matching Examples:**
+
+Patterns match against the **fully qualified class name**:
+
+```php
+// Class: App\Capability\UserManagement\UserManagementFacade
+'/Facade$/'                                    // ✅ Matches (ends with Facade)
+'/^App\\Capability\\.*\\Facade$/'             // ✅ Matches (full namespace pattern)
+
+// Class: App\Capability\User\Application\Queries\FindUser\FindUserQuery
+'/Query$/'                                     // ✅ Matches (ends with Query)
+'/^App\\Capability\\.*\\Application\\Queries\\.*$/'  // ✅ Matches (namespace pattern)
+'/^App\\Capability\\User\\.*$/'               // ✅ Matches (specific module)
+```
+
+This allows you to be very specific about which classes can cross module boundaries based on their location in the namespace hierarchy.
 
 ## Circular Module Dependency Rule
 
