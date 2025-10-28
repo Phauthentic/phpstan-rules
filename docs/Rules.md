@@ -95,12 +95,14 @@ Enforces strict dependency rules for modular hexagonal (Ports and Adapters) arch
 
 **What it enforces:**
 
-1. **Intra-Module Layer Dependencies** - Within the same module (default configuration):
-   - Domain: Cannot import from Application, Infrastructure, or Presentation
-   - Application: Can import Domain; cannot import Infrastructure or Presentation
-   - Infrastructure: Can import Domain and Application; cannot import Presentation
-   - Presentation: Can import Application and Domain; cannot import Infrastructure
+1. **Intra-Module Layer Dependencies** - Within the same module (default Clean Architecture configuration):
+   - **Domain**: Cannot import from any other layer (pure business logic)
+   - **Application**: Can import Domain only (defines use cases and port interfaces)
+   - **Infrastructure**: Can import Domain and Application (implements port interfaces defined in Application)
+   - **Presentation**: Can import Application only (calls use cases)
    - **All layers can import from themselves** (e.g., Presentation → Presentation within the same layer)
+   
+   This follows the **Dependency Inversion Principle**: Application defines interfaces, Infrastructure implements them.
    
    **Note:** You can customize these layer dependencies to match your architecture needs (see configuration examples below).
 
@@ -134,7 +136,7 @@ src/Capability/
         class: Phauthentic\PHPStanRules\Architecture\ModularArchitectureRule
         arguments:
             baseNamespace: 'App\Capability'
-            layerDependencies: null  # Uses default layer rules
+            layerDependencies: null  # Uses default Clean Architecture rules
             allowedCrossModulePatterns:
                 - '/Facade$/'           # Classes ending with "Facade"
                 - '/FacadeInterface$/'  # Classes ending with "FacadeInterface"
@@ -186,9 +188,13 @@ src/Capability/
 **Parameters:**
 
 - `baseNamespace`: The base namespace for your capabilities/modules (e.g., `App\Capability`)
-- `layerDependencies`: (Optional) Custom layer dependency rules. If not provided, uses default hexagonal architecture rules.
+- `layerDependencies`: (Optional) Custom layer dependency rules. If not provided, uses default Clean Architecture rules.
   - Format: `LayerName: [AllowedDependency1, AllowedDependency2, ...]`
-  - Default layers: Domain, Application, Infrastructure, Presentation
+  - Default layers (following Dependency Inversion Principle):
+    - `Domain: []` - Pure business logic
+    - `Application: [Domain]` - Use cases and port interfaces
+    - `Infrastructure: [Domain, Application]` - Implements Application interfaces
+    - `Presentation: [Application]` - Controllers, CLI commands
   - You can define any custom layer names you need
 - `allowedCrossModulePatterns`: **Required** - Regex patterns for fully qualified class names that can be imported across modules.
   - **No defaults** - you must explicitly configure which classes can cross module boundaries
@@ -230,13 +236,13 @@ use App\Capability\UserManagement\Domain\Model\User;
 
 The rule is flexible and allows you to define your own architectural layers beyond the defaults. Here are some common use cases:
 
-1. **Allow Application to depend on Infrastructure** (for repositories):
+1. **Stricter Isolation** (Infrastructure cannot see Application):
 ```neon
 layerDependencies:
     Domain: []
-    Application: [Domain, Infrastructure]  # Application can now use Infrastructure
-    Infrastructure: [Domain]
-    Presentation: [Application, Domain]
+    Application: [Domain]
+    Infrastructure: [Domain]  # Infrastructure isolated from Application
+    Presentation: [Application]
 ```
 
 2. **Three-Tier Architecture** (instead of hexagonal):

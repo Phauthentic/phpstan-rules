@@ -95,7 +95,7 @@ class ModularArchitectureRuleTest extends RuleTestCase
 
     public function testValidPresentationImports(): void
     {
-        // Presentation can import from Application and Domain (valid)
+        // Presentation can import from Application (valid)
         $this->analyse(
             [__DIR__ . '/../../../data/ModularArchitectureTest/Capability/UserManagement/Presentation/AdminAPI/Controller/UserController.php'],
             []
