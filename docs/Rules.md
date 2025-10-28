@@ -100,6 +100,7 @@ Enforces strict dependency rules for modular hexagonal (Ports and Adapters) arch
    - Application: Can import Domain; cannot import Infrastructure or Presentation
    - Infrastructure: Can import Domain and Application; cannot import Presentation
    - Presentation: Can import Application and Domain; cannot import Infrastructure
+   - **All layers can import from themselves** (e.g., Presentation → Presentation within the same layer)
    
    **Note:** You can customize these layer dependencies to match your architecture needs (see configuration examples below).
 

@@ -93,6 +93,15 @@ class ModularArchitectureRuleTest extends RuleTestCase
         );
     }
 
+    public function testLayerCanImportFromItself(): void
+    {
+        // A layer should be able to import from itself (same layer, same module)
+        $this->analyse(
+            [__DIR__ . '/../../../data/ModularArchitectureTest/Capability/UserManagement/Presentation/ValidPresentationImport.php'],
+            []
+        );
+    }
+
     public function testValidApplicationImportsDomain(): void
     {
         // Application can import from Domain (valid)

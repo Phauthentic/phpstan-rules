@@ -271,6 +271,11 @@ class ModularArchitectureRule implements Rule
             return null;
         }
 
+        // Allow a layer to import from itself
+        if ($sourceLayer === $targetLayer) {
+            return null;
+        }
+
         // Check if the source layer is configured
         if (!isset($this->layerDependencies[$sourceLayer])) {
             return null;
