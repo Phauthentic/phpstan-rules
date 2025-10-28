@@ -76,7 +76,7 @@ class ModularArchitectureRule implements Rule
     {
         return [
             self::LAYER_DOMAIN => [],
-            self::LAYER_APPLICATION => [self::LAYER_DOMAIN],
+            self::LAYER_APPLICATION => [self::LAYER_DOMAIN, self::LAYER_INFRASTRUCTURE],
             self::LAYER_INFRASTRUCTURE => [self::LAYER_DOMAIN, self::LAYER_APPLICATION],
             self::LAYER_PRESENTATION => [self::LAYER_DOMAIN, self::LAYER_APPLICATION],
         ];
