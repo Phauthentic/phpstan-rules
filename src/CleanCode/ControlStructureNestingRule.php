@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phauthentic\PHPStanRules\CleanCode;
 
+use Phauthentic\PHPStanRules\PhpParser\ParentNodeAttributeVisitor;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\Else_;
@@ -11,7 +12,6 @@ use PhpParser\Node\Stmt\ElseIf_;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\TryCatch;
 use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitorAbstract;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -114,27 +114,8 @@ class ControlStructureNestingRule implements Rule
         return $errors;
     }
 
-    public function createNodeVisitor(): object
+    public function createNodeVisitor(): ParentNodeAttributeVisitor
     {
-        return new class extends NodeVisitorAbstract {
-            public function enterNode(Node $node)
-            {
-                foreach ($node->getSubNodeNames() as $subNodeName) {
-                    $subNode = $node->$subNodeName;
-                    if (is_array($subNode)) {
-                        foreach ($subNode as $childNode) {
-                            if ($childNode instanceof Node) {
-                                $childNode->setAttribute('parent', $node);
-                            }
-                        }
-                        continue;
-                    }
-
-                    if ($subNode instanceof Node) {
-                        $subNode->setAttribute('parent', $node);
-                    }
-                }
-            }
-        };
+        return new ParentNodeAttributeVisitor();
     }
 }
