@@ -15,7 +15,16 @@ class ModularArchitectureRuleTest extends RuleTestCase
 {
     protected function getRule(): Rule
     {
-        return new ModularArchitectureRule('App\\Capability');
+        return new ModularArchitectureRule(
+            'App\\Capability',
+            null,
+            [
+                '/Facade$/',
+                '/FacadeInterface$/',
+                '/Input$/',
+                '/Result$/',
+            ]
+        );
     }
 
 
@@ -127,7 +136,7 @@ class ModularArchitectureRuleTest extends RuleTestCase
             [__DIR__ . '/../../../data/ModularArchitectureTest/Capability/ProductCatalog/Application/InvalidCrossModule.php'],
             [
                 [
-                    'Cross-module violation: Module `ProductCatalog` can only import facades, Input, or Result classes from module `UserManagement`. Cannot import `App\Capability\UserManagement\UserManagementException`.',
+                    'Cross-module violation: Module `ProductCatalog` is not allowed to import `App\Capability\UserManagement\UserManagementException` from module `UserManagement`.',
                     7,
                 ],
             ]
@@ -165,7 +174,7 @@ class ModularArchitectureRuleTest extends RuleTestCase
             [__DIR__ . '/../../../data/ModularArchitectureTest/Capability/ProductCatalog/Application/UseCustomDto.php'],
             [
                 [
-                    'Cross-module violation: Module `ProductCatalog` can only import facades, Input, or Result classes from module `UserManagement`. Cannot import `App\Capability\UserManagement\UserManagementDto`.',
+                    'Cross-module violation: Module `ProductCatalog` is not allowed to import `App\Capability\UserManagement\UserManagementDto` from module `UserManagement`.',
                     7,
                 ],
             ]

@@ -104,14 +104,15 @@ Enforces strict dependency rules for modular hexagonal (Ports and Adapters) arch
    
    **Note:** You can customize these layer dependencies to match your architecture needs (see configuration examples below).
 
-2. **Cross-Module Dependencies** - Between different modules (default configuration):
-   - Modules can ONLY import from other modules:
+2. **Cross-Module Dependencies** - Between different modules:
+   - You must explicitly configure which classes can be imported cross-module using regex patterns
+   - Common patterns include:
      - `*Facade.php` and `*FacadeInterface.php`
      - `*Input.php` (DTOs from UseCases)
      - `*Result.php` (DTOs from UseCases)
-   - All other cross-module imports are forbidden (including exceptions, entities, value objects, etc.)
+   - Without configured patterns, ALL cross-module imports are forbidden
    
-   **Note:** You can customize which classes can be imported cross-module using regex patterns (see configuration examples below).
+   **Note:** There are no default cross-module patterns - you must explicitly configure them based on your architecture needs.
 
 **Note:** For circular dependency detection between modules, use the separate `CircularModuleDependencyRule`.
 
@@ -126,13 +127,19 @@ src/Capability/
     Presentation/        # Controllers, CLI commands
 ```
 
-**Configuration Example (Default):**
+**Configuration Example (Basic):**
 
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\ModularArchitectureRule
         arguments:
             baseNamespace: 'App\Capability'
+            layerDependencies: null  # Uses default layer rules
+            allowedCrossModulePatterns:
+                - '/Facade$/'           # Classes ending with "Facade"
+                - '/FacadeInterface$/'  # Classes ending with "FacadeInterface"
+                - '/Input$/'            # Classes ending with "Input"
+                - '/Result$/'           # Classes ending with "Result"
         tags:
             - phpstan.rules.rule
 ```
@@ -183,10 +190,11 @@ src/Capability/
   - Format: `LayerName: [AllowedDependency1, AllowedDependency2, ...]`
   - Default layers: Domain, Application, Infrastructure, Presentation
   - You can define any custom layer names you need
-- `allowedCrossModulePatterns`: (Optional) Regex patterns for class names that can be imported across modules.
-  - Default patterns: `/Facade$/`, `/FacadeInterface$/`, `/Input$/`, `/Result$/`
+- `allowedCrossModulePatterns`: **Required** - Regex patterns for class names that can be imported across modules.
+  - **No defaults** - you must explicitly configure which classes can cross module boundaries
+  - Common patterns: `/Facade$/`, `/FacadeInterface$/`, `/Input$/`, `/Result$/`
   - Each pattern is a regex that matches against the class name (not the full namespace)
-  - You can add custom patterns to allow additional cross-module imports
+  - Empty array `[]` = no cross-module imports allowed (complete module isolation)
 
 **Example Violations:**
 

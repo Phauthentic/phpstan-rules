@@ -18,12 +18,21 @@ class ModularArchitectureCustomLayersRuleTest extends RuleTestCase
     protected function getRule(): Rule
     {
         // Custom configuration: Allow Application to depend on Infrastructure
-        return new ModularArchitectureRule('App\\Capability', [
-            'Domain' => [],
-            'Application' => ['Domain', 'Infrastructure'], // Custom: Application CAN depend on Infrastructure
-            'Infrastructure' => ['Domain'],
-            'Presentation' => ['Application', 'Domain'],
-        ]);
+        return new ModularArchitectureRule(
+            'App\\Capability',
+            [
+                'Domain' => [],
+                'Application' => ['Domain', 'Infrastructure'], // Custom: Application CAN depend on Infrastructure
+                'Infrastructure' => ['Domain'],
+                'Presentation' => ['Application', 'Domain'],
+            ],
+            [
+                '/Facade$/',
+                '/FacadeInterface$/',
+                '/Input$/',
+                '/Result$/',
+            ]
+        );
     }
 
 

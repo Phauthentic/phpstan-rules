@@ -55,16 +55,16 @@ class ModularArchitectureRule implements Rule
      * @param array<string, array<string>>|null $layerDependencies Custom layer dependency rules.
      *        Format: ['LayerName' => ['AllowedLayer1', 'AllowedLayer2']]
      *        If null, uses default hexagonal architecture rules.
-     * @param array<string>|null $allowedCrossModulePatterns Regex patterns for class names that can be imported cross-module.
-     *        If null, uses default patterns (Facade, FacadeInterface, Input, Result).
+     * @param array<string> $allowedCrossModulePatterns Regex patterns for class names that can be imported cross-module.
+     *        Example: ['/Facade$/', '/FacadeInterface$/', '/Input$/', '/Result$/']
      */
     public function __construct(
         private string $baseNamespace,
         ?array $layerDependencies = null,
-        ?array $allowedCrossModulePatterns = null
+        array $allowedCrossModulePatterns = []
     ) {
         $this->layerDependencies = $layerDependencies ?? $this->getDefaultLayerDependencies();
-        $this->allowedCrossModulePatterns = $allowedCrossModulePatterns ?? $this->getDefaultCrossModulePatterns();
+        $this->allowedCrossModulePatterns = $allowedCrossModulePatterns;
     }
 
     /**
@@ -79,21 +79,6 @@ class ModularArchitectureRule implements Rule
             self::LAYER_APPLICATION => [self::LAYER_DOMAIN],
             self::LAYER_INFRASTRUCTURE => [self::LAYER_DOMAIN, self::LAYER_APPLICATION],
             self::LAYER_PRESENTATION => [self::LAYER_DOMAIN, self::LAYER_APPLICATION],
-        ];
-    }
-
-    /**
-     * Get default patterns for allowed cross-module imports
-     *
-     * @return array<string>
-     */
-    private function getDefaultCrossModulePatterns(): array
-    {
-        return [
-            '/Facade$/',           // Classes ending with "Facade"
-            '/FacadeInterface$/',  // Classes ending with "FacadeInterface"
-            '/Input$/',            // Classes ending with "Input"
-            '/Result$/',           // Classes ending with "Result"
         ];
     }
 
@@ -316,10 +301,10 @@ class ModularArchitectureRule implements Rule
 
         if (!$isAllowed) {
             return RuleErrorBuilder::message(sprintf(
-                'Cross-module violation: Module `%s` can only import facades, Input, or Result classes from module `%s`. Cannot import `%s`.',
+                'Cross-module violation: Module `%s` is not allowed to import `%s` from module `%s`.',
                 $sourceModuleInfo['module'],
-                $targetModuleInfo['module'],
-                $usedClassName
+                $usedClassName,
+                $targetModuleInfo['module']
             ))
             ->identifier(self::IDENTIFIER_CROSS_MODULE)
             ->line($line)

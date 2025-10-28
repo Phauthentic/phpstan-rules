@@ -48,7 +48,7 @@ class ModularArchitectureCustomCrossModuleRuleTest extends RuleTestCase
             [__DIR__ . '/../../../data/ModularArchitectureTest/Capability/ProductCatalog/Application/InvalidCrossModule.php'],
             [
                 [
-                    'Cross-module violation: Module `ProductCatalog` can only import facades, Input, or Result classes from module `UserManagement`. Cannot import `App\Capability\UserManagement\UserManagementException`.',
+                    'Cross-module violation: Module `ProductCatalog` is not allowed to import `App\Capability\UserManagement\UserManagementException` from module `UserManagement`.',
                     7,
                 ],
             ]
