@@ -18,6 +18,8 @@ See [Rules documentation](docs/Rules.md) for a list of available rules and confi
 
 - Architecture Rules:
   - [Dependency Constraints Rule](docs/Rules.md#dependency-constraints-rule)
+  - [Modular Architecture Rule](docs/Rules.md#modular-architecture-rule)
+  - [Circular Module Dependency Rule](docs/Rules.md#circular-module-dependency-rule)
   - [Forbidden Namespaces Rule](docs/Rules.md#forbidden-namespaces-rule)
   - [Readonly Class Rule](docs/Rules.md#readonly-class-rule)
   - [Final Class Rule](docs/Rules.md#final-class-rule)

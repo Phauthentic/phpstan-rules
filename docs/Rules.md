@@ -89,6 +89,272 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
             - phpstan.rules.rule
 ```
 
+## Modular Architecture Rule
+
+Enforces strict dependency rules for modular hexagonal (Ports and Adapters) architecture with capabilities/modules. This rule is specifically designed for modular monoliths where each capability/module follows a layered architecture pattern.
+
+**What it enforces:**
+
+1. **Intra-Module Layer Dependencies** - Within the same module (default configuration):
+   - Domain: Cannot import from Application, Infrastructure, or Presentation
+   - Application: Can import Domain; cannot import Infrastructure or Presentation
+   - Infrastructure: Can import Domain and Application; cannot import Presentation
+   - Presentation: Can import Application and Domain; cannot import Infrastructure
+   
+   **Note:** You can customize these layer dependencies to match your architecture needs (see configuration examples below).
+
+2. **Cross-Module Dependencies** - Between different modules (default configuration):
+   - Modules can ONLY import from other modules:
+     - `*Facade.php` and `*FacadeInterface.php`
+     - `*Input.php` (DTOs from UseCases)
+     - `*Result.php` (DTOs from UseCases)
+   - All other cross-module imports are forbidden (including exceptions, entities, value objects, etc.)
+   
+   **Note:** You can customize which classes can be imported cross-module using regex patterns (see configuration examples below).
+
+**Note:** For circular dependency detection between modules, use the separate `CircularModuleDependencyRule`.
+
+**Architecture Structure:**
+
+```
+src/Capability/
+  <ModuleName>/
+    Domain/              # Pure business logic
+    Application/         # Use cases, facades
+    Infrastructure/      # Adapters (repositories, external services)
+    Presentation/        # Controllers, CLI commands
+```
+
+**Configuration Example (Default):**
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ModularArchitectureRule
+        arguments:
+            baseNamespace: 'App\Capability'
+        tags:
+            - phpstan.rules.rule
+```
+
+**Configuration Example (Custom Layers):**
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ModularArchitectureRule
+        arguments:
+            baseNamespace: 'App\Capability'
+            layerDependencies:
+                Domain: []                           # Domain cannot depend on anything
+                Application: [Domain, Infrastructure] # Custom: Application can depend on Infrastructure
+                Infrastructure: [Domain]
+                Presentation: [Application, Domain]
+                # You can also define your own custom layers:
+                Api: [Application, Domain]
+                Cli: [Application, Domain]
+        tags:
+            - phpstan.rules.rule
+```
+
+**Configuration Example (Custom Cross-Module Patterns):**
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ModularArchitectureRule
+        arguments:
+            baseNamespace: 'App\Capability'
+            layerDependencies: null  # Use defaults
+            allowedCrossModulePatterns:
+                - '/Facade$/'           # Classes ending with "Facade"
+                - '/FacadeInterface$/'  # Classes ending with "FacadeInterface"
+                - '/Input$/'            # Classes ending with "Input"
+                - '/Result$/'           # Classes ending with "Result"
+                - '/Dto$/'              # Custom: Allow Data Transfer Objects
+                - '/^.*Contract$/'      # Custom: Allow Contract interfaces
+                - '/Query$/'            # Custom: Allow Query objects
+        tags:
+            - phpstan.rules.rule
+```
+
+**Parameters:**
+
+- `baseNamespace`: The base namespace for your capabilities/modules (e.g., `App\Capability`)
+- `layerDependencies`: (Optional) Custom layer dependency rules. If not provided, uses default hexagonal architecture rules.
+  - Format: `LayerName: [AllowedDependency1, AllowedDependency2, ...]`
+  - Default layers: Domain, Application, Infrastructure, Presentation
+  - You can define any custom layer names you need
+- `allowedCrossModulePatterns`: (Optional) Regex patterns for class names that can be imported across modules.
+  - Default patterns: `/Facade$/`, `/FacadeInterface$/`, `/Input$/`, `/Result$/`
+  - Each pattern is a regex that matches against the class name (not the full namespace)
+  - You can add custom patterns to allow additional cross-module imports
+
+**Example Violations:**
+
+```php
+// ❌ Domain importing from Application
+namespace App\Capability\UserManagement\Domain;
+use App\Capability\UserManagement\Application\CreateUser;
+
+// ❌ Application importing from Presentation
+namespace App\Capability\UserManagement\Application;
+use App\Capability\UserManagement\Presentation\UserController;
+
+// ❌ Cross-module exception import
+namespace App\Capability\ProductCatalog\Application;
+use App\Capability\UserManagement\UserManagementException;
+
+// ✅ Valid cross-module facade import
+namespace App\Capability\ProductCatalog\Application;
+use App\Capability\UserManagement\UserManagementFacade;
+use App\Capability\UserManagement\Application\UseCases\CreateUser\CreateUserInput;
+
+// ✅ Valid layer dependency
+namespace App\Capability\UserManagement\Application;
+use App\Capability\UserManagement\Domain\Model\User;
+```
+
+**Custom Layer Examples:**
+
+The rule is flexible and allows you to define your own architectural layers beyond the defaults. Here are some common use cases:
+
+1. **Allow Application to depend on Infrastructure** (for repositories):
+```neon
+layerDependencies:
+    Domain: []
+    Application: [Domain, Infrastructure]  # Application can now use Infrastructure
+    Infrastructure: [Domain]
+    Presentation: [Application, Domain]
+```
+
+2. **Three-Tier Architecture** (instead of hexagonal):
+```neon
+layerDependencies:
+    Model: []                    # Data models
+    Service: [Model]             # Business logic services
+    Controller: [Service, Model] # Controllers/API
+```
+
+3. **Onion Architecture** with multiple layers:
+```neon
+layerDependencies:
+    Core: []                                    # Domain core
+    DomainServices: [Core]                      # Domain services
+    ApplicationServices: [DomainServices, Core] # Application services
+    Infrastructure: [ApplicationServices, DomainServices, Core]
+    Presentation: [ApplicationServices, Core]
+```
+
+4. **Mixed layers** (traditional + API-specific):
+```neon
+layerDependencies:
+    Domain: []
+    Application: [Domain]
+    Infrastructure: [Domain, Application]
+    Presentation: [Application, Domain]
+    RestApi: [Application, Domain]      # Custom REST API layer
+    GraphQLApi: [Application, Domain]   # Custom GraphQL API layer
+```
+
+**Custom Cross-Module Pattern Examples:**
+
+Beyond the default allowed imports (Facade, FacadeInterface, Input, Result), you can define custom patterns:
+
+1. **Allow DTOs and Contracts**:
+```neon
+allowedCrossModulePatterns:
+    - '/Facade$/'
+    - '/FacadeInterface$/'
+    - '/Input$/'
+    - '/Result$/'
+    - '/Dto$/'              # Allow Data Transfer Objects
+    - '/Contract$/'         # Allow Contract interfaces
+```
+
+2. **Allow Query and Command objects** (CQRS):
+```neon
+allowedCrossModulePatterns:
+    - '/Facade$/'
+    - '/FacadeInterface$/'
+    - '/Query$/'            # Allow Query objects
+    - '/Command$/'          # Allow Command objects
+    - '/QueryResult$/'      # Allow Query results
+```
+
+3. **Allow Events**:
+```neon
+allowedCrossModulePatterns:
+    - '/Facade$/'
+    - '/FacadeInterface$/'
+    - '/Input$/'
+    - '/Result$/'
+    - '/Event$/'            # Allow Domain/Integration Events
+    - '/EventInterface$/'   # Allow Event interfaces
+```
+
+4. **Custom patterns with namespace matching**:
+```neon
+allowedCrossModulePatterns:
+    - '/Facade$/'
+    - '/FacadeInterface$/'
+    - '/^.*Contract$/'      # Any class starting with anything and ending with "Contract"
+    - '/^I[A-Z]/'           # Any interface starting with "I" (e.g., IUserService)
+```
+
+**Note:** Patterns are matched against the class name only (not the full namespace), so `UserManagementFacade` matches `/Facade$/`.
+
+## Circular Module Dependency Rule
+
+Detects circular dependencies between modules in a modular architecture. This rule tracks module-to-module dependencies and reports when circular dependencies are detected.
+
+**What it enforces:**
+
+- Tracks dependencies between modules across the entire codebase
+- Detects circular dependency chains: Module A → Module B → Module C → Module A
+- Reports the complete dependency cycle path
+
+**Architecture Structure:**
+
+```
+src/Capability/
+  ModuleA/
+  ModuleB/
+  ModuleC/
+```
+
+If ModuleA imports from ModuleB, ModuleB imports from ModuleC, and ModuleC imports back to ModuleA, a circular dependency is detected.
+
+**Configuration Example:**
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\CircularModuleDependencyRule
+        arguments:
+            baseNamespace: 'App\Capability'
+        tags:
+            - phpstan.rules.rule
+```
+
+**Parameters:**
+
+- `baseNamespace`: The base namespace for your capabilities/modules (e.g., `App\Capability`)
+
+**Example Violations:**
+
+```php
+// ❌ Circular dependency detected
+// In ProductCatalog module:
+use App\Capability\Billing\BillingFacade;
+
+// In Billing module:
+use App\Capability\UserManagement\UserManagementFacade;
+
+// In UserManagement module:
+use App\Capability\ProductCatalog\ProductCatalogFacade;
+
+// Results in: ProductCatalog → Billing → UserManagement → ProductCatalog
+```
+
+**Note:** This rule should be used together with `ModularArchitectureRule` for comprehensive architectural enforcement. The `ModularArchitectureRule` handles layer and cross-module dependencies, while this rule specifically handles circular dependency detection.
+
 ## Forbidden Namespaces Rule
 
 Enforces that certain namespaces cannot be declared in your codebase. This rule checks the `namespace` keyword and prevents the declaration of namespaces matching specified regex patterns, helping to enforce architectural constraints.
