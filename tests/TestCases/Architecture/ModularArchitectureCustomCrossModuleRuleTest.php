@@ -22,11 +22,11 @@ class ModularArchitectureCustomCrossModuleRuleTest extends RuleTestCase
             'App\\Capability',
             null, // Use default layer dependencies
             [
-                '/Facade$/',           // Keep default: Facade
-                '/FacadeInterface$/',  // Keep default: FacadeInterface
-                '/Input$/',            // Keep default: Input
-                '/Result$/',           // Keep default: Result
-                '/Dto$/',              // Custom: Allow Dto classes
+                '/Facade$/',                    // Keep default: Facade
+                '/FacadeInterface$/',           // Keep default: FacadeInterface
+                '/Input$/',                     // Keep default: Input
+                '/Result$/',                    // Keep default: Result
+                '/Dto$/',                       // Custom: Allow Dto classes
             ]
         );
     }

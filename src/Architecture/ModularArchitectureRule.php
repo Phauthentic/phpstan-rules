@@ -292,12 +292,8 @@ class ModularArchitectureRule implements Rule
         string $usedClassName,
         int $line
     ): ?RuleError {
-        // Extract the class name from the full namespace
-        $parts = explode('\\', $usedClassName);
-        $className = end($parts);
-
-        // Check if it's an allowed cross-module import
-        $isAllowed = $this->isAllowedCrossModuleImport($className);
+        // Check if it's an allowed cross-module import using the full class name
+        $isAllowed = $this->isAllowedCrossModuleImport($usedClassName);
 
         if (!$isAllowed) {
             return RuleErrorBuilder::message(sprintf(
@@ -316,11 +312,12 @@ class ModularArchitectureRule implements Rule
 
     /**
      * Check if a class is allowed for cross-module import
+     * Matches against the fully qualified class name
      */
-    private function isAllowedCrossModuleImport(string $className): bool
+    private function isAllowedCrossModuleImport(string $fullyQualifiedClassName): bool
     {
         foreach ($this->allowedCrossModulePatterns as $pattern) {
-            if (preg_match($pattern, $className)) {
+            if (preg_match($pattern, $fullyQualifiedClassName)) {
                 return true;
             }
         }

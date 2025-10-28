@@ -27,10 +27,10 @@ class ModularArchitectureCustomLayersRuleTest extends RuleTestCase
                 'Presentation' => ['Application', 'Domain'],
             ],
             [
-                '/Facade$/',
-                '/FacadeInterface$/',
-                '/Input$/',
-                '/Result$/',
+                '/Facade$/',                    // Class names ending with Facade
+                '/FacadeInterface$/',           // Class names ending with FacadeInterface
+                '/Input$/',                     // Class names ending with Input
+                '/Result$/',                    // Class names ending with Result
             ]
         );
     }

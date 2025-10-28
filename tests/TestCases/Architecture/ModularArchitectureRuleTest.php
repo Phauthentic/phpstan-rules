@@ -19,10 +19,10 @@ class ModularArchitectureRuleTest extends RuleTestCase
             'App\\Capability',
             null,
             [
-                '/Facade$/',
-                '/FacadeInterface$/',
-                '/Input$/',
-                '/Result$/',
+                '/Facade$/',                    // Class names ending with Facade
+                '/FacadeInterface$/',           // Class names ending with FacadeInterface
+                '/Input$/',                     // Class names ending with Input
+                '/Result$/',                    // Class names ending with Result
             ]
         );
     }
