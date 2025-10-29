@@ -4,6 +4,18 @@ Add them to your `phpstan.neon` configuration file under the section `services`.
 
 For detailed documentation of each rule, see the individual rule documentation files in the [rules/](rules/) directory.
 
+## Modular Architecture Rule
+
+Enforces strict dependency rules for modular hexagonal (Ports and Adapters) architecture with capabilities/modules. This rule is specifically designed for modular monoliths where each capability/module follows a layered architecture pattern.
+
+See [Modular Architecture Rule documentation](rules/Modular-Architecture-Rule.md) for detailed information.
+
+## Circular Module Dependency Rule
+
+Detects circular dependencies between modules in a modular architecture. This rule tracks module-to-module dependencies and reports when circular dependencies are detected.
+
+See [Circular Module Dependency Rule documentation](rules/Circular-Module-Dependency-Rule.md) for detailed information.
+
 ## Full Configuration Example
 
 Here is a full example for a modular monolith with clean architecture rules.

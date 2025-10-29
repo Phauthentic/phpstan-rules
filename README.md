@@ -19,6 +19,8 @@ See individual rule documentation for detailed configuration examples. A [full c
 ### Architecture Rules
 
 - [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md)
+- [Modular Architecture Rule](docs/rules/Modular-Architecture-Rule.md)
+- [Circular Module Dependency Rule](docs/rules/Circular-Module-Dependency-Rule.md)
 - [Forbidden Namespaces Rule](docs/rules/Forbidden-Namespaces-Rule.md)
 - [Class Must Be Readonly Rule](docs/rules/Class-Must-Be-Readonly-Rule.md)
 - [Class Must Be Final Rule](docs/rules/Class-Must-Be-Final-Rule.md)
