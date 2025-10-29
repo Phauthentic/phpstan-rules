@@ -13,6 +13,7 @@ use PHPStan\ShouldNotHappenException;
 
 /**
  * Specification:
+ *
  * - Checks if a class matches a given regex pattern.
  * - Checks if the class is declared as final.
  *

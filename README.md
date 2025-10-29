@@ -14,22 +14,26 @@ composer require phauthentic/phpstan-rules --dev
 
 ## Rules
 
-See [Rules documentation](docs/Rules.md) for a list of available rules and configuration examples.
+See individual rule documentation for detailed configuration examples. A [full configuration example](docs/Rules.md) is also available.
 
-- Architecture Rules:
-  - [Dependency Constraints Rule](docs/Rules.md#dependency-constraints-rule)
-  - [Forbidden Namespaces Rule](docs/Rules.md#forbidden-namespaces-rule)
-  - [Readonly Class Rule](docs/Rules.md#readonly-class-rule)
-  - [Final Class Rule](docs/Rules.md#final-class-rule)
-  - [Namespace Class Pattern Rule](docs/Rules.md#namespace-class-pattern-rule)
-  - [Catch Exception of Type Not Allowed Rule](docs/Rules.md#catch-exception-of-type-not-allowed-rule)
-  - [Methods Returning Bool Must Follow Naming Convention Rule](docs/Rules.md#methods-returning-bool-must-follow-naming-convention-rule)
-  - [Method Signature Must Match Rule](docs/Rules.md#method-signature-must-match-rule)
-  - [Method Must Return Type Rule](docs/Rules.md#method-must-return-type-rule)
-- Clean Code Rules:
-  - [Control Structure Nesting Rule](docs/Rules.md#control-structure-nesting-rule)
-  - [Too Many Arguments Rule](docs/Rules.md#too-many-arguments-rule)
-  - [Max Line Length Rule](docs/Rules.md#max-line-length-rule)
+### Architecture Rules
+
+- [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md)
+- [Forbidden Namespaces Rule](docs/rules/Forbidden-Namespaces-Rule.md)
+- [Class Must Be Readonly Rule](docs/rules/Class-Must-Be-Readonly-Rule.md)
+- [Class Must Be Final Rule](docs/rules/Class-Must-Be-Final-Rule.md)
+- [Classname Must Match Pattern Rule](docs/rules/Classname-Must-Match-Pattern-Rule.md)
+- [Catch Exception Of Type Not Allowed Rule](docs/rules/Catch-Exception-Of-Type-Not-Allowed-Rule.md)
+- [Class Must Have Specification Docblock Rule](docs/rules/Class-Must-Have-Specification-Docblock-Rule.md)
+- [Methods Returning Bool Must Follow Naming Convention Rule](docs/rules/Methods-Returning-Bool-Must-Follow-Naming-Convention-Rule.md)
+- [Method Signature Must Match Rule](docs/rules/Method-Signature-Must-Match-Rule.md)
+- [Method Must Return Type Rule](docs/rules/Method-Must-Return-Type-Rule.md)
+
+### Clean Code Rules
+
+- [Control Structure Nesting Rule](docs/rules/Control-Structure-Nesting-Rule.md)
+- [Too Many Arguments Rule](docs/rules/Too-Many-Arguments-Rule.md)
+- [Max Line Length Rule](docs/rules/Max-Line-Length-Rule.md)
 
 ### Using Regex in Rules
 

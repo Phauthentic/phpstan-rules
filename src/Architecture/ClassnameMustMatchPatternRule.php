@@ -14,8 +14,9 @@ use PHPStan\ShouldNotHappenException;
 
 /**
  * Specification:
- * PHPStan rule to ensure that classes inside namespaces matching a given regex
- * must have names matching at least one of the provided patterns.
+ *
+ * - Checks if a namespace matches a given regex pattern.
+ * - Ensures that classes inside matching namespaces have names matching at least one of the provided patterns.
  *
  * @implements Rule<Namespace_>
  */
