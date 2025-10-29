@@ -46,6 +46,71 @@ class MethodSignatureMustMatchRuleTest extends RuleTestCase
                 ],
                 'visibilityScope' => 'public',
             ],
+            [
+                'pattern' => '/^TestClass::testMaxParams$/',
+                'minParameters' => 1,
+                'maxParameters' => 2,
+                'signature' => [],
+                'visibilityScope' => 'public',
+            ],
+            [
+                'pattern' => '/^TestClass::testNameMismatch$/',
+                'minParameters' => 2,
+                'maxParameters' => 2,
+                'signature' => [
+                    ['type' => 'int', 'pattern' => '/^param/'], // Name pattern doesn't match
+                    ['type' => 'string', 'pattern' => '/^param/'], // Name pattern doesn't match
+                ],
+                'visibilityScope' => 'public',
+            ],
+            [
+                'pattern' => '/^TestClass::testNullableTypes$/',
+                'minParameters' => 2,
+                'maxParameters' => 2,
+                'signature' => [
+                    ['type' => '?int', 'pattern' => '/^nullable/'],
+                    ['type' => '?string', 'pattern' => '/^nullable/'],
+                ],
+                'visibilityScope' => 'public',
+            ],
+            [
+                'pattern' => '/^TestClass::testClassTypes$/',
+                'minParameters' => 2,
+                'maxParameters' => 2,
+                'signature' => [
+                    ['type' => 'DummyClass', 'pattern' => '/^dummy/'],
+                    ['type' => 'string', 'pattern' => '/^name/'],
+                ],
+                'visibilityScope' => 'public',
+            ],
+            [
+                'pattern' => '/^TestClass::testProtectedMethod$/',
+                'minParameters' => 1,
+                'maxParameters' => 1,
+                'signature' => [
+                    ['type' => 'int', 'pattern' => '/^value/'],
+                ],
+                'visibilityScope' => 'protected',
+            ],
+            [
+                'pattern' => '/^TestClass::testNoVisibilityReq$/',
+                'minParameters' => 1,
+                'maxParameters' => 1,
+                'signature' => [
+                    ['type' => 'int', 'pattern' => '/^x/'],
+                ],
+                // No visibilityScope specified
+            ],
+            [
+                'pattern' => '/^TestClass::testValidMethod$/',
+                'minParameters' => 2,
+                'maxParameters' => 2,
+                'signature' => [
+                    ['type' => 'int', 'pattern' => '/^alpha/'],
+                    ['type' => 'string', 'pattern' => '/^beta/'],
+                ],
+                'visibilityScope' => 'public',
+            ],
         ]);
     }
 
@@ -55,15 +120,15 @@ class MethodSignatureMustMatchRuleTest extends RuleTestCase
             // Errors for testMethod (type checking enabled)
             [
                 'Method TestClass::testMethod has 1 parameters, but at least 2 required.',
-                5,
+                9,
             ],
             [
                 'Method TestClass::testMethod is missing parameter #2 of type string.',
-                5,
+                9,
             ],
             [
                 'Method TestClass::testMethod must be private.',
-                5,
+                9,
             ],
             // No errors for testMethodNoType since:
             // - First parameter has no type specified, so type checking is skipped
@@ -76,8 +141,34 @@ class MethodSignatureMustMatchRuleTest extends RuleTestCase
             // - Second parameter has no type specified, so type checking is skipped
             [
                 'Method TestClass::testMethodWithWrongType parameter #1 should be of type string, int given.',
-                13,
+                17,
             ],
+            
+            // Errors for testMaxParams - exceeds max parameters
+            [
+                'Method TestClass::testMaxParams has 4 parameters, but at most 2 allowed.',
+                22,
+            ],
+            
+            // Errors for testNameMismatch - parameter names don't match patterns
+            [
+                'Method TestClass::testNameMismatch parameter #1 name "wrongName" does not match pattern /^param/.',
+                27,
+            ],
+            [
+                'Method TestClass::testNameMismatch parameter #2 name "anotherWrong" does not match pattern /^param/.',
+                27,
+            ],
+            
+            // No errors for testNullableTypes - nullable types should match correctly
+            
+            // No errors for testClassTypes - class types should match correctly
+            
+            // No errors for testProtectedMethod - protected visibility matches
+            
+            // No errors for testNoVisibilityReq - no visibility requirement specified
+            
+            // No errors for testValidMethod - everything matches correctly
         ]);
     }
 }
