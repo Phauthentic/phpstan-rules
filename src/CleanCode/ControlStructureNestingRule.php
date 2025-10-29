@@ -18,7 +18,10 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
 /**
- * A rule to check the nesting level of control structures (if, else, elseif, try, catch).
+ * Specification:
+ *
+ * - Checks the nesting level of control structures (if, else, elseif, try, catch).
+ * - Reports an error if the nesting level exceeds the configured maximum.
  *
  * @implements Rule<Node>
  */

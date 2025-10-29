@@ -13,7 +13,11 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
 /**
- * A configurable rule to check the number of arguments in a method.
+ * Specification:
+ *
+ * - Checks if a method has more arguments than the configured maximum.
+ * - Optionally applies only to classes matching specific patterns.
+ * - Reports an error if the number of arguments exceeds the configured maximum.
  *
  * @implements Rule<ClassMethod>
  */

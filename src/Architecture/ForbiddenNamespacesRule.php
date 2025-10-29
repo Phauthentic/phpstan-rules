@@ -12,14 +12,11 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
 /**
- * A PHPStan rule to enforce that certain namespaces can not be declared.
- *
- * This rule checks the `namespace` keyword in your PHP code and ensures that
- * certain namespaces can not be declared as specified in the configuration,
- * to enforce architectural constraints.
- *
  * Specification:
+ *
+ * - Checks namespace declarations in PHP code.
  * - A (sub) namespace matching a given regex is not allowed to be declared.
+ * - Reports an error if a forbidden namespace is declared.
  *
  * @implements Rule<Namespace_>
  */
