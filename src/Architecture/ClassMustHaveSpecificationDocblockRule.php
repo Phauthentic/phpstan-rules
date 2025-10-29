@@ -7,6 +7,7 @@ namespace Phauthentic\PHPStanRules\Architecture;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Interface_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -15,14 +16,14 @@ use PHPStan\ShouldNotHappenException;
 /**
  * Specification:
  *
- * - Enforces that matched classes have a docblock with a "Specification:" section.
+ * - Enforces that matched classes and interfaces have a docblock with a "Specification:" section.
  * - Enforces that matched methods have a docblock with a "Specification:" section.
  * - Methods are matched using FQCN::methodName format with regex patterns.
  * - The specification section must contain a list of items starting with "-".
  * - Optionally allows @ annotations after a blank line.
  * - Optionally allows additional text between the list and annotations.
  *
- * @implements Rule<Class_>
+ * @implements Rule<Node>
  */
 class ClassMustHaveSpecificationDocblockRule implements Rule
 {
@@ -50,7 +51,7 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
 
     public function getNodeType(): string
     {
-        return Class_::class;
+        return Node::class;
     }
 
     private function buildInvalidFormatMessage(): string
@@ -73,11 +74,16 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
     }
 
     /**
-     * @param Class_ $node
+     * @param Node $node
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        // Only process classes and interfaces
+        if (!$node instanceof Class_ && !$node instanceof Interface_) {
+            return [];
+        }
+
         if (!isset($node->name)) {
             return [];
         }
@@ -86,14 +92,17 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
         $className = $node->name->toString();
         $namespaceName = $scope->getNamespace() ?? '';
         $fullClassName = $namespaceName . '\\' . $className;
+        
+        // Determine the type for error messages
+        $type = $node instanceof Interface_ ? 'Interface' : 'Class';
 
-        // Check class docblock
+        // Check class/interface docblock
         if ($this->matchesPatterns($fullClassName, $this->classPatterns)) {
             $docComment = $node->getDocComment();
             if ($docComment === null) {
-                $errors[] = $this->buildMissingDocblockError('Class', $fullClassName, $node);
+                $errors[] = $this->buildMissingDocblockError($type, $fullClassName, $node);
             } elseif (!$this->isValidSpecificationDocblock($docComment)) {
-                $errors[] = $this->buildInvalidDocblockError('Class', $fullClassName, $node);
+                $errors[] = $this->buildInvalidDocblockError($type, $fullClassName, $node);
             }
         }
 

@@ -1,6 +1,6 @@
 # Class Must Have Specification Docblock Rule
 
-Ensures that classes and/or methods matching specified patterns have a properly formatted docblock with a "Specification:" section. The specification must contain a list of items, and optionally allows annotations and additional text.
+Ensures that classes, interfaces, and/or methods matching specified patterns have a properly formatted docblock with a "Specification:" section. The specification must contain a list of items, and optionally allows annotations and additional text.
 
 ## Configuration Example
 
@@ -22,6 +22,23 @@ Ensures that classes and/or methods matching specified patterns have a properly 
             - phpstan.rules.rule
 ```
 
+### Validate Interfaces
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ClassMustHaveSpecificationDocblockRule
+        arguments:
+            classPatterns:
+                - '/.*Interface$/'     # All interfaces
+                - '/.*FacadeInterface$/'  # All facade interfaces
+            methodPatterns: []
+            specificationHeader: 'Specification:'
+            requireBlankLineAfterHeader: true
+            requireListItemsEndWithPeriod: false
+        tags:
+            - phpstan.rules.rule
+```
+
 ### Validate Methods
 
 ```neon
@@ -33,6 +50,7 @@ Ensures that classes and/or methods matching specified patterns have a properly 
                 - '/.*Repository::find.*/'      # All find* methods in Repository classes
                 - '/.*Service::execute$/'       # execute methods in Service classes
                 - '/App\\.*Handler::handle$/'   # handle methods in Handler classes
+                - '/.*FacadeInterface::.*/'     # All methods on any FacadeInterface
             specificationHeader: 'Specification:'
             requireBlankLineAfterHeader: true
             requireListItemsEndWithPeriod: false
