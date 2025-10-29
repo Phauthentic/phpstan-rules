@@ -11,28 +11,23 @@ use PHPStan\Testing\RuleTestCase;
 /**
  * @extends RuleTestCase<TooManyArgumentsRule>
  */
-class TooManyArgumentsRuleTest extends RuleTestCase
+class TooManyArgumentsRuleWithPatternsTest extends RuleTestCase
 {
     protected function getRule(): Rule
     {
-        return new TooManyArgumentsRule(3); // Set the maximum number of allowed arguments
+        // Only apply to classes ending with "Service"
+        return new TooManyArgumentsRule(3, ['/Service$/']);
     }
 
-    public function testRule(): void
+    public function testRuleWithPatterns(): void
     {
         $this->analyse([__DIR__ . '/../../../data/TooManyArgumentsClass.php'], [
-            [
-                'Method App\TooManyArgumentsClass::methodWithTooManyArguments has too many arguments (4). Maximum allowed is 3.',
-                7,
-            ],
             [
                 'Method App\Service\TooManyArgsService::methodWithTooManyArguments has too many arguments (5). Maximum allowed is 3.',
                 22,
             ],
-            [
-                'Method App\Other\TooManyArgsOther::methodWithTooManyArguments has too many arguments (5). Maximum allowed is 3.',
-                32,
-            ],
+            // TooManyArgumentsClass and TooManyArgsOther should NOT trigger errors because patterns don't match
         ]);
     }
 }
+
