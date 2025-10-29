@@ -13,7 +13,11 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
 /**
- * A configurable rule to check the maximum line length.
+ * Specification:
+ *
+ * - Checks if a line exceeds the configured maximum line length.
+ * - Optionally excludes files matching specific patterns.
+ * - Optionally ignores use statements.
  *
  * @implements Rule<Node>
  */

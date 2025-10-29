@@ -11,6 +11,11 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
+ * Specification:
+ *
+ * - Checks if a caught exception type is in the forbidden list.
+ * - Reports an error if a forbidden exception type is caught.
+ *
  * @implements Rule<Catch_>
  */
 class CatchExceptionOfTypeNotAllowedRule implements Rule

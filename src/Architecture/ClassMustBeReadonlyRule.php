@@ -12,7 +12,10 @@ use PHPStan\Rules\RuleErrorBuilder;
 
 /**
  * Specification:
+ *
+ * - Checks if a class matches a given regex pattern.
  * - A matching class must be declared as readonly.
+ *
  * @implements Rule<Class_>
  */
 class ClassMustBeReadonlyRule implements Rule

@@ -13,15 +13,13 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
 /**
- * A PHPStan rule to enforce dependency constraints between namespaces.
- *
- * This rule checks the `use` statements in your PHP code and ensures that
- * certain namespaces do not depend on other namespaces as specified in the
- * configuration.
- *
  * Specification:
- * - A class in a namespace matching a given regex is not allowed to depend on any namespace defined by a set of
- * other regexes.
+ *
+ * - Checks use statements in PHP code.
+ * - A class in a namespace matching a given regex is not allowed to depend on any namespace defined by a set of other regexes.
+ * - Reports an error if a forbidden dependency is detected.
+ *
+ * @implements Rule<Use_>
  */
 class DependencyConstraintsRule implements Rule
 {
