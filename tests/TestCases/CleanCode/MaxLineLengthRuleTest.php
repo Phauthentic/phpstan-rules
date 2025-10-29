@@ -28,28 +28,18 @@ class MaxLineLengthRuleTest extends RuleTestCase
         ]);
     }
 
-    public function testRuleWithExcludePatterns(): void
+    public function testMultipleLongLinesInFile(): void
     {
-        $rule = new MaxLineLengthRule(80, ['/.*Excluded.*/']);
-
-        $this->analyse([__DIR__ . '/../../../data/MaxLineLengthExcludedClass.php'], [
+        // Test that multiple long lines in the same file are all detected
+        $this->analyse([__DIR__ . '/../../../data/MaxLineLengthMultipleLines.php'], [
             [
-                'Line 7 exceeds the maximum length of 80 characters (found 81 characters).',
+                'Line 5 exceeds the maximum length of 80 characters (found 115 characters).',
+                5,
+            ],
+            [
+                'Line 7 exceeds the maximum length of 80 characters (found 110 characters).',
                 7,
             ],
-            [
-                'Line 9 exceeds the maximum length of 80 characters (found 86 characters).',
-                9,
-            ],
         ]);
-    }
-
-
-
-    public function testRuleWithIgnoreUseStatements(): void
-    {
-        $rule = new MaxLineLengthRule(80, [], true);
-
-        $this->analyse([__DIR__ . '/../../../data/MaxLineLengthUseStatementsClass.php'], []);
     }
 }

@@ -34,4 +34,10 @@ class ClassMustBeReadonlyRuleTest extends RuleTestCase
         // the test fails, if the expected error does not occur,
         // or if there are other errors reported beside the expected one
     }
+
+    public function testValidReadonlyClass(): void
+    {
+        // Test that readonly classes don't trigger errors
+        $this->analyse([__DIR__ . '/../../../data/Controller/ValidReadonlyController.php'], []);
+    }
 }
