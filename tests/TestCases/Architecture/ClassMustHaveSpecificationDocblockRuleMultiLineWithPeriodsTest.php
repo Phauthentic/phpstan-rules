@@ -15,7 +15,8 @@ class ClassMustHaveSpecificationDocblockRuleMultiLineWithPeriodsTest extends Rul
     protected function getRule(): \PHPStan\Rules\Rule
     {
         return new ClassMustHaveSpecificationDocblockRule(
-            patterns: ['/.*/'],
+            classPatterns: ['/.*/'],
+            methodPatterns: [],
             specificationHeader: 'Specification:',
             requireBlankLineAfterHeader: true,
             requireListItemsEndWithPeriod: true

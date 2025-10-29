@@ -14,9 +14,11 @@ class ClassMustHaveSpecificationDocblockRuleMultiLineTest extends RuleTestCase
 {
     protected function getRule(): \PHPStan\Rules\Rule
     {
-        return new ClassMustHaveSpecificationDocblockRule([
-            '/.*/', // Match all classes
-        ]);
+        return new ClassMustHaveSpecificationDocblockRule(
+            classPatterns: [
+                '/.*/', // Match all classes
+            ]
+        );
     }
 
     public function testMultiLineListItems(): void

@@ -14,9 +14,11 @@ class ClassMustHaveSpecificationDocblockRuleTest extends RuleTestCase
 {
     protected function getRule(): \PHPStan\Rules\Rule
     {
-        return new ClassMustHaveSpecificationDocblockRule([
-            '/.*/', // Match all classes for testing
-        ]);
+        return new ClassMustHaveSpecificationDocblockRule(
+            classPatterns: [
+                '/.*/', // Match all classes for testing
+            ]
+        );
     }
 
     public function testValidSpecificationClass(): void

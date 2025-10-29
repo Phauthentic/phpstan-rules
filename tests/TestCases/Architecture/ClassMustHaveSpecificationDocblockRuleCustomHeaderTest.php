@@ -15,7 +15,8 @@ class ClassMustHaveSpecificationDocblockRuleCustomHeaderTest extends RuleTestCas
     protected function getRule(): \PHPStan\Rules\Rule
     {
         return new ClassMustHaveSpecificationDocblockRule(
-            patterns: ['/.*/'],  // Match all classes
+            classPatterns: ['/.*/'],  // Match all classes
+            methodPatterns: [],
             specificationHeader: 'Requirements:',
             requireBlankLineAfterHeader: true
         );

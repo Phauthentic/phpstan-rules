@@ -1,20 +1,58 @@
 # Class Must Have Specification Docblock Rule
 
-Ensures that classes matching specified patterns have a properly formatted docblock with a "Specification:" section. The specification must contain a list of items, and optionally allows annotations and additional text.
+Ensures that classes and/or methods matching specified patterns have a properly formatted docblock with a "Specification:" section. The specification must contain a list of items, and optionally allows annotations and additional text.
 
 ## Configuration Example
+
+### Validate Classes
 
 ```neon
     -
         class: Phauthentic\PHPStanRules\Architecture\ClassMustHaveSpecificationDocblockRule
         arguments:
-            patterns:
+            classPatterns:
                 - '/.*Facade$/'        # All classes ending with "Facade"
                 - '/.*Command$/'       # All classes ending with "Command"
                 - '/.*Handler$/'       # All classes ending with "Handler"
+            methodPatterns: []         # No method validation
             specificationHeader: 'Specification:'  # Optional: customize the header text
             requireBlankLineAfterHeader: true       # Optional: require blank line after header (default: true)
             requireListItemsEndWithPeriod: false    # Optional: require list items to end with period (default: false)
+        tags:
+            - phpstan.rules.rule
+```
+
+### Validate Methods
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ClassMustHaveSpecificationDocblockRule
+        arguments:
+            classPatterns: []          # No class validation
+            methodPatterns:
+                - '/.*Repository::find.*/'      # All find* methods in Repository classes
+                - '/.*Service::execute$/'       # execute methods in Service classes
+                - '/App\\.*Handler::handle$/'   # handle methods in Handler classes
+            specificationHeader: 'Specification:'
+            requireBlankLineAfterHeader: true
+            requireListItemsEndWithPeriod: false
+        tags:
+            - phpstan.rules.rule
+```
+
+### Validate Both Classes and Methods
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ClassMustHaveSpecificationDocblockRule
+        arguments:
+            classPatterns:
+                - '/.*Facade$/'
+            methodPatterns:
+                - '/.*Repository::find.*/'
+            specificationHeader: 'Specification:'
+            requireBlankLineAfterHeader: true
+            requireListItemsEndWithPeriod: false
         tags:
             - phpstan.rules.rule
 ```
@@ -112,9 +150,31 @@ class MyFacade {}
 class MyFacade {}
 ```
 
+### Method Docblock
+
+The same format applies to methods when using `methodPatterns`:
+
+```php
+class UserRepository
+{
+    /**
+     * Specification:
+     *
+     * - Searches for users matching the given criteria.
+     * - Returns an array of User objects.
+     * - Throws an exception if the query fails.
+     */
+    public function findByEmail(string $email): array
+    {
+        // implementation
+    }
+}
+```
+
 ## Parameters
 
-- `patterns`: Array of regex patterns to match against class names (with full namespace).
+- `classPatterns`: Array of regex patterns to match against fully qualified class names (default: `[]`). If empty, no classes are validated.
+- `methodPatterns`: Array of regex patterns to match against methods in the format `FQCN::methodName` (default: `[]`). If empty, no methods are validated. Supports full regex matching on the entire string, allowing patterns like `/.*Repository::find.*/` or `/App\\Service\\.*::execute$/`.
 - `specificationHeader`: The header text to look for in the docblock (default: `'Specification:'`). You can use any custom text like `'Requirements:'`, `'Behavior:'`, etc.
 - `requireBlankLineAfterHeader`: Whether a blank line is required after the header before the list items (default: `true`).
 - `requireListItemsEndWithPeriod`: Whether all list items must end with a period to form proper sentences (default: `false`). This works correctly with multi-line list items.

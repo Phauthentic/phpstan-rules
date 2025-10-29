@@ -16,6 +16,8 @@ use PHPStan\ShouldNotHappenException;
  * Specification:
  *
  * - Enforces that matched classes have a docblock with a "Specification:" section.
+ * - Enforces that matched methods have a docblock with a "Specification:" section.
+ * - Methods are matched using FQCN::methodName format with regex patterns.
  * - The specification section must contain a list of items starting with "-".
  * - Optionally allows @ annotations after a blank line.
  * - Optionally allows additional text between the list and annotations.
@@ -24,18 +26,22 @@ use PHPStan\ShouldNotHappenException;
  */
 class ClassMustHaveSpecificationDocblockRule implements Rule
 {
-    private const ERROR_MESSAGE_MISSING = 'Class %s must have a docblock with a "%s" section.';
+    private const ERROR_MESSAGE_MISSING = '%s %s must have a docblock with a "%s" section.';
+    private const ERROR_MESSAGE_INVALID = '%s %s has an invalid specification docblock. %s';
     private const IDENTIFIER = 'phauthentic.architecture.classMustHaveSpecificationDocblock';
 
     /**
-     * @param array<string> $patterns An array of regex patterns to match against class names.
+     * @param array<string> $classPatterns An array of regex patterns to match against class names.
+     * Each pattern should be a valid PCRE regex.
+     * @param array<string> $methodPatterns An array of regex patterns to match against FQCN::methodName.
      * Each pattern should be a valid PCRE regex.
      * @param string $specificationHeader The header text to look for (default: "Specification:")
      * @param bool $requireBlankLineAfterHeader Whether to require a blank line after the header (default: true)
      * @param bool $requireListItemsEndWithPeriod Whether list items must end with a period (default: false)
      */
     public function __construct(
-        protected array $patterns,
+        protected array $classPatterns = [],
+        protected array $methodPatterns = [],
         protected string $specificationHeader = 'Specification:',
         protected bool $requireBlankLineAfterHeader = true,
         protected bool $requireListItemsEndWithPeriod = false
@@ -76,30 +82,46 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
             return [];
         }
 
+        $errors = [];
         $className = $node->name->toString();
         $namespaceName = $scope->getNamespace() ?? '';
         $fullClassName = $namespaceName . '\\' . $className;
 
-        if (!$this->classNameMatchesPattern($fullClassName)) {
-            return [];
+        // Check class docblock
+        if ($this->matchesPatterns($fullClassName, $this->classPatterns)) {
+            $docComment = $node->getDocComment();
+            if ($docComment === null) {
+                $errors[] = $this->buildMissingDocblockError('Class', $fullClassName, $node);
+            } elseif (!$this->isValidSpecificationDocblock($docComment)) {
+                $errors[] = $this->buildInvalidDocblockError('Class', $fullClassName, $node);
+            }
         }
 
-        $docComment = $node->getDocComment();
-        if ($docComment === null) {
-            return [$this->buildMissingDocblockError($fullClassName, $node)];
+        // Check method docblocks
+        foreach ($node->getMethods() as $method) {
+            $methodName = $method->name->toString();
+            $fullMethodName = $fullClassName . '::' . $methodName;
+
+            if ($this->matchesPatterns($fullMethodName, $this->methodPatterns)) {
+                $docComment = $method->getDocComment();
+                if ($docComment === null) {
+                    $errors[] = $this->buildMissingDocblockError('Method', $fullMethodName, $method);
+                } elseif (!$this->isValidSpecificationDocblock($docComment)) {
+                    $errors[] = $this->buildInvalidDocblockError('Method', $fullMethodName, $method);
+                }
+            }
         }
 
-        if (!$this->isValidSpecificationDocblock($docComment)) {
-            return [$this->buildInvalidDocblockError($fullClassName, $node)];
-        }
-
-        return [];
+        return $errors;
     }
 
-    private function classNameMatchesPattern(string $fullClassName): bool
+    /**
+     * @param array<string> $patterns
+     */
+    private function matchesPatterns(string $target, array $patterns): bool
     {
-        foreach ($this->patterns as $pattern) {
-            if (preg_match($pattern, $fullClassName)) {
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $target)) {
                 return true;
             }
         }
@@ -303,9 +325,9 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
      * @throws ShouldNotHappenException
      * @return \PHPStan\Rules\IdentifierRuleError
      */
-    private function buildMissingDocblockError(string $fullClassName, Class_ $node)
+    private function buildMissingDocblockError(string $type, string $fullName, Node $node)
     {
-        return RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE_MISSING, $fullClassName, $this->specificationHeader))
+        return RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE_MISSING, $type, $fullName, $this->specificationHeader))
             ->identifier(self::IDENTIFIER)
             ->line($node->getLine())
             ->build();
@@ -315,9 +337,9 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
      * @throws ShouldNotHappenException
      * @return \PHPStan\Rules\IdentifierRuleError
      */
-    private function buildInvalidDocblockError(string $fullClassName, Class_ $node)
+    private function buildInvalidDocblockError(string $type, string $fullName, Node $node)
     {
-        return RuleErrorBuilder::message(sprintf('Class %s has an invalid specification docblock. %s', $fullClassName, $this->buildInvalidFormatMessage()))
+        return RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE_INVALID, $type, $fullName, $this->buildInvalidFormatMessage()))
             ->identifier(self::IDENTIFIER)
             ->line($node->getLine())
             ->build();

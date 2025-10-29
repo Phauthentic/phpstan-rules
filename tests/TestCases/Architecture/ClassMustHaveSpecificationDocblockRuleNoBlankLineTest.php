@@ -15,8 +15,9 @@ class ClassMustHaveSpecificationDocblockRuleNoBlankLineTest extends RuleTestCase
     protected function getRule(): \PHPStan\Rules\Rule
     {
         return new ClassMustHaveSpecificationDocblockRule(
-            patterns: ['/.*/'  // Match all classes
+            classPatterns: ['/.*/'  // Match all classes
             ],
+            methodPatterns: [],
             specificationHeader: 'Specification:',
             requireBlankLineAfterHeader: false
         );
