@@ -36,4 +36,3 @@ class ClassMustHaveSpecificationDocblockRuleMultiLineTest extends RuleTestCase
         $this->analyse([__DIR__ . '/../../../data/SpecificationDocblock/ValidMultiLineComplexClass.php'], []);
     }
 }
-

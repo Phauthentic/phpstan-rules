@@ -13,7 +13,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Phauthentic\\PHPStanRules\\Tests\\": "tests/"
+            "Phauthentic\\PHPStanRules\\Tests\\": "tests/",
+            "App\\": "data/"
         }
     },
     "authors": [

@@ -219,15 +219,15 @@ class ModularArchitectureRule implements Rule
     private function parseModuleInfo(string $namespace): ?array
     {
         $escapedBase = str_replace('\\', '\\\\', $this->baseNamespace);
-        
+
         // Build dynamic pattern from configured layer names
         $layerNames = array_keys($this->layerDependencies);
         $layerPattern = implode('|', array_map('preg_quote', $layerNames));
-        
+
         // Match: BaseNamespace\ModuleName[\Layer[\...]]
         // Captures module name and optionally layer name
         $pattern = '/^' . $escapedBase . '\\\\([^\\\\]+)(?:\\\\(' . $layerPattern . ')(?:\\\\.*)?|\\\\.*)?$/';
-        
+
         if (preg_match($pattern, $namespace, $matches)) {
             return [
                 'module' => $matches[1],
@@ -325,4 +325,3 @@ class ModularArchitectureRule implements Rule
         return false;
     }
 }
-

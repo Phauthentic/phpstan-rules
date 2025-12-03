@@ -64,4 +64,3 @@ class CircularModuleDependencyRuleTest extends RuleTestCase
         );
     }
 }
-

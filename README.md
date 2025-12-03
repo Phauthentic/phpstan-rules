@@ -49,6 +49,10 @@ Because PHPStan is a widely used static analysis tool in the PHP community. It a
 
 It is also more or less easy to write your own rules if you need to enforce something specific that is not covered by the existing rules.
 
+## What if I need to ignore a Rule in a certain Place?
+
+Use the inline annotations PHPStan provides and add a comment explaining *why* in this case the rule is allowed to be broken. An inline annotation is the best because you should keep the information close to where it happens, visible right at the root of the problem.
+
 ### Alternative Tools
 
 If you don't like this library, you can also check out other tools. Some of them provide a fluent interface instead of a Regex. If this feels more comfortable for you, you might want to check them out:

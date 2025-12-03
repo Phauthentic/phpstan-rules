@@ -36,4 +36,3 @@ class MaxLineLengthRuleWithExclusionTest extends RuleTestCase
         ]);
     }
 }
-

@@ -47,4 +47,3 @@ class ClassMustHaveSpecificationDocblockRuleMethodTest extends RuleTestCase
         ]);
     }
 }
-

@@ -181,4 +181,3 @@ class ModularArchitectureRuleTest extends RuleTestCase
         );
     }
 }
-

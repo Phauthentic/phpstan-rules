@@ -10,7 +10,7 @@ use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test custom cross-module pattern configuration
- * 
+ *
  * @extends RuleTestCase<ModularArchitectureRule>
  */
 class ModularArchitectureCustomCrossModuleRuleTest extends RuleTestCase
@@ -64,4 +64,3 @@ class ModularArchitectureCustomCrossModuleRuleTest extends RuleTestCase
         );
     }
 }
-

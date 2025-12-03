@@ -38,4 +38,3 @@ class ClassMustHaveSpecificationDocblockRuleMultiLineWithPeriodsTest extends Rul
         ]);
     }
 }
-
