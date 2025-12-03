@@ -46,4 +46,3 @@ class ClassMustHaveSpecificationDocblockRuleInterfaceTest extends RuleTestCase
         ]);
     }
 }
-

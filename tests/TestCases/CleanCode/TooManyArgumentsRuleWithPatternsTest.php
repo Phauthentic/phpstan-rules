@@ -30,4 +30,3 @@ class TooManyArgumentsRuleWithPatternsTest extends RuleTestCase
         ]);
     }
 }
-

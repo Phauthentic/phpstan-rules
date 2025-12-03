@@ -25,4 +25,3 @@ class MaxLineLengthRuleIgnoreUseTest extends RuleTestCase
         $this->analyse([__DIR__ . '/../../../data/MaxLineLengthUseStatementsClass.php'], []);
     }
 }
-

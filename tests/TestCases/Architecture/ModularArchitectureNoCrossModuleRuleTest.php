@@ -10,7 +10,7 @@ use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test that without cross-module patterns, all cross-module imports are blocked
- * 
+ *
  * @extends RuleTestCase<ModularArchitectureRule>
  */
 class ModularArchitectureNoCrossModuleRuleTest extends RuleTestCase
@@ -56,4 +56,3 @@ class ModularArchitectureNoCrossModuleRuleTest extends RuleTestCase
         );
     }
 }
-

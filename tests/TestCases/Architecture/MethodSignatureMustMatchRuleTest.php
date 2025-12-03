@@ -143,13 +143,13 @@ class MethodSignatureMustMatchRuleTest extends RuleTestCase
                 'Method TestClass::testMethodWithWrongType parameter #1 should be of type string, int given.',
                 17,
             ],
-            
+
             // Errors for testMaxParams - exceeds max parameters
             [
                 'Method TestClass::testMaxParams has 4 parameters, but at most 2 allowed.',
                 22,
             ],
-            
+
             // Errors for testNameMismatch - parameter names don't match patterns
             [
                 'Method TestClass::testNameMismatch parameter #1 name "wrongName" does not match pattern /^param/.',
@@ -159,15 +159,15 @@ class MethodSignatureMustMatchRuleTest extends RuleTestCase
                 'Method TestClass::testNameMismatch parameter #2 name "anotherWrong" does not match pattern /^param/.',
                 27,
             ],
-            
+
             // No errors for testNullableTypes - nullable types should match correctly
-            
+
             // No errors for testClassTypes - class types should match correctly
-            
+
             // No errors for testProtectedMethod - protected visibility matches
-            
+
             // No errors for testNoVisibilityReq - no visibility requirement specified
-            
+
             // No errors for testValidMethod - everything matches correctly
         ]);
     }

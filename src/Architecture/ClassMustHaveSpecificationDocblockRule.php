@@ -57,19 +57,19 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
     private function buildInvalidFormatMessage(): string
     {
         $parts = ["Expected format: \"{$this->specificationHeader}\" header"];
-        
+
         if ($this->requireBlankLineAfterHeader) {
             $parts[] = "blank line";
         }
-        
+
         $parts[] = "then list items starting with \"-\"";
-        
+
         $message = implode(', ', $parts) . '.';
-        
+
         if ($this->requireListItemsEndWithPeriod) {
             $message .= ' List items must end with a period.';
         }
-        
+
         return $message;
     }
 
@@ -92,7 +92,7 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
         $className = $node->name->toString();
         $namespaceName = $scope->getNamespace() ?? '';
         $fullClassName = $namespaceName . '\\' . $className;
-        
+
         // Determine the type for error messages
         $type = $node instanceof Interface_ ? 'Interface' : 'Class';
 
@@ -165,10 +165,10 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
         if ($cleaned === null) {
             return [];
         }
-        
+
         // Split by lines
         $lines = explode("\n", $cleaned);
-        
+
         // Remove leading * and whitespace from each line
         $lines = array_map(function (string $line): string {
             $line = ltrim($line);
@@ -237,17 +237,17 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
         $hasListItem = false;
         $lineCount = count($lines);
         $startIndex = $this->requireBlankLineAfterHeader ? $specIndex + 2 : $specIndex + 1;
-        
+
         $currentListItem = '';
         $inListItem = false;
-        
+
         for ($i = $startIndex; $i < $lineCount; $i++) {
             if (!isset($lines[$i])) {
                 break;
             }
-            
+
             $trimmedLine = trim($lines[$i]);
-            
+
             // Skip blank lines
             if ($trimmedLine === '') {
                 // If we were in a list item, finalize it
@@ -260,7 +260,7 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
                 }
                 continue;
             }
-            
+
             // If we hit an @ annotation, finalize current list item and stop
             if (strpos($trimmedLine, '@') === 0) {
                 if ($inListItem && $currentListItem !== '') {
@@ -270,7 +270,7 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
                 }
                 break;
             }
-            
+
             // Check if this is a new list item (starts with -)
             if (strpos($trimmedLine, '-') === 0) {
                 // Finalize previous list item if exists
@@ -279,26 +279,26 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
                         return false;
                     }
                 }
-                
+
                 // Start new list item
                 $hasListItem = true;
                 $inListItem = true;
                 $currentListItem = $trimmedLine;
                 continue;
             }
-            
+
             // If we're in a list item, this is a continuation line
             if ($inListItem) {
                 $currentListItem .= ' ' . $trimmedLine;
                 continue;
             }
-            
+
             // If we encounter non-list, non-annotation, non-blank line before finding a list item, invalid
             if (!$hasListItem) {
                 return false;
             }
         }
-        
+
         // Finalize the last list item if exists
         if ($inListItem && $currentListItem !== '') {
             if (!$this->validateListItem($currentListItem)) {
@@ -317,7 +317,7 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
         if ($this->requireListItemsEndWithPeriod) {
             return $this->listItemEndsWithPeriod($listItem);
         }
-        
+
         return true;
     }
 
@@ -354,4 +354,3 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
             ->build();
     }
 }
-

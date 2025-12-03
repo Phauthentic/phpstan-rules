@@ -10,7 +10,7 @@ use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test custom layer configuration
- * 
+ *
  * @extends RuleTestCase<ModularArchitectureRule>
  */
 class ModularArchitectureCustomLayersRuleTest extends RuleTestCase

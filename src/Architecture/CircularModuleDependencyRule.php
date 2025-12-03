@@ -203,4 +203,3 @@ class CircularModuleDependencyRule implements Rule
         self::$moduleDependencies = [];
     }
 }
-

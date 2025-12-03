@@ -34,4 +34,3 @@ class ClassMustHaveSpecificationDocblockRuleNoBlankLineTest extends RuleTestCase
         $this->analyse([__DIR__ . '/../../../data/SpecificationDocblock/ValidSpecificationClass.php'], []);
     }
 }
-
