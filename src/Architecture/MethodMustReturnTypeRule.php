@@ -21,6 +21,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  * - Check if the types of the parameters match the expected types.
  * - If an object type is expected, it can match a specific class or a pattern.
  * - Supports union types with "oneOf" (one type must match) and "allOf" (all types must match).
+ *
+ * @implements Rule<Class_>
  */
 class MethodMustReturnTypeRule implements Rule
 {
@@ -60,7 +62,7 @@ class MethodMustReturnTypeRule implements Rule
     /**
      * @param Class_ $node
      * @param Scope $scope
-     * @return array
+     * @return array<\PHPStan\Rules\RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -143,8 +145,8 @@ class MethodMustReturnTypeRule implements Rule
     /**
      * Normalize configuration with defaults
      *
-     * @param array $config
-     * @return array
+     * @param array<string, mixed> $config
+     * @return array<string, mixed>
      */
     private function normalizeConfig(array $config): array
     {
@@ -163,12 +165,15 @@ class MethodMustReturnTypeRule implements Rule
         return $normalized;
     }
 
+    /**
+     * @param array<string, mixed> $patternConfig
+     */
     private function shouldErrorOnVoid(array $patternConfig, ?string $returnType): bool
     {
         return $patternConfig['void'] && $returnType !== 'void';
     }
 
-    private function buildVoidError(string $fullName, int $line)
+    private function buildVoidError(string $fullName, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(
@@ -186,6 +191,9 @@ class MethodMustReturnTypeRule implements Rule
         return $returnType === null;
     }
 
+    /**
+     * @param array<string, mixed> $patternConfig
+     */
     private function getExpectedTypeDescription(array $patternConfig): string
     {
         if (isset($patternConfig['oneOf'])) {
@@ -197,7 +205,7 @@ class MethodMustReturnTypeRule implements Rule
         return $patternConfig['type'] ?? 'void';
     }
 
-    private function buildMissingReturnTypeError(string $fullName, string $expectedType, int $line)
+    private function buildMissingReturnTypeError(string $fullName, string $expectedType, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(
@@ -211,12 +219,15 @@ class MethodMustReturnTypeRule implements Rule
         ->build();
     }
 
+    /**
+     * @param array<string, mixed> $patternConfig
+     */
     private function shouldErrorOnNullability(array $patternConfig, bool $isNullable): bool
     {
         return $patternConfig['nullable'] !== $isNullable;
     }
 
-    private function buildNullabilityError(string $fullName, bool $expectedNullable, int $line)
+    private function buildNullabilityError(string $fullName, bool $expectedNullable, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(
@@ -230,6 +241,9 @@ class MethodMustReturnTypeRule implements Rule
         ->build();
     }
 
+    /**
+     * @param array<string> $expectedTypes
+     */
     private function shouldErrorOnOneOf(array $expectedTypes, ?string $returnType): bool
     {
         if ($returnType === null) {
@@ -245,7 +259,10 @@ class MethodMustReturnTypeRule implements Rule
         return true;
     }
 
-    private function buildOneOfError(string $fullName, array $expectedTypes, ?string $actualType, int $line)
+    /**
+     * @param array<string> $expectedTypes
+     */
+    private function buildOneOfError(string $fullName, array $expectedTypes, ?string $actualType, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(
@@ -260,6 +277,9 @@ class MethodMustReturnTypeRule implements Rule
         ->build();
     }
 
+    /**
+     * @param array<string> $expectedTypes
+     */
     private function shouldErrorOnAllOf(array $expectedTypes, ?string $returnType): bool
     {
         if ($returnType === null) {
@@ -286,7 +306,10 @@ class MethodMustReturnTypeRule implements Rule
         return false;
     }
 
-    private function buildAllOfError(string $fullName, array $expectedTypes, ?string $actualType, int $line)
+    /**
+     * @param array<string> $expectedTypes
+     */
+    private function buildAllOfError(string $fullName, array $expectedTypes, ?string $actualType, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(
@@ -301,6 +324,9 @@ class MethodMustReturnTypeRule implements Rule
         ->build();
     }
 
+    /**
+     * @return array<string>
+     */
     private function parseUnionType(?string $type): array
     {
         if ($type === null) {
@@ -354,13 +380,16 @@ class MethodMustReturnTypeRule implements Rule
         return false;
     }
 
+    /**
+     * @param array<string, mixed> $patternConfig
+     */
     private function shouldErrorOnObjectTypePattern(array $patternConfig, string $objectType): bool
     {
         return $patternConfig['objectTypePattern'] !== null &&
             !preg_match($patternConfig['objectTypePattern'], $objectType);
     }
 
-    private function buildObjectTypePatternError(string $fullName, string $pattern, string $objectType, int $line)
+    private function buildObjectTypePatternError(string $fullName, string $pattern, string $objectType, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(
@@ -375,7 +404,7 @@ class MethodMustReturnTypeRule implements Rule
         ->build();
     }
 
-    private function buildObjectTypeError(string $fullName, int $line)
+    private function buildObjectTypeError(string $fullName, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(
@@ -393,7 +422,7 @@ class MethodMustReturnTypeRule implements Rule
         return !$this->isTypeMatch($returnType, $expectedType);
     }
 
-    private function buildTypeMismatchError(string $fullName, string $expectedType, ?string $actualType, int $line)
+    private function buildTypeMismatchError(string $fullName, string $expectedType, ?string $actualType, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(
@@ -424,7 +453,7 @@ class MethodMustReturnTypeRule implements Rule
         };
     }
 
-    private function isNullableType($type): bool
+    private function isNullableType(mixed $type): bool
     {
         return $type instanceof NullableType;
     }

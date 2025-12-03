@@ -44,7 +44,7 @@ class ClassMustBeReadonlyRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Class_ || !isset($node->name)) {
+        if (!isset($node->name)) {
             return [];
         }
 

@@ -63,9 +63,13 @@ class TooManyArgumentsRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        if (!$this->isClassMethod($node)) {
+            return [];
+        }
+
+        /** @var ClassMethod $node */
         if (
-            !$this->isClassMethod($node)
-            || !$this->matchesPattern($scope)
+            !$this->matchesPattern($scope)
             || !$this->argumentCountIsExceeded($node)
         ) {
             return [];
@@ -80,7 +84,7 @@ class TooManyArgumentsRule implements Rule
         ];
     }
 
-    private function argumentCountIsExceeded(Node $node): bool
+    private function argumentCountIsExceeded(ClassMethod $node): bool
     {
         $numArguments = count($node->params);
 
@@ -89,7 +93,12 @@ class TooManyArgumentsRule implements Rule
 
     private function matchesPattern(Scope $scope): bool
     {
-        $className = $scope->getClassReflection()->getName();
+        $classReflection = $scope->getClassReflection();
+        if ($classReflection === null) {
+            return false;
+        }
+
+        $className = $classReflection->getName();
 
         if (empty($this->patterns)) {
             return true;
@@ -106,14 +115,17 @@ class TooManyArgumentsRule implements Rule
 
     /**
      * @param Scope $scope
-     * @param Node $node
+     * @param ClassMethod $node
      * @return string
      */
-    public function buildErrorMessage(Scope $scope, Node $node): string
+    public function buildErrorMessage(Scope $scope, ClassMethod $node): string
     {
+        $classReflection = $scope->getClassReflection();
+        $className = $classReflection !== null ? $classReflection->getName() : 'Unknown';
+
         return sprintf(
             self::ERROR_MESSAGE,
-            $scope->getClassReflection()->getName(),
+            $className,
             $node->name->toString(),
             count($node->params),
             $this->maxArguments

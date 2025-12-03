@@ -41,10 +41,6 @@ class ClassnameMustMatchPatternRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Namespace_) {
-            return [];
-        }
-
         $namespaceName = $node->name ? $node->name->toString() : '';
         $errors = [];
 
@@ -65,7 +61,7 @@ class ClassnameMustMatchPatternRule implements Rule
             }
         }
 
-        return $errors;
+        return array_values($errors);
     }
 
     private function namespaceMatches(string $namespace, string $namespacePattern): bool
@@ -106,16 +102,16 @@ class ClassnameMustMatchPatternRule implements Rule
     /**
      * @param string $namespaceName
      * @param string $className
-     * @param $classPatterns
+     * @param string[] $classPatterns
      * @param Class_ $stmt
-     * @param array $errors
-     * @return array
+     * @param array<\PHPStan\Rules\RuleError> $errors
+     * @return array<\PHPStan\Rules\RuleError>
      * @throws ShouldNotHappenException
      */
     public function buildRuleError(
         string $namespaceName,
         string $className,
-        $classPatterns,
+        array $classPatterns,
         Class_ $stmt,
         array $errors
     ): array {

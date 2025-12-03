@@ -183,7 +183,7 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
         }, $lines);
 
         // Remove empty first and last lines that might be from the /** */ delimiters
-        if ($lines !== [] && trim($lines[0]) === '') {
+        if (count($lines) > 0 && trim($lines[0]) === '') {
             array_shift($lines);
         }
         $lastIndex = count($lines) - 1;

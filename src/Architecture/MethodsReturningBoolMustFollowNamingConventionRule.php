@@ -37,19 +37,19 @@ class MethodsReturningBoolMustFollowNamingConventionRule implements Rule
     /**
      * Skip constructors, destructors, and magic methods
      */
-    private function isSkippableMethod(Node $node): bool
+    private function isSkippableMethod(ClassMethod $node): bool
     {
         return $node->name->toString() === '__construct' ||
                $node->name->toString() === '__destruct' ||
                strpos($node->name->toString(), '__') === 0;
     }
 
-    private function hasReturnType(Node $node): bool
+    private function hasReturnType(ClassMethod $node): bool
     {
         return $node->returnType !== null;
     }
 
-    private function hasBooleanReturnType(Node $node, Scope $scope): bool
+    private function hasBooleanReturnType(ClassMethod $node, Scope $scope): bool
     {
         $classReflection = $scope->getClassReflection();
         if ($classReflection === null) {
@@ -88,10 +88,15 @@ class MethodsReturningBoolMustFollowNamingConventionRule implements Rule
 
         $methodName = $node->name->toString();
         if (!preg_match($this->regex, $methodName)) {
+            $classReflection = $scope->getClassReflection();
+            if ($classReflection === null) {
+                return [];
+            }
+
             return [
                 RuleErrorBuilder::message(sprintf(
                     self::ERROR_MESSAGE,
-                    $scope->getClassReflection()->getName(),
+                    $classReflection->getName(),
                     $methodName,
                     $this->regex
                 ))

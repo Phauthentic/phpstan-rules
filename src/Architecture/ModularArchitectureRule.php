@@ -114,7 +114,7 @@ class ModularArchitectureRule implements Rule
             $errors = array_merge($errors, $useErrors);
         }
 
-        return $errors;
+        return array_values($errors);
     }
 
     /**
@@ -241,6 +241,9 @@ class ModularArchitectureRule implements Rule
 
     /**
      * Validate intra-module layer dependencies
+     *
+     * @param array<string, mixed> $sourceModuleInfo
+     * @param array<string, mixed> $targetModuleInfo
      */
     private function validateLayerDependency(
         array $sourceModuleInfo,
@@ -285,6 +288,9 @@ class ModularArchitectureRule implements Rule
 
     /**
      * Validate cross-module dependencies (only facades and DTOs allowed)
+     *
+     * @param array<string, mixed> $sourceModuleInfo
+     * @param array<string, mixed> $targetModuleInfo
      */
     private function validateCrossModuleDependency(
         array $sourceModuleInfo,

@@ -54,6 +54,7 @@ class ControlStructureNestingRule implements Rule
             return [];
         }
 
+        /** @var Else_|If_|Catch_|ElseIf_|TryCatch $node */
         $errors = [];
         $nestingLevel = $this->getNestingLevel($node);
 
@@ -61,7 +62,7 @@ class ControlStructureNestingRule implements Rule
             $errors = $this->addError($nestingLevel, $node, $errors);
         }
 
-        return $errors;
+        return array_values($errors);
     }
 
     private function nodeIsAControlStructure(Node $node): bool
@@ -97,8 +98,8 @@ class ControlStructureNestingRule implements Rule
     /**
      * @param int $nestingLevel
      * @param Else_|If_|Catch_|ElseIf_|TryCatch $node
-     * @param array $errors
-     * @return array
+     * @param array<\PHPStan\Rules\RuleError> $errors
+     * @return array<\PHPStan\Rules\RuleError>
      * @throws ShouldNotHappenException
      */
     public function addError(int $nestingLevel, Else_|If_|Catch_|ElseIf_|TryCatch $node, array $errors): array

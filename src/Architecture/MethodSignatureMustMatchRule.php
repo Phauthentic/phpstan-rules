@@ -21,6 +21,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  * - Checks if the types of the parameters match the expected types.
  * - Checks if the parameter names match the expected patterns.
  * - Checks if the method has the required visibility scope if specified (public, protected, private).
+ *
+ * @implements Rule<Class_>
  */
 class MethodSignatureMustMatchRule implements Rule
 {
@@ -58,7 +60,7 @@ class MethodSignatureMustMatchRule implements Rule
     /**
      * @param Class_ $node
      * @param Scope $scope
-     * @return array
+     * @return array<\PHPStan\Rules\RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -107,8 +109,9 @@ class MethodSignatureMustMatchRule implements Rule
                 }
 
                 if (!$this->isValidVisibilityScope($patternConfig, $method)) {
+                    $visibilityScope = $patternConfig['visibilityScope'] ?? 'unknown';
                     $errors[] = RuleErrorBuilder::message(
-                        sprintf(self::ERROR_MESSAGE_VISIBILITY_SCOPE, $fullName, $patternConfig['visibilityScope'])
+                        sprintf(self::ERROR_MESSAGE_VISIBILITY_SCOPE, $fullName, $visibilityScope)
                     )
                     ->identifier(self::IDENTIFIER)
                     ->line($method->getLine())
@@ -120,7 +123,11 @@ class MethodSignatureMustMatchRule implements Rule
         return $errors;
     }
 
-    private function validateParameter(array $expected, $method, int $i, string $fullName): ?\PHPStan\Rules\RuleError
+    /**
+     * @param array{type: string, pattern: string|null} $expected
+     * @param ClassMethod $method
+     */
+    private function validateParameter(array $expected, ClassMethod $method, int $i, string $fullName): ?\PHPStan\Rules\RuleError
     {
         $validationCase = $this->determineValidationCase($expected, $method, $i);
 
@@ -167,7 +174,11 @@ class MethodSignatureMustMatchRule implements Rule
         };
     }
 
-    private function determineValidationCase(array $expected, $method, int $i): string
+    /**
+     * @param array{type: string, pattern: string|null} $expected
+     * @param ClassMethod $method
+     */
+    private function determineValidationCase(array $expected, ClassMethod $method, int $i): string
     {
         if (!isset($method->params[$i])) {
             return 'missing_parameter';
@@ -191,7 +202,11 @@ class MethodSignatureMustMatchRule implements Rule
         return 'valid';
     }
 
-    private function isValidVisibilityScope(array $patternConfig, $method): bool
+    /**
+     * @param array<string, mixed> $patternConfig
+     * @param ClassMethod $method
+     */
+    private function isValidVisibilityScope(array $patternConfig, ClassMethod $method): bool
     {
         if (!isset($patternConfig['visibilityScope']) || $patternConfig['visibilityScope'] === null) {
             return true;
@@ -206,11 +221,11 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
-     * @param array $patternConfig
+     * @param array<string, mixed> $patternConfig
      * @param int $paramCount
      * @param string $fullName
      * @param ClassMethod $method
-     * @return array
+     * @return array<\PHPStan\Rules\RuleError>
      */
     private function checkMinParameters(
         array $patternConfig,
@@ -240,7 +255,7 @@ class MethodSignatureMustMatchRule implements Rule
     /**
      * Checks if the parameter count is below the minimum required.
      *
-     * @param array $patternConfig
+     * @param array<string, mixed> $patternConfig
      * @param int $paramCount
      * @return bool
      */
@@ -251,11 +266,11 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
-     * @param array $patternConfig
+     * @param array<string, mixed> $patternConfig
      * @param int $paramCount
      * @param string $fullName
      * @param ClassMethod $method
-     * @return array
+     * @return array<\PHPStan\Rules\RuleError>
      */
     private function checkMaxParameters(
         array $patternConfig,
@@ -284,7 +299,7 @@ class MethodSignatureMustMatchRule implements Rule
     /**
      * Checks if the parameter count is above the maximum allowed.
      *
-     * @param array $patternConfig
+     * @param array<string, mixed> $patternConfig
      * @param int $paramCount
      * @return bool
      */
@@ -297,11 +312,11 @@ class MethodSignatureMustMatchRule implements Rule
     /**
      * Checks if the parameter name does not match the expected pattern.
      *
-     * @param array $expected
+     * @param array{type: string, pattern: string|null} $expected
      * @param \PhpParser\Node\Param $param
      * @return bool
      */
-    private function isInvalidParameterName(array $expected, $param): bool
+    private function isInvalidParameterName(array $expected, \PhpParser\Node\Param $param): bool
     {
         return isset($expected['pattern'])
             && $expected['pattern'] !== null

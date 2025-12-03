@@ -45,7 +45,7 @@ class ClassMustBeFinalRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Class_ || !isset($node->name)) {
+        if (!isset($node->name)) {
             return [];
         }
 
@@ -67,7 +67,7 @@ class ClassMustBeFinalRule implements Rule
         return [];
     }
 
-    private function buildRuleError(string $fullClassName)
+    private function buildRuleError(string $fullClassName): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
             ->identifier(self::IDENTIFIER)

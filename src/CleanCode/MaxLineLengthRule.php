@@ -157,6 +157,9 @@ class MaxLineLengthRule implements Rule
         }
 
         $content = file_get_contents($filePath);
+        if ($content === false) {
+            return [];
+        }
         $lines = explode("\n", $content);
         $lineLengths = [];
 

@@ -45,10 +45,6 @@ class CatchExceptionOfTypeNotAllowedRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Catch_) {
-            return [];
-        }
-
         $errors = [];
 
         foreach ($node->types as $type) {

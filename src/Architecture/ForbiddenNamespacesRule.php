@@ -51,10 +51,6 @@ class ForbiddenNamespacesRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Namespace_) {
-            return [];
-        }
-
         $namespaceName = $node->name ? $node->name->toString() : '';
 
         // Empty namespace is allowed (global namespace)
