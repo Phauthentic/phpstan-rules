@@ -10,7 +10,7 @@ use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test that long docblock lines ARE detected when ignoreDocBlocks is false
- * 
+ *
  * @extends RuleTestCase<MaxLineLengthRule>
  */
 class MaxLineLengthRuleDetectDocBlockLongLinesTest extends RuleTestCase
@@ -55,4 +55,3 @@ class MaxLineLengthRuleDetectDocBlockLongLinesTest extends RuleTestCase
         ]);
     }
 }
-

@@ -10,7 +10,7 @@ use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test backward compatibility: ignoreUseStatements parameter still works
- * 
+ *
  * @extends RuleTestCase<MaxLineLengthRule>
  */
 class MaxLineLengthRuleBackwardCompatibilityTest extends RuleTestCase
@@ -41,4 +41,3 @@ class MaxLineLengthRuleBackwardCompatibilityTest extends RuleTestCase
         ]);
     }
 }
-

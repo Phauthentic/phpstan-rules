@@ -10,7 +10,7 @@ use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test that long namespace declarations ARE detected when ignoreNamespaces is false
- * 
+ *
  * @extends RuleTestCase<MaxLineLengthRule>
  */
 class MaxLineLengthRuleDetectNamespaceLongLinesTest extends RuleTestCase
@@ -45,4 +45,3 @@ class MaxLineLengthRuleDetectNamespaceLongLinesTest extends RuleTestCase
         ]);
     }
 }
-

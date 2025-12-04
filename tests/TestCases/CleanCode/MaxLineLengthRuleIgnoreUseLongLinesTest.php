@@ -48,4 +48,3 @@ class MaxLineLengthRuleIgnoreUseLongLinesTest extends RuleTestCase
         ]);
     }
 }
-
