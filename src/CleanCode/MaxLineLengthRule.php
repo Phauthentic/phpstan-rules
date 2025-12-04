@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Phauthentic\PHPStanRules\CleanCode;
 
 use PhpParser\Node;
+use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Node\FileNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -17,7 +19,9 @@ use PHPStan\ShouldNotHappenException;
  *
  * - Checks if a line exceeds the configured maximum line length.
  * - Optionally excludes files matching specific patterns.
- * - Optionally ignores use statements.
+ * - Optionally ignores use statements (BC: via ignoreUseStatements parameter or 'useStatements' in ignoreLineTypes).
+ * - Optionally ignores namespace declaration (via 'namespaceDeclaration' in ignoreLineTypes).
+ * - Optionally ignores docblock comments (via 'docBlocks' in ignoreLineTypes).
  *
  * @implements Rule<Node>
  */
@@ -36,6 +40,10 @@ class MaxLineLengthRule implements Rule
 
     private bool $ignoreUseStatements;
 
+    private bool $ignoreNamespaceDeclaration;
+
+    private bool $ignoreDocBlocks;
+
     /**
      * @var array<string, array<int, int>>
      */
@@ -53,13 +61,34 @@ class MaxLineLengthRule implements Rule
     private array $useStatementLines = [];
 
     /**
-     * @param string[] $excludePatterns
+     * @var array<string, array<int, bool>>
+     * Cache of which lines contain namespace statements per file
      */
-    public function __construct(int $maxLineLength, array $excludePatterns = [], bool $ignoreUseStatements = false)
-    {
+    private array $namespaceLines = [];
+
+    /**
+     * @var array<string, array<int, bool>>
+     * Cache of which lines contain docblock comments per file
+     */
+    private array $docBlockLines = [];
+
+    /**
+     * @param string[] $excludePatterns
+     * @param array<string, bool> $ignoreLineTypes Array of line types to ignore (e.g., ['useStatements' => true, 'namespaceDeclaration' => true, 'docBlocks' => true])
+     */
+    public function __construct(
+        int $maxLineLength,
+        array $excludePatterns = [],
+        bool $ignoreUseStatements = false,
+        array $ignoreLineTypes = []
+    ) {
         $this->maxLineLength = $maxLineLength;
         $this->excludePatterns = $excludePatterns;
-        $this->ignoreUseStatements = $ignoreUseStatements;
+        
+        // BC: ignoreUseStatements parameter takes precedence over array when both are set
+        $this->ignoreUseStatements = $ignoreUseStatements ?: ($ignoreLineTypes['useStatements'] ?? false);
+        $this->ignoreNamespaceDeclaration = $ignoreLineTypes['namespaceDeclaration'] ?? false;
+        $this->ignoreDocBlocks = $ignoreLineTypes['docBlocks'] ?? false;
     }
 
     public function getNodeType(): string
@@ -77,13 +106,18 @@ class MaxLineLengthRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        // Skip PHPStan-specific nodes that don't represent actual PHP code
+        if ($node instanceof FileNode) {
+            return [];
+        }
+        
         // Skip if file should be excluded
         if ($this->shouldExcludeFile($scope)) {
             return [];
         }
 
         $filePath = $scope->getFile();
-        $lineNumber = $node->getLine();
+        $lineNumber = $node->getStartLine();
 
         // Track use statement lines for this file
         if ($node instanceof Use_) {
@@ -95,8 +129,62 @@ class MaxLineLengthRule implements Rule
             }
         }
 
+        // Track namespace statement lines for this file
+        if ($node instanceof Namespace_) {
+            // Only mark the start line where the namespace declaration appears
+            $namespaceLine = $node->getStartLine();
+            $this->markLineAsNamespace($filePath, $namespaceLine);
+            
+            // If ignoring namespaces and this is the namespace declaration line, skip it
+            if ($this->ignoreNamespaceDeclaration && $lineNumber === $namespaceLine) {
+                return [];
+            }
+        }
+
+        // Handle docblock lines for this node
+        $errors = [];
+        $docComment = $node->getDocComment();
+        if ($docComment !== null) {
+            $startLine = $docComment->getStartLine();
+            $endLine = $docComment->getEndLine();
+            
+            // Mark all docblock lines
+            for ($line = $startLine; $line <= $endLine; $line++) {
+                $this->markLineAsDocBlock($filePath, $line);
+            }
+            
+            // If not ignoring docblocks, check each line in the docblock
+            if (!$this->ignoreDocBlocks) {
+                for ($line = $startLine; $line <= $endLine; $line++) {
+                    // Skip if we've already processed this line
+                    if ($this->isLineProcessed($filePath, $line)) {
+                        continue;
+                    }
+                    
+                    $lineLength = $this->getLineLength($filePath, $line);
+                    if ($lineLength > $this->maxLineLength) {
+                        $this->markLineAsProcessed($filePath, $line);
+                        $errors[] = RuleErrorBuilder::message($this->buildErrorMessage($line, $lineLength))
+                            ->identifier(self::IDENTIFIER)
+                            ->line($line)
+                            ->build();
+                    }
+                }
+            }
+        }
+
         // Skip if this line is a use statement and we're ignoring them
         if ($this->ignoreUseStatements && $this->isUseStatementLine($filePath, $lineNumber)) {
+            return [];
+        }
+
+        // Skip if this line is a namespace and we're ignoring them
+        if ($this->ignoreNamespaceDeclaration && $this->isNamespaceLine($filePath, $lineNumber)) {
+            return [];
+        }
+
+        // Skip if this line is a docblock and we're ignoring them
+        if ($this->ignoreDocBlocks && $this->isDocBlockLine($filePath, $lineNumber)) {
             return [];
         }
 
@@ -111,15 +199,13 @@ class MaxLineLengthRule implements Rule
         if ($lineLength > $this->maxLineLength) {
             $this->markLineAsProcessed($filePath, $lineNumber);
 
-            return [
-                RuleErrorBuilder::message($this->buildErrorMessage($lineNumber, $lineLength))
-                    ->identifier(self::IDENTIFIER)
-                    ->line($lineNumber)
-                    ->build()
-            ];
+            $errors[] = RuleErrorBuilder::message($this->buildErrorMessage($lineNumber, $lineLength))
+                ->identifier(self::IDENTIFIER)
+                ->line($lineNumber)
+                ->build();
         }
 
-        return [];
+        return $errors;
     }
 
     private function shouldExcludeFile(Scope $scope): bool
@@ -165,6 +251,34 @@ class MaxLineLengthRule implements Rule
         }
 
         $this->useStatementLines[$filePath][$lineNumber] = true;
+    }
+
+    private function isNamespaceLine(string $filePath, int $lineNumber): bool
+    {
+        return isset($this->namespaceLines[$filePath][$lineNumber]);
+    }
+
+    private function markLineAsNamespace(string $filePath, int $lineNumber): void
+    {
+        if (!isset($this->namespaceLines[$filePath])) {
+            $this->namespaceLines[$filePath] = [];
+        }
+
+        $this->namespaceLines[$filePath][$lineNumber] = true;
+    }
+
+    private function isDocBlockLine(string $filePath, int $lineNumber): bool
+    {
+        return isset($this->docBlockLines[$filePath][$lineNumber]);
+    }
+
+    private function markLineAsDocBlock(string $filePath, int $lineNumber): void
+    {
+        if (!isset($this->docBlockLines[$filePath])) {
+            $this->docBlockLines[$filePath] = [];
+        }
+
+        $this->docBlockLines[$filePath][$lineNumber] = true;
     }
 
     private function getLineLength(string $filePath, int $lineNumber): int
