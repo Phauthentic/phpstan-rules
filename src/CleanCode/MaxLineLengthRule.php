@@ -47,6 +47,12 @@ class MaxLineLengthRule implements Rule
     private array $processedLines = [];
 
     /**
+     * @var array<string, array<int, bool>>
+     * Cache of which lines contain use statements per file
+     */
+    private array $useStatementLines = [];
+
+    /**
      * @param string[] $excludePatterns
      */
     public function __construct(int $maxLineLength, array $excludePatterns = [], bool $ignoreUseStatements = false)
@@ -76,13 +82,23 @@ class MaxLineLengthRule implements Rule
             return [];
         }
 
-        // Skip use statements if configured to ignore them
-        if ($this->ignoreUseStatements && $node instanceof Use_) {
-            return [];
-        }
-
         $filePath = $scope->getFile();
         $lineNumber = $node->getLine();
+
+        // Track use statement lines for this file
+        if ($node instanceof Use_) {
+            $this->markLineAsUseStatement($filePath, $lineNumber);
+            
+            // If ignoring use statements, skip processing this node
+            if ($this->ignoreUseStatements) {
+                return [];
+            }
+        }
+
+        // Skip if this line is a use statement and we're ignoring them
+        if ($this->ignoreUseStatements && $this->isUseStatementLine($filePath, $lineNumber)) {
+            return [];
+        }
 
         // Skip if we've already processed this line
         if ($this->isLineProcessed($filePath, $lineNumber)) {
@@ -135,6 +151,20 @@ class MaxLineLengthRule implements Rule
         }
 
         $this->processedLines[$filePath][$lineNumber] = true;
+    }
+
+    private function isUseStatementLine(string $filePath, int $lineNumber): bool
+    {
+        return isset($this->useStatementLines[$filePath][$lineNumber]);
+    }
+
+    private function markLineAsUseStatement(string $filePath, int $lineNumber): void
+    {
+        if (!isset($this->useStatementLines[$filePath])) {
+            $this->useStatementLines[$filePath] = [];
+        }
+
+        $this->useStatementLines[$filePath][$lineNumber] = true;
     }
 
     private function getLineLength(string $filePath, int $lineNumber): int
