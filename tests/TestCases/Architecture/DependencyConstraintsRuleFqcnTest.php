@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Phauthentic\PHPStanRules\Tests\TestCases\Architecture;
 
-use Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule;
+use Phauthentic\PHPStanRules\Architecture\ForbiddenDependenciesRule;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test FQCN detection with all reference types enabled
  *
- * @extends RuleTestCase<DependencyConstraintsRule>
+ * @extends RuleTestCase<ForbiddenDependenciesRule>
  */
 class DependencyConstraintsRuleFqcnTest extends RuleTestCase
 {
     protected function getRule(): Rule
     {
-        return new DependencyConstraintsRule(
+        return new ForbiddenDependenciesRule(
             [
                 '/^App\\\\Capability(?:\\\\\\w+)*$/' => [
                     '/^DateTime$/',
@@ -38,11 +38,11 @@ class DependencyConstraintsRuleFqcnTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/DependencyConstraintsRuleFqcn/NewInstantiation.php'], [
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 12,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 18,
             ],
         ]);
@@ -55,39 +55,39 @@ class DependencyConstraintsRuleFqcnTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/DependencyConstraintsRuleFqcn/TypeHints.php'], [
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 10,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 12,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 17,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 23,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 29,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 35,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 46,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 52,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 52,
             ],
         ]);
@@ -100,23 +100,23 @@ class DependencyConstraintsRuleFqcnTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/DependencyConstraintsRuleFqcn/StaticCalls.php'], [
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 12,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 18,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 24,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 30,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 36,
             ],
         ]);
@@ -129,11 +129,11 @@ class DependencyConstraintsRuleFqcnTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/DependencyConstraintsRuleFqcn/InstanceofAndCatch.php'], [
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 12,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 18,
             ],
         ]);
@@ -146,27 +146,27 @@ class DependencyConstraintsRuleFqcnTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/DependencyConstraintsRuleFqcn/ExtendsAndImplements.php'], [
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 8,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeInterface`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeInterface`.',
                 13,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeZone`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeZone`.',
                 20,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeInterface`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeInterface`.',
                 35,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateInterval`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateInterval`.',
                 35,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateInterval`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateInterval`.',
                 37,
             ],
         ]);
@@ -179,31 +179,31 @@ class DependencyConstraintsRuleFqcnTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/DependencyConstraintsRuleFqcn/SelectiveReferenceTypes.php'], [
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 10,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 13,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 19,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 27,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 33,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 39,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 45,
             ],
         ]);
@@ -218,39 +218,39 @@ class DependencyConstraintsRuleFqcnTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/DependencyConstraintsRuleFqcn/MixedUsageForbidden.php'], [
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 10,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 11,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 16,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 18,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTime`.',
                 24,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 28,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 30,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 34,
             ],
             [
-                'Dependency violation: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
+                'Forbidden dependency: A class in namespace `App\Capability` is not allowed to depend on `DateTimeImmutable`.',
                 36,
             ],
         ]);

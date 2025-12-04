@@ -1,5 +1,7 @@
 # Dependency Constraints Rule
 
+> **⚠️ DEPRECATED:** This rule has been renamed to `ForbiddenDependenciesRule`. The `DependencyConstraintsRule` class is kept for backward compatibility but will be removed in a future major version. Please update your configuration to use `ForbiddenDependenciesRule` instead.
+
 Enforces dependency constraints between namespaces by checking `use` statements and optionally fully qualified class names (FQCNs).
 
 The constructor takes an array of namespace dependencies. The key is the namespace that should not depend on the namespaces in the array of values.
@@ -9,6 +11,21 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
 ## Configuration Example
 
 ### Basic Usage (Use Statements Only)
+
+**Recommended (using new class name):**
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenDependenciesRule
+        arguments:
+            forbiddenDependencies: [
+                '/^App\\Domain(?:\\\w+)*$/': ['/^App\\Controller\\/']
+            ]
+        tags:
+            - phpstan.rules.rule
+```
+
+**Deprecated (backward compatibility):**
 
 ```neon
     -
@@ -23,9 +40,11 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
 
 ### With FQCN Checking Enabled
 
+**Recommended (using new class name):**
+
 ```neon
     -
-        class: Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenDependenciesRule
         arguments:
             forbiddenDependencies: [
                 '/^App\\Capability(?:\\\w+)*$/': [
@@ -40,9 +59,11 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
 
 ### With Selective Reference Types
 
+**Recommended (using new class name):**
+
 ```neon
     -
-        class: Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenDependenciesRule
         arguments:
             forbiddenDependencies: [
                 '/^App\\Capability(?:\\\w+)*$/': [
@@ -86,7 +107,7 @@ This example prevents usage of PHP's built-in `DateTime` and `DateTimeImmutable`
 
 ```neon
     -
-        class: Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenDependenciesRule
         arguments:
             forbiddenDependencies: [
                 '/^App\\Capability(?:\\\w+)*$/': [
@@ -113,7 +134,7 @@ If you only want to check specific reference types (e.g., to improve performance
 
 ```neon
     -
-        class: Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenDependenciesRule
         arguments:
             forbiddenDependencies: [
                 '/^App\\Capability(?:\\\w+)*$/': [
