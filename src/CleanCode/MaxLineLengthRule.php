@@ -84,7 +84,7 @@ class MaxLineLengthRule implements Rule
     ) {
         $this->maxLineLength = $maxLineLength;
         $this->excludePatterns = $excludePatterns;
-        
+
         // BC: ignoreUseStatements parameter takes precedence over array when both are set
         $this->ignoreUseStatements = $ignoreUseStatements ?: ($ignoreLineTypes['useStatements'] ?? false);
         $this->ignoreNamespaceDeclaration = $ignoreLineTypes['namespaceDeclaration'] ?? false;
@@ -110,7 +110,7 @@ class MaxLineLengthRule implements Rule
         if ($node instanceof FileNode) {
             return [];
         }
-        
+
         // Skip if file should be excluded
         if ($this->shouldExcludeFile($scope)) {
             return [];
@@ -122,7 +122,7 @@ class MaxLineLengthRule implements Rule
         // Track use statement lines for this file
         if ($node instanceof Use_) {
             $this->markLineAsUseStatement($filePath, $lineNumber);
-            
+
             // If ignoring use statements, skip processing this node
             if ($this->ignoreUseStatements) {
                 return [];
@@ -134,7 +134,7 @@ class MaxLineLengthRule implements Rule
             // Only mark the start line where the namespace declaration appears
             $namespaceLine = $node->getStartLine();
             $this->markLineAsNamespace($filePath, $namespaceLine);
-            
+
             // If ignoring namespaces and this is the namespace declaration line, skip it
             if ($this->ignoreNamespaceDeclaration && $lineNumber === $namespaceLine) {
                 return [];
@@ -147,12 +147,12 @@ class MaxLineLengthRule implements Rule
         if ($docComment !== null) {
             $startLine = $docComment->getStartLine();
             $endLine = $docComment->getEndLine();
-            
+
             // Mark all docblock lines
             for ($line = $startLine; $line <= $endLine; $line++) {
                 $this->markLineAsDocBlock($filePath, $line);
             }
-            
+
             // If not ignoring docblocks, check each line in the docblock
             if (!$this->ignoreDocBlocks) {
                 for ($line = $startLine; $line <= $endLine; $line++) {
@@ -160,7 +160,7 @@ class MaxLineLengthRule implements Rule
                     if ($this->isLineProcessed($filePath, $line)) {
                         continue;
                     }
-                    
+
                     $lineLength = $this->getLineLength($filePath, $line);
                     if ($lineLength > $this->maxLineLength) {
                         $this->markLineAsProcessed($filePath, $line);

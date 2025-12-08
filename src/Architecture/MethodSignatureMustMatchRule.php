@@ -21,6 +21,7 @@ use PHPStan\Rules\RuleErrorBuilder;
  * - Checks if the types of the parameters match the expected types.
  * - Checks if the parameter names match the expected patterns.
  * - Checks if the method has the required visibility scope if specified (public, protected, private).
+ * - When required is set to true, enforces that matching classes must implement the method with the specified signature.
  */
 class MethodSignatureMustMatchRule implements Rule
 {
@@ -32,6 +33,7 @@ class MethodSignatureMustMatchRule implements Rule
     private const ERROR_MESSAGE_MIN_PARAMETERS = 'Method %s has %d parameters, but at least %d required.';
     private const ERROR_MESSAGE_MAX_PARAMETERS = 'Method %s has %d parameters, but at most %d allowed.';
     private const ERROR_MESSAGE_VISIBILITY_SCOPE = 'Method %s must be %s.';
+    private const ERROR_MESSAGE_REQUIRED_METHOD = 'Class %s must implement method %s with signature: %s.';
 
     /**
      * @param array<array{
@@ -42,7 +44,8 @@ class MethodSignatureMustMatchRule implements Rule
      *         type: string,
      *         pattern: string|null,
      *     }>,
-     *     visibilityScope?: string|null
+     *     visibilityScope?: string|null,
+     *     required?: bool|null
      * }> $signaturePatterns
      */
     public function __construct(
@@ -64,6 +67,12 @@ class MethodSignatureMustMatchRule implements Rule
     {
         $errors = [];
         $className = $node->name ? $node->name->toString() : '';
+
+        // Check for required methods first
+        $requiredMethodErrors = $this->checkRequiredMethods($node, $className);
+        foreach ($requiredMethodErrors as $error) {
+            $errors[] = $error;
+        }
 
         foreach ($node->getMethods() as $method) {
             $methodName = $method->name->toString();
@@ -319,5 +328,141 @@ class MethodSignatureMustMatchRule implements Rule
                 ($inner = $this->getTypeAsString($type->type)) !== null ? '?' . $inner : null,
             default => null,
         };
+    }
+
+    /**
+     * Extract class name pattern and method name from a regex pattern.
+     * Expected pattern format: '/^ClassName::methodName$/' or '/ClassName::methodName$/'
+     *
+     * @param string $pattern
+     * @return array|null Array with 'classPattern' and 'methodName', or null if parsing fails
+     */
+    private function extractClassAndMethodFromPattern(string $pattern): ?array
+    {
+        // Remove pattern delimiters and anchors
+        $cleaned = preg_replace('/^\/\^?/', '', $pattern);
+        $cleaned = preg_replace('/\$?\/$/', '', $cleaned);
+
+        if ($cleaned === null || !str_contains($cleaned, '::')) {
+            return null;
+        }
+
+        $parts = explode('::', $cleaned, 2);
+        if (count($parts) !== 2) {
+            return null;
+        }
+
+        return [
+            'classPattern' => $parts[0],
+            'methodName' => $parts[1],
+        ];
+    }
+
+    /**
+     * Check if a class name matches a pattern extracted from regex.
+     *
+     * @param string $className
+     * @param string $classPattern
+     * @return bool
+     */
+    private function classMatchesPattern(string $className, string $classPattern): bool
+    {
+        // Build a regex from the class pattern
+        $regex = '/^' . $classPattern . '$/';
+        return preg_match($regex, $className) === 1;
+    }
+
+    /**
+     * Format the expected method signature for error messages.
+     *
+     * @param array $patternConfig
+     * @return string
+     */
+    private function formatSignatureForError(array $patternConfig): string
+    {
+        $parts = [];
+
+        // Add visibility scope if specified
+        if (isset($patternConfig['visibilityScope']) && $patternConfig['visibilityScope'] !== null) {
+            $parts[] = $patternConfig['visibilityScope'];
+        }
+
+        $parts[] = 'function';
+
+        // Extract method name from pattern
+        $extracted = $this->extractClassAndMethodFromPattern($patternConfig['pattern']);
+        if ($extracted !== null) {
+            $parts[] = $extracted['methodName'];
+        }
+
+        // Build parameters
+        $params = [];
+        if (!empty($patternConfig['signature'])) {
+            foreach ($patternConfig['signature'] as $i => $sig) {
+                $paramParts = [];
+                if (isset($sig['type']) && $sig['type'] !== null) {
+                    $paramParts[] = $sig['type'];
+                }
+                $paramParts[] = '$param' . ($i + 1);
+                $params[] = implode(' ', $paramParts);
+            }
+        }
+
+        return implode(' ', $parts) . '(' . implode(', ', $params) . ')';
+    }
+
+    /**
+     * Check if required methods are implemented in the class.
+     *
+     * @param Class_ $node
+     * @param string $className
+     * @return array
+     */
+    private function checkRequiredMethods(Class_ $node, string $className): array
+    {
+        $errors = [];
+
+        // Get list of implemented methods
+        $implementedMethods = [];
+        foreach ($node->getMethods() as $method) {
+            $implementedMethods[] = $method->name->toString();
+        }
+
+        // Check each pattern with required flag
+        foreach ($this->signaturePatterns as $patternConfig) {
+            // Skip if not required
+            if (!isset($patternConfig['required']) || $patternConfig['required'] !== true) {
+                continue;
+            }
+
+            // Extract class and method patterns
+            $extracted = $this->extractClassAndMethodFromPattern($patternConfig['pattern']);
+            if ($extracted === null) {
+                continue;
+            }
+
+            // Check if class matches the pattern
+            if (!$this->classMatchesPattern($className, $extracted['classPattern'])) {
+                continue;
+            }
+
+            // Check if method is implemented
+            if (!in_array($extracted['methodName'], $implementedMethods, true)) {
+                $signature = $this->formatSignatureForError($patternConfig);
+                $errors[] = RuleErrorBuilder::message(
+                    sprintf(
+                        self::ERROR_MESSAGE_REQUIRED_METHOD,
+                        $className,
+                        $extracted['methodName'],
+                        $signature
+                    )
+                )
+                ->identifier(self::IDENTIFIER)
+                ->line($node->getLine())
+                ->build();
+            }
+        }
+
+        return $errors;
     }
 }

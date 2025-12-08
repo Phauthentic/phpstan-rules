@@ -10,7 +10,7 @@ use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test the new array API for ignore options
- * 
+ *
  * @extends RuleTestCase<MaxLineLengthRule>
  */
 class MaxLineLengthRuleArrayApiTest extends RuleTestCase
@@ -41,4 +41,3 @@ class MaxLineLengthRuleArrayApiTest extends RuleTestCase
         ]);
     }
 }
-

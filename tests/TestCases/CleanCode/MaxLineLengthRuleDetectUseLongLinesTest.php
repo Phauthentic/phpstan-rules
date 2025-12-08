@@ -10,10 +10,10 @@ use PHPStan\Testing\RuleTestCase;
 
 /**
  * Test that long use statements ARE detected when ignoreUseStatements is false
- * 
+ *
  * This complements the regression test to ensure the fix doesn't break
  * the default behavior of detecting long use statements.
- * 
+ *
  * @extends RuleTestCase<MaxLineLengthRule>
  */
 class MaxLineLengthRuleDetectUseLongLinesTest extends RuleTestCase
@@ -56,4 +56,3 @@ class MaxLineLengthRuleDetectUseLongLinesTest extends RuleTestCase
         ]);
     }
 }
-
