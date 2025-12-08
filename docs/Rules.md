@@ -55,8 +55,9 @@ services:
             - phpstan.rules.rule
 
     # Dependency constraints - enforce layer boundaries
+    # Note: Use ForbiddenDependenciesRule (DependencyConstraintsRule is deprecated)
     -
-        class: Phauthentic\PHPStanRules\Architecture\DependencyConstraintsRule
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenDependenciesRule
         arguments:
             forbiddenDependencies:
                 # Domain layer cannot depend on Application, Infrastructure, or Presentation
