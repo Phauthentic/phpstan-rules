@@ -30,6 +30,8 @@ See individual rule documentation for detailed configuration examples. A [full c
 - [Methods Returning Bool Must Follow Naming Convention Rule](docs/rules/Methods-Returning-Bool-Must-Follow-Naming-Convention-Rule.md)
 - [Method Signature Must Match Rule](docs/rules/Method-Signature-Must-Match-Rule.md)
 - [Method Must Return Type Rule](docs/rules/Method-Must-Return-Type-Rule.md)
+- [Property Must Match Rule](docs/rules/Property-Must-Match-Rule.md)
+- [Forbidden Accessors Rule](docs/rules/Forbidden-Accessors-Rule.md)
 
 ### Clean Code Rules
 

@@ -16,6 +16,18 @@ Detects circular dependencies between modules in a modular architecture. This ru
 
 See [Circular Module Dependency Rule documentation](rules/Circular-Module-Dependency-Rule.md) for detailed information.
 
+## Forbidden Accessors Rule
+
+Forbids public and/or protected getters and setters on classes matching specified patterns. Useful for enforcing immutability or the "Tell, Don't Ask" principle.
+
+See [Forbidden Accessors Rule documentation](rules/Forbidden-Accessors-Rule.md) for detailed information.
+
+## Property Must Match Rule
+
+Ensures that classes matching specified patterns have properties with expected names, types, and visibility scopes. Can optionally enforce that matching classes must have certain properties.
+
+See [Property Must Match Rule documentation](rules/Property-Must-Match-Rule.md) for detailed information.
+
 ## Full Configuration Example
 
 Here is a full example for a modular monolith with clean architecture rules.
@@ -130,6 +142,27 @@ services:
         tags:
             - phpstan.rules.rule
 
+    # Property rules for entities
+    -
+        class: Phauthentic\PHPStanRules\Architecture\PropertyMustMatchRule
+        arguments:
+            propertyPatterns:
+                -
+                    classPattern: '/^App\\Capability\\.*\\Domain\\Model\\.*Entity$/'
+                    properties:
+                        -
+                            name: 'id'
+                            type: 'int'
+                            visibilityScope: 'private'
+                            required: true
+                        -
+                            name: 'createdAt'
+                            type: 'DateTimeImmutable'
+                            visibilityScope: 'private'
+                            required: true
+        tags:
+            - phpstan.rules.rule
+
     # Method signature rules for repositories
     -
         class: Phauthentic\PHPStanRules\Architecture\MethodSignatureMustMatchRule
@@ -188,6 +221,19 @@ services:
             ## new code in other types of presentations!
                 '/^App\\Capability\\[^\\]+\\Presentation\\(?!Http$|PublicAPI$|InternalAPI$)[^\\]+$/'
             ]
+        tags:
+            - phpstan.rules.rule
+
+    # Forbid accessors on domain entities
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenAccessorsRule
+        arguments:
+            classPatterns:
+                - '/^App\\Capability\\.*\\Domain\\Model\\.*Entity$/'
+            forbidGetters: true
+            forbidSetters: true
+            visibility:
+                - public
         tags:
             - phpstan.rules.rule
 
