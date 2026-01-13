@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHPStan Rule Builder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f1419;
+            --bg-card: #1a1f26;
+            --bg-input: #242b35;
+            --accent-cyan: #00d9ff;
+            --accent-purple: #a855f7;
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 217, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 31, 38, 0.9) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            margin: 0.5rem 0 0 0;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        .form-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 0.625rem 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-input);
+            border-color: var(--accent-cyan);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .form-select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .form-check-input {
+            background-color: var(--bg-input);
+            border-color: var(--border-color);
+            width: 1.125rem;
+            height: 1.125rem;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        .form-check-input:focus {
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15);
+            border-color: var(--accent-cyan);
+        }
+
+        .form-check-label {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), #0099cc);
+            border: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #00c4e6, #0088b3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-outline-secondary {
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 8px;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--bg-input);
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #16a34a);
+            border: none;
+            font-weight: 500;
+            border-radius: 8px;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        .btn-danger {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            border-radius: 8px;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .btn-danger:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .yaml-preview {
+            background: #0d1117;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre;
+            color: #c9d1d9;
+            min-height: 300px;
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+        }
+
+        .yaml-key {
+            color: #7ee787;
+        }
+
+        .yaml-string {
+            color: #a5d6ff;
+        }
+
+        .yaml-comment {
+            color: #8b949e;
+        }
+
+        .yaml-number {
+            color: #f2cc60;
+        }
+
+        .yaml-bool {
+            color: #ff7b72;
+        }
+
+        .pattern-item, .nested-item {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .nested-item {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .add-btn {
+            border: 2px dashed var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .add-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .sticky-preview {
+            position: sticky;
+            top: 1rem;
+        }
+
+        .rule-description {
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 3px solid var(--accent-cyan);
+            padding: 0.75rem 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .input-group-text {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .section-title {
+            color: var(--accent-purple);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 1.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 10;
+        }
+
+        .preview-container {
+            position: relative;
+        }
+
+        .badge-required {
+            background: var(--accent-orange);
+            font-size: 0.65rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .form-text {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .sticky-preview {
+                position: static;
+                margin-top: 2rem;
+            }
+        }
+
+        .placeholder-text {
+            color: var(--text-secondary);
+            font-style: italic;
+            text-align: center;
+            padding: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>PHPStan Rule Builder</h1>
+            <p>Configure PHPStan architecture rules with a visual form builder</p>
+        </div>
+    </header>
+
+    <div class="container pb-5">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <label for="ruleSelect" class="form-label">Select a Rule</label>
+                        <select class="form-select" id="ruleSelect">
+                            <option value="">-- Choose a rule to configure --</option>
+                            <option value="CatchExceptionOfTypeNotAllowedRule">CatchExceptionOfTypeNotAllowedRule</option>
+                            <option value="CircularModuleDependencyRule">CircularModuleDependencyRule</option>
+                            <option value="ClassMustBeFinalRule">ClassMustBeFinalRule</option>
+                            <option value="ClassMustBeReadonlyRule">ClassMustBeReadonlyRule</option>
+                            <option value="ClassMustHaveSpecificationDocblockRule">ClassMustHaveSpecificationDocblockRule</option>
+                            <option value="ClassnameMustMatchPatternRule">ClassnameMustMatchPatternRule</option>
+                            <option value="ControlStructureNestingRule">ControlStructureNestingRule</option>
+                            <option value="ForbiddenDependenciesRule">ForbiddenDependenciesRule</option>
+                            <option value="ForbiddenAccessorsRule">ForbiddenAccessorsRule</option>
+                            <option value="ForbiddenNamespacesRule">ForbiddenNamespacesRule</option>
+                            <option value="MaxLineLengthRule">MaxLineLengthRule</option>
+                            <option value="MethodMustReturnTypeRule">MethodMustReturnTypeRule</option>
+                            <option value="MethodSignatureMustMatchRule">MethodSignatureMustMatchRule</option>
+                            <option value="MethodsReturningBoolMustFollowNamingConventionRule">MethodsReturningBoolMustFollowNamingConventionRule</option>
+                            <option value="ModularArchitectureRule">ModularArchitectureRule</option>
+                            <option value="PropertyMustMatchRule">PropertyMustMatchRule</option>
+                            <option value="TooManyArgumentsRule">TooManyArgumentsRule</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">Configuration</div>
+                    <div class="card-body" id="formContainer">
+                        <div class="placeholder-text">
+                            Select a rule above to start configuring
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="sticky-preview">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>YAML Preview</span>
+                            <button class="btn btn-sm btn-success" id="copyBtn" style="display: none;">
+                                Copy to Clipboard
+                            </button>
+                        </div>
+                        <div class="card-body preview-container">
+                            <div class="yaml-preview" id="yamlPreview">
+                                <span class="placeholder-text">YAML output will appear here</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const RULES = {
+            CatchExceptionOfTypeNotAllowedRule: {
+                description: 'Ensures that specific exception types are not caught in catch blocks. Useful for preventing catching of overly broad exception types.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\CatchExceptionOfTypeNotAllowedRule',
+                fields: [
+                    {
+                        name: 'forbiddenExceptionTypes',
+                        label: 'Forbidden Exception Types',
+                        type: 'array',
+                        required: true,
+                        help: 'Array of exception type names that should not be caught',
+                        default: ['Exception', 'Error', 'Throwable']
+                    }
+                ]
+            },
+            CircularModuleDependencyRule: {
+                description: 'Detects circular dependencies between modules in a modular architecture.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\CircularModuleDependencyRule',
+                fields: [
+                    {
+                        name: 'baseNamespace',
+                        label: 'Base Namespace',
+                        type: 'text',
+                        required: true,
+                        help: 'The base namespace for your capabilities/modules',
+                        default: 'App\\Capability'
+                    }
+                ]
+            },
+            ClassMustBeFinalRule: {
+                description: 'Ensures that classes matching specified patterns are declared as final.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ClassMustBeFinalRule',
+                fields: [
+                    {
+                        name: 'patterns',
+                        label: 'Class Patterns',
+                        type: 'array',
+                        required: true,
+                        help: 'Array of regex patterns to match against class names',
+                        default: ['/^App\\\\Service\\\\/']
+                    },
+                    {
+                        name: 'ignoreAbstractClasses',
+                        label: 'Ignore Abstract Classes',
+                        type: 'boolean',
+                        required: false,
+                        help: 'Whether to ignore abstract classes',
+                        default: true
+                    }
+                ]
+            },
+            ClassMustBeReadonlyRule: {
+                description: 'Ensures that classes matching specified patterns are declared as readonly.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ClassMustBeReadonlyRule',
+                fields: [
+                    {
+                        name: 'patterns',
+                        label: 'Class Patterns',
+                        type: 'array',
+                        required: true,
+                        help: 'Array of regex patterns to match against class names',
+                        default: ['/^App\\\\Controller\\\\/']
+                    }
+                ]
+            },
+            ClassMustHaveSpecificationDocblockRule: {
+                description: 'Ensures that classes/methods have a properly formatted docblock with a "Specification:" section.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ClassMustHaveSpecificationDocblockRule',
+                fields: [
+                    {
+                        name: 'classPatterns',
+                        label: 'Class Patterns',
+                        type: 'array',
+                        required: false,
+                        help: 'Regex patterns to match against class names',
+                        default: []
+                    },
+                    {
+                        name: 'methodPatterns',
+                        label: 'Method Patterns',
+                        type: 'array',
+                        required: false,
+                        help: 'Regex patterns in format FQCN::methodName',
+                        default: []
+                    },
+                    {
+                        name: 'specificationHeader',
+                        label: 'Specification Header',
+                        type: 'text',
+                        required: false,
+                        help: 'The header text to look for in the docblock',
+                        default: 'Specification:'
+                    },
+                    {
+                        name: 'requireBlankLineAfterHeader',
+                        label: 'Require Blank Line After Header',
+                        type: 'boolean',
+                        required: false,
+                        help: 'Whether a blank line is required after the header',
+                        default: true
+                    },
+                    {
+                        name: 'requireListItemsEndWithPeriod',
+                        label: 'Require List Items End With Period',
+                        type: 'boolean',
+                        required: false,
+                        help: 'Whether all list items must end with a period',
+                        default: false
+                    }
+                ]
+            },
+            ClassnameMustMatchPatternRule: {
+                description: 'Ensures that classes inside namespaces matching a pattern must have names matching specified patterns.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ClassnameMustMatchPatternRule',
+                fields: [
+                    {
+                        name: 'namespaceClassPatterns',
+                        label: 'Namespace Class Patterns',
+                        type: 'namespacePatterns',
+                        required: true,
+                        help: 'Array of namespace and class pattern configurations'
+                    }
+                ]
+            },
+            ControlStructureNestingRule: {
+                description: 'Ensures that the nesting level of if and try-catch statements does not exceed a specified limit.',
+                class: 'Phauthentic\\PHPStanRules\\CleanCode\\ControlStructureNestingRule',
+                fields: [
+                    {
+                        name: 'maxNestingLevel',
+                        label: 'Max Nesting Level',
+                        type: 'number',
+                        required: true,
+                        help: 'Maximum allowed nesting level for control structures',
+                        default: 3
+                    }
+                ]
+            },
+            ForbiddenDependenciesRule: {
+                description: 'Enforces dependency constraints between namespaces by checking use statements and optionally FQCNs.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ForbiddenDependenciesRule',
+                fields: [
+                    {
+                        name: 'forbiddenDependencies',
+                        label: 'Forbidden Dependencies',
+                        type: 'keyValueArray',
+                        required: true,
+                        help: 'Keys are namespace patterns, values are arrays of forbidden namespace patterns'
+                    },
+                    {
+                        name: 'checkFqcn',
+                        label: 'Check FQCN',
+                        type: 'boolean',
+                        required: false,
+                        help: 'Enable checking of fully qualified class names',
+                        default: false
+                    },
+                    {
+                        name: 'fqcnReferenceTypes',
+                        label: 'FQCN Reference Types',
+                        type: 'multiselect',
+                        required: false,
+                        help: 'Reference types to check when checkFqcn is enabled',
+                        options: ['new', 'param', 'return', 'property', 'static_call', 'static_property', 'class_const', 'instanceof', 'catch', 'extends', 'implements'],
+                        default: []
+                    }
+                ]
+            },
+            ForbiddenAccessorsRule: {
+                description: 'Forbids public and/or protected getters and setters on classes matching specified patterns.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ForbiddenAccessorsRule',
+                fields: [
+                    {
+                        name: 'classPatterns',
+                        label: 'Class Patterns',
+                        type: 'array',
+                        required: true,
+                        help: 'Array of regex patterns to match against class FQCNs',
+                        default: ['/^App\\\\Domain\\\\.*Entity$/']
+                    },
+                    {
+                        name: 'forbidGetters',
+                        label: 'Forbid Getters',
+                        type: 'boolean',
+                        required: false,
+                        help: 'Whether to forbid getXxx() methods',
+                        default: true
+                    },
+                    {
+                        name: 'forbidSetters',
+                        label: 'Forbid Setters',
+                        type: 'boolean',
+                        required: false,
+                        help: 'Whether to forbid setXxx() methods',
+                        default: true
+                    },
+                    {
+                        name: 'visibility',
+                        label: 'Visibility',
+                        type: 'multiselect',
+                        required: false,
+                        help: 'Visibility levels to check',
+                        options: ['public', 'protected'],
+                        default: ['public']
+                    }
+                ]
+            },
+            ForbiddenNamespacesRule: {
+                description: 'Enforces that certain namespaces cannot be declared in your codebase.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ForbiddenNamespacesRule',
+                fields: [
+                    {
+                        name: 'forbiddenNamespaces',
+                        label: 'Forbidden Namespaces',
+                        type: 'array',
+                        required: true,
+                        help: 'Array of regex patterns matching forbidden namespaces',
+                        default: ['/^App\\\\Legacy\\\\.*/', '/^App\\\\Deprecated\\\\.*/']
+                    }
+                ]
+            },
+            MaxLineLengthRule: {
+                description: 'Checks that lines do not exceed a specified maximum length.',
+                class: 'Phauthentic\\PHPStanRules\\CleanCode\\MaxLineLengthRule',
+                fields: [
+                    {
+                        name: 'maxLineLength',
+                        label: 'Max Line Length',
+                        type: 'number',
+                        required: true,
+                        help: 'Maximum allowed line length in characters',
+                        default: 120
+                    },
+                    {
+                        name: 'excludePatterns',
+                        label: 'Exclude Patterns',
+                        type: 'array',
+                        required: false,
+                        help: 'Regex patterns to exclude files from checking',
+                        default: []
+                    },
+                    {
+                        name: 'ignoreUseStatements',
+                        label: 'Ignore Use Statements (Legacy)',
+                        type: 'boolean',
+                        required: false,
+                        help: 'Whether to ignore use statement lines (backward compatible)',
+                        default: false
+                    },
+                    {
+                        name: 'ignoreLineTypes',
+                        label: 'Ignore Line Types',
+                        type: 'lineTypes',
+                        required: false,
+                        help: 'Line types to ignore when checking',
+                        options: {
+                            useStatements: 'Use Statements',
+                            namespaceDeclaration: 'Namespace Declaration',
+                            docBlocks: 'Doc Blocks'
+                        },
+                        default: {}
+                    }
+                ]
+            },
+            MethodMustReturnTypeRule: {
+                description: 'Ensures that methods matching a pattern have a specific return type.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\MethodMustReturnTypeRule',
+                fields: [
+                    {
+                        name: 'returnTypePatterns',
+                        label: 'Return Type Patterns',
+                        type: 'returnTypePatterns',
+                        required: true,
+                        help: 'Array of method patterns and their expected return types'
+                    }
+                ]
+            },
+            MethodSignatureMustMatchRule: {
+                description: 'Ensures that methods matching a pattern have a specific signature.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\MethodSignatureMustMatchRule',
+                fields: [
+                    {
+                        name: 'signaturePatterns',
+                        label: 'Signature Patterns',
+                        type: 'signaturePatterns',
+                        required: true,
+                        help: 'Array of method patterns and their expected signatures'
+                    }
+                ]
+            },
+            MethodsReturningBoolMustFollowNamingConventionRule: {
+                description: 'Ensures that methods returning boolean values follow a naming convention.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\MethodsReturningBoolMustFollowNamingConventionRule',
+                fields: [
+                    {
+                        name: 'regex',
+                        label: 'Naming Pattern Regex',
+                        type: 'text',
+                        required: false,
+                        help: 'Regex that method names must match',
+                        default: '/^(is|has|can|should|was|will)[A-Z_]/'
+                    }
+                ]
+            },
+            ModularArchitectureRule: {
+                description: 'Enforces strict dependency rules for modular hexagonal architecture.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ModularArchitectureRule',
+                fields: [
+                    {
+                        name: 'baseNamespace',
+                        label: 'Base Namespace',
+                        type: 'text',
+                        required: true,
+                        help: 'The base namespace for your capabilities/modules',
+                        default: 'App\\Capability'
+                    },
+                    {
+                        name: 'layerDependencies',
+                        label: 'Layer Dependencies',
+                        type: 'layerDependencies',
+                        required: false,
+                        help: 'Custom layer dependency rules (null uses defaults)'
+                    },
+                    {
+                        name: 'allowedCrossModulePatterns',
+                        label: 'Allowed Cross-Module Patterns',
+                        type: 'array',
+                        required: true,
+                        help: 'Regex patterns for classes that can be imported across modules',
+                        default: ['/Facade$/', '/FacadeInterface$/', '/Input$/', '/Result$/']
+                    }
+                ]
+            },
+            PropertyMustMatchRule: {
+                description: 'Ensures that classes have properties with expected names, types, and visibility.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\PropertyMustMatchRule',
+                fields: [
+                    {
+                        name: 'propertyPatterns',
+                        label: 'Property Patterns',
+                        type: 'propertyPatterns',
+                        required: true,
+                        help: 'Array of class patterns and their expected properties'
+                    }
+                ]
+            },
+            TooManyArgumentsRule: {
+                description: 'Checks that methods do not have more than a specified number of arguments.',
+                class: 'Phauthentic\\PHPStanRules\\CleanCode\\TooManyArgumentsRule',
+                fields: [
+                    {
+                        name: 'maxArguments',
+                        label: 'Max Arguments',
+                        type: 'number',
+                        required: true,
+                        help: 'Maximum allowed number of method arguments',
+                        default: 5
+                    }
+                ]
+            }
+        };
+
+        let currentRule = null;
+        let formData = {};
+
+        document.getElementById('ruleSelect').addEventListener('change', function(e) {
+            currentRule = e.target.value;
+            formData = {};
+            renderForm();
+            updateYamlPreview();
+        });
+
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const yaml = document.getElementById('yamlPreview').textContent;
+            navigator.clipboard.writeText(yaml).then(() => {
+                const btn = this;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy to Clipboard', 2000);
+            });
+        });
+
+        function renderForm() {
+            const container = document.getElementById('formContainer');
+            const copyBtn = document.getElementById('copyBtn');
+
+            if (!currentRule || !RULES[currentRule]) {
+                container.innerHTML = '<div class="placeholder-text">Select a rule above to start configuring</div>';
+                copyBtn.style.display = 'none';
+                return;
+            }
+
+            copyBtn.style.display = 'block';
+            const rule = RULES[currentRule];
+            let html = `<div class="rule-description">${rule.description}</div>`;
+
+            rule.fields.forEach(field => {
+                html += renderField(field);
+            });
+
+            container.innerHTML = html;
+            initializeFieldValues();
+            attachEventListeners();
+        }
+
+        function renderField(field) {
+            const requiredBadge = field.required ? '<span class="badge-required">Required</span>' : '';
+            const helpText = field.help ? `<div class="form-text">${field.help}</div>` : '';
+
+            switch (field.type) {
+                case 'text':
+                    return `
+                        <div class="mb-3">
+                            <label class="form-label">${field.label}${requiredBadge}</label>
+                            <input type="text" class="form-control" data-field="${field.name}" 
+                                   placeholder="${field.default || ''}" value="${field.default || ''}">
+                            ${helpText}
+                        </div>
+                    `;
+
+                case 'number':
+                    return `
+                        <div class="mb-3">
+                            <label class="form-label">${field.label}${requiredBadge}</label>
+                            <input type="number" class="form-control" data-field="${field.name}" 
+                                   value="${field.default || 0}" min="0">
+                            ${helpText}
+                        </div>
+                    `;
+
+                case 'boolean':
+                    const checked = field.default ? 'checked' : '';
+                    return `
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" data-field="${field.name}" id="${field.name}" ${checked}>
+                                <label class="form-check-label" for="${field.name}">${field.label}</label>
+                            </div>
+                            ${helpText}
+                        </div>
+                    `;
+
+                case 'array':
+                    return renderArrayField(field);
+
+                case 'multiselect':
+                    return renderMultiselectField(field);
+
+                case 'keyValueArray':
+                    return renderKeyValueArrayField(field);
+
+                case 'namespacePatterns':
+                    return renderNamespacePatternsField(field);
+
+                case 'lineTypes':
+                    return renderLineTypesField(field);
+
+                case 'returnTypePatterns':
+                    return renderReturnTypePatternsField(field);
+
+                case 'signaturePatterns':
+                    return renderSignaturePatternsField(field);
+
+                case 'layerDependencies':
+                    return renderLayerDependenciesField(field);
+
+                case 'propertyPatterns':
+                    return renderPropertyPatternsField(field);
+
+                default:
+                    return '';
+            }
+        }
+
+        function renderArrayField(field) {
+            const defaultItems = field.default || [];
+            let itemsHtml = '';
+            defaultItems.forEach((item, index) => {
+                itemsHtml += `
+                    <div class="pattern-item d-flex gap-2 align-items-center" data-index="${index}">
+                        <input type="text" class="form-control" data-array="${field.name}" value="${escapeHtml(item)}">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeArrayItem('${field.name}', ${index})">×</button>
+                    </div>
+                `;
+            });
+
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}${field.required ? '<span class="badge-required">Required</span>' : ''}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    <div id="${field.name}-items">${itemsHtml}</div>
+                    <button type="button" class="add-btn" onclick="addArrayItem('${field.name}')">+ Add Pattern</button>
+                </div>
+            `;
+        }
+
+        function renderMultiselectField(field) {
+            let optionsHtml = '';
+            field.options.forEach(opt => {
+                const checked = field.default && field.default.includes(opt) ? 'checked' : '';
+                optionsHtml += `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" data-multiselect="${field.name}" 
+                               value="${opt}" id="${field.name}-${opt}" ${checked}>
+                        <label class="form-check-label" for="${field.name}-${opt}">${opt}</label>
+                    </div>
+                `;
+            });
+
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    ${optionsHtml}
+                </div>
+            `;
+        }
+
+        function renderKeyValueArrayField(field) {
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}${field.required ? '<span class="badge-required">Required</span>' : ''}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    <div id="${field.name}-items"></div>
+                    <button type="button" class="add-btn" onclick="addKeyValueItem('${field.name}')">+ Add Dependency Rule</button>
+                </div>
+            `;
+        }
+
+        function renderNamespacePatternsField(field) {
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}${field.required ? '<span class="badge-required">Required</span>' : ''}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    <div id="${field.name}-items"></div>
+                    <button type="button" class="add-btn" onclick="addNamespacePatternItem('${field.name}')">+ Add Namespace Pattern</button>
+                </div>
+            `;
+        }
+
+        function renderLineTypesField(field) {
+            let optionsHtml = '';
+            for (const [key, label] of Object.entries(field.options)) {
+                const checked = field.default && field.default[key] ? 'checked' : '';
+                optionsHtml += `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" data-linetype="${field.name}" 
+                               value="${key}" id="${field.name}-${key}" ${checked}>
+                        <label class="form-check-label" for="${field.name}-${key}">${label}</label>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    ${optionsHtml}
+                </div>
+            `;
+        }
+
+        function renderReturnTypePatternsField(field) {
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}${field.required ? '<span class="badge-required">Required</span>' : ''}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    <div id="${field.name}-items"></div>
+                    <button type="button" class="add-btn" onclick="addReturnTypePatternItem('${field.name}')">+ Add Return Type Pattern</button>
+                </div>
+            `;
+        }
+
+        function renderSignaturePatternsField(field) {
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}${field.required ? '<span class="badge-required">Required</span>' : ''}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    <div id="${field.name}-items"></div>
+                    <button type="button" class="add-btn" onclick="addSignaturePatternItem('${field.name}')">+ Add Signature Pattern</button>
+                </div>
+            `;
+        }
+
+        function renderLayerDependenciesField(field) {
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="useDefaultLayers" checked 
+                               onchange="toggleLayerDependencies(this.checked)">
+                        <label class="form-check-label" for="useDefaultLayers">Use default layer dependencies</label>
+                    </div>
+                    <div id="${field.name}-items" style="display: none;"></div>
+                    <button type="button" class="add-btn" id="${field.name}-addBtn" style="display: none;" 
+                            onclick="addLayerDependencyItem('${field.name}')">+ Add Layer</button>
+                </div>
+            `;
+        }
+
+        function renderPropertyPatternsField(field) {
+            return `
+                <div class="mb-3">
+                    <label class="form-label">${field.label}${field.required ? '<span class="badge-required">Required</span>' : ''}</label>
+                    <div class="form-text mb-2">${field.help || ''}</div>
+                    <div id="${field.name}-items"></div>
+                    <button type="button" class="add-btn" onclick="addPropertyPatternItem('${field.name}')">+ Add Class Pattern</button>
+                </div>
+            `;
+        }
+
+        function addArrayItem(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'pattern-item d-flex gap-2 align-items-center';
+            div.dataset.index = index;
+            div.innerHTML = `
+                <input type="text" class="form-control" data-array="${fieldName}" placeholder="Enter pattern...">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeArrayItem('${fieldName}', ${index})">×</button>
+            `;
+            container.appendChild(div);
+            div.querySelector('input').addEventListener('input', updateYamlPreview);
+        }
+
+        function removeArrayItem(fieldName, index) {
+            const container = document.getElementById(`${fieldName}-items`);
+            container.children[index].remove();
+            // Re-index remaining items
+            Array.from(container.children).forEach((item, i) => {
+                item.dataset.index = i;
+                item.querySelector('.btn-danger').setAttribute('onclick', `removeArrayItem('${fieldName}', ${i})`);
+            });
+            updateYamlPreview();
+        }
+
+        function addKeyValueItem(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'pattern-item';
+            div.dataset.index = index;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="text-secondary" style="font-size: 0.85rem;">Dependency Rule #${index + 1}</strong>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeKeyValueItem('${fieldName}', ${index})">Remove</button>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" style="font-size: 0.8rem;">Source Namespace Pattern</label>
+                    <input type="text" class="form-control form-control-sm" data-kvkey="${fieldName}" 
+                           placeholder="/^App\\\\Domain(?:\\\\w+)*$/">
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.8rem;">Forbidden Namespace Patterns</label>
+                    <div class="kv-values" data-field="${fieldName}-${index}"></div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm mt-1" 
+                            onclick="addKvValueItem('${fieldName}', ${index})">+ Add Forbidden Pattern</button>
+                </div>
+            `;
+            container.appendChild(div);
+            div.querySelector('input').addEventListener('input', updateYamlPreview);
+        }
+
+        function removeKeyValueItem(fieldName, index) {
+            const container = document.getElementById(`${fieldName}-items`);
+            container.children[index].remove();
+            Array.from(container.children).forEach((item, i) => {
+                item.dataset.index = i;
+                item.querySelector('.btn-danger').setAttribute('onclick', `removeKeyValueItem('${fieldName}', ${i})`);
+                item.querySelector('strong').textContent = `Dependency Rule #${i + 1}`;
+                const valuesContainer = item.querySelector('.kv-values');
+                valuesContainer.dataset.field = `${fieldName}-${i}`;
+                item.querySelector('.btn-outline-secondary').setAttribute('onclick', `addKvValueItem('${fieldName}', ${i})`);
+            });
+            updateYamlPreview();
+        }
+
+        function addKvValueItem(fieldName, parentIndex) {
+            const container = document.querySelector(`[data-field="${fieldName}-${parentIndex}"]`);
+            const div = document.createElement('div');
+            div.className = 'd-flex gap-2 align-items-center mb-1';
+            div.innerHTML = `
+                <input type="text" class="form-control form-control-sm" data-kvvalue="${fieldName}" 
+                       placeholder="/^App\\\\Controller\\\\/"> 
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); updateYamlPreview();">×</button>
+            `;
+            container.appendChild(div);
+            div.querySelector('input').addEventListener('input', updateYamlPreview);
+        }
+
+        function addNamespacePatternItem(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'pattern-item';
+            div.dataset.index = index;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="text-secondary" style="font-size: 0.85rem;">Pattern #${index + 1}</strong>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeNamespacePatternItem('${fieldName}', ${index})">Remove</button>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" style="font-size: 0.8rem;">Namespace Pattern</label>
+                    <input type="text" class="form-control form-control-sm" data-nsnamespace="${fieldName}" 
+                           placeholder="/^App\\\\Service$/">
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.8rem;">Class Patterns</label>
+                    <div class="ns-classpatterns" data-field="${fieldName}-${index}"></div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm mt-1" 
+                            onclick="addNsClassPattern('${fieldName}', ${index})">+ Add Class Pattern</button>
+                </div>
+            `;
+            container.appendChild(div);
+            div.querySelector('input').addEventListener('input', updateYamlPreview);
+        }
+
+        function removeNamespacePatternItem(fieldName, index) {
+            const container = document.getElementById(`${fieldName}-items`);
+            container.children[index].remove();
+            Array.from(container.children).forEach((item, i) => {
+                item.dataset.index = i;
+                item.querySelector('.btn-danger').setAttribute('onclick', `removeNamespacePatternItem('${fieldName}', ${i})`);
+                item.querySelector('strong').textContent = `Pattern #${i + 1}`;
+                const patternsContainer = item.querySelector('.ns-classpatterns');
+                patternsContainer.dataset.field = `${fieldName}-${i}`;
+                item.querySelector('.btn-outline-secondary').setAttribute('onclick', `addNsClassPattern('${fieldName}', ${i})`);
+            });
+            updateYamlPreview();
+        }
+
+        function addNsClassPattern(fieldName, parentIndex) {
+            const container = document.querySelector(`[data-field="${fieldName}-${parentIndex}"]`);
+            const div = document.createElement('div');
+            div.className = 'd-flex gap-2 align-items-center mb-1';
+            div.innerHTML = `
+                <input type="text" class="form-control form-control-sm" data-nsclass="${fieldName}" 
+                       placeholder="/Class$/"> 
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); updateYamlPreview();">×</button>
+            `;
+            container.appendChild(div);
+            div.querySelector('input').addEventListener('input', updateYamlPreview);
+        }
+
+        function addReturnTypePatternItem(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'pattern-item';
+            div.dataset.index = index;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="text-secondary" style="font-size: 0.85rem;">Return Type Pattern #${index + 1}</strong>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeReturnTypePatternItem('${fieldName}', ${index})">Remove</button>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <label class="form-label" style="font-size: 0.8rem;">Method Pattern</label>
+                        <input type="text" class="form-control form-control-sm" data-rtpattern="${fieldName}" 
+                               placeholder="/^MyClass::getId$/">
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Return Type</label>
+                        <input type="text" class="form-control form-control-sm" data-rttype="${fieldName}" 
+                               placeholder="int, string, object, void">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Object Type Pattern (optional)</label>
+                        <input type="text" class="form-control form-control-sm" data-rtobject="${fieldName}" 
+                               placeholder="/^App\\\\Entity\\\\User$/">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" data-rtnullable="${fieldName}" id="nullable-${index}">
+                            <label class="form-check-label" for="nullable-${index}" style="font-size: 0.85rem;">Nullable</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" data-rtvoid="${fieldName}" id="void-${index}">
+                            <label class="form-check-label" for="void-${index}" style="font-size: 0.85rem;">Void</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            div.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updateYamlPreview));
+            div.querySelectorAll('input').forEach(inp => inp.addEventListener('change', updateYamlPreview));
+        }
+
+        function removeReturnTypePatternItem(fieldName, index) {
+            const container = document.getElementById(`${fieldName}-items`);
+            container.children[index].remove();
+            Array.from(container.children).forEach((item, i) => {
+                item.dataset.index = i;
+                item.querySelector('.btn-danger').setAttribute('onclick', `removeReturnTypePatternItem('${fieldName}', ${i})`);
+                item.querySelector('strong').textContent = `Return Type Pattern #${i + 1}`;
+            });
+            updateYamlPreview();
+        }
+
+        function addSignaturePatternItem(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'pattern-item';
+            div.dataset.index = index;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="text-secondary" style="font-size: 0.85rem;">Signature Pattern #${index + 1}</strong>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeSignaturePatternItem('${fieldName}', ${index})">Remove</button>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <label class="form-label" style="font-size: 0.8rem;">Method Pattern</label>
+                        <input type="text" class="form-control form-control-sm" data-sigpattern="${fieldName}" 
+                               placeholder="/^MyClass::myMethod$/">
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4">
+                        <label class="form-label" style="font-size: 0.8rem;">Min Parameters</label>
+                        <input type="number" class="form-control form-control-sm" data-sigmin="${fieldName}" value="0" min="0">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" style="font-size: 0.8rem;">Max Parameters</label>
+                        <input type="number" class="form-control form-control-sm" data-sigmax="${fieldName}" value="0" min="0">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" style="font-size: 0.8rem;">Visibility</label>
+                        <select class="form-select form-select-sm" data-sigvisibility="${fieldName}">
+                            <option value="">Any</option>
+                            <option value="public">public</option>
+                            <option value="protected">protected</option>
+                            <option value="private">private</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" data-sigrequired="${fieldName}" id="sigreq-${index}">
+                        <label class="form-check-label" for="sigreq-${index}" style="font-size: 0.85rem;">Required (method must exist)</label>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.8rem;">Signature Parameters</label>
+                    <div class="sig-params" data-field="${fieldName}-${index}"></div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm mt-1" 
+                            onclick="addSignatureParam('${fieldName}', ${index})">+ Add Parameter</button>
+                </div>
+            `;
+            container.appendChild(div);
+            div.querySelectorAll('input, select').forEach(inp => {
+                inp.addEventListener('input', updateYamlPreview);
+                inp.addEventListener('change', updateYamlPreview);
+            });
+        }
+
+        function removeSignaturePatternItem(fieldName, index) {
+            const container = document.getElementById(`${fieldName}-items`);
+            container.children[index].remove();
+            Array.from(container.children).forEach((item, i) => {
+                item.dataset.index = i;
+                item.querySelector('.btn-danger').setAttribute('onclick', `removeSignaturePatternItem('${fieldName}', ${i})`);
+                item.querySelector('strong').textContent = `Signature Pattern #${i + 1}`;
+                const paramsContainer = item.querySelector('.sig-params');
+                paramsContainer.dataset.field = `${fieldName}-${i}`;
+                item.querySelector('.btn-outline-secondary').setAttribute('onclick', `addSignatureParam('${fieldName}', ${i})`);
+            });
+            updateYamlPreview();
+        }
+
+        function addSignatureParam(fieldName, parentIndex) {
+            const container = document.querySelector(`.sig-params[data-field="${fieldName}-${parentIndex}"]`);
+            const div = document.createElement('div');
+            div.className = 'nested-item d-flex gap-2 align-items-center';
+            div.innerHTML = `
+                <input type="text" class="form-control form-control-sm" data-sigparamtype="${fieldName}" placeholder="Type (e.g., int)">
+                <input type="text" class="form-control form-control-sm" data-sigparampattern="${fieldName}" placeholder="Name pattern (e.g., /^id$/)">
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); updateYamlPreview();">×</button>
+            `;
+            container.appendChild(div);
+            div.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updateYamlPreview));
+        }
+
+        function toggleLayerDependencies(useDefaults) {
+            const itemsDiv = document.getElementById('layerDependencies-items');
+            const addBtn = document.getElementById('layerDependencies-addBtn');
+            if (useDefaults) {
+                itemsDiv.style.display = 'none';
+                addBtn.style.display = 'none';
+            } else {
+                itemsDiv.style.display = 'block';
+                addBtn.style.display = 'block';
+            }
+            updateYamlPreview();
+        }
+
+        function addLayerDependencyItem(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'pattern-item';
+            div.dataset.index = index;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="text-secondary" style="font-size: 0.85rem;">Layer #${index + 1}</strong>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeLayerDependencyItem('${fieldName}', ${index})">Remove</button>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Layer Name</label>
+                        <input type="text" class="form-control form-control-sm" data-layername="${fieldName}" placeholder="Domain">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.8rem;">Allowed Dependencies (comma-separated)</label>
+                        <input type="text" class="form-control form-control-sm" data-layerdeps="${fieldName}" placeholder="Application, Domain">
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            div.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updateYamlPreview));
+        }
+
+        function removeLayerDependencyItem(fieldName, index) {
+            const container = document.getElementById(`${fieldName}-items`);
+            container.children[index].remove();
+            Array.from(container.children).forEach((item, i) => {
+                item.dataset.index = i;
+                item.querySelector('.btn-danger').setAttribute('onclick', `removeLayerDependencyItem('${fieldName}', ${i})`);
+                item.querySelector('strong').textContent = `Layer #${i + 1}`;
+            });
+            updateYamlPreview();
+        }
+
+        function addPropertyPatternItem(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'pattern-item';
+            div.dataset.index = index;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="text-secondary" style="font-size: 0.85rem;">Class Pattern #${index + 1}</strong>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removePropertyPatternItem('${fieldName}', ${index})">Remove</button>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" style="font-size: 0.8rem;">Class Pattern</label>
+                    <input type="text" class="form-control form-control-sm" data-propclass="${fieldName}" 
+                           placeholder="/^.*Controller$/">
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.8rem;">Properties</label>
+                    <div class="prop-items" data-field="${fieldName}-${index}"></div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm mt-1" 
+                            onclick="addPropertyItem('${fieldName}', ${index})">+ Add Property</button>
+                </div>
+            `;
+            container.appendChild(div);
+            div.querySelector('input').addEventListener('input', updateYamlPreview);
+        }
+
+        function removePropertyPatternItem(fieldName, index) {
+            const container = document.getElementById(`${fieldName}-items`);
+            container.children[index].remove();
+            Array.from(container.children).forEach((item, i) => {
+                item.dataset.index = i;
+                item.querySelector('.btn-danger').setAttribute('onclick', `removePropertyPatternItem('${fieldName}', ${i})`);
+                item.querySelector('strong').textContent = `Class Pattern #${i + 1}`;
+                const propsContainer = item.querySelector('.prop-items');
+                propsContainer.dataset.field = `${fieldName}-${i}`;
+                item.querySelector('.btn-outline-secondary').setAttribute('onclick', `addPropertyItem('${fieldName}', ${i})`);
+            });
+            updateYamlPreview();
+        }
+
+        function addPropertyItem(fieldName, parentIndex) {
+            const container = document.querySelector(`.prop-items[data-field="${fieldName}-${parentIndex}"]`);
+            const div = document.createElement('div');
+            div.className = 'nested-item';
+            div.innerHTML = `
+                <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.nested-item').remove(); updateYamlPreview();">Remove Property</button>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.75rem;">Property Name</label>
+                        <input type="text" class="form-control form-control-sm" data-propname="${fieldName}" placeholder="id">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size: 0.75rem;">Type</label>
+                        <input type="text" class="form-control form-control-sm" data-proptype="${fieldName}" placeholder="int">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <label class="form-label" style="font-size: 0.75rem;">Visibility</label>
+                        <select class="form-select form-select-sm" data-propvisibility="${fieldName}">
+                            <option value="">Any</option>
+                            <option value="public">public</option>
+                            <option value="protected">protected</option>
+                            <option value="private" selected>private</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" data-proprequired="${fieldName}">
+                            <label class="form-check-label" style="font-size: 0.8rem;">Required</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" data-propnullable="${fieldName}">
+                            <label class="form-check-label" style="font-size: 0.8rem;">Nullable</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            div.querySelectorAll('input, select').forEach(inp => {
+                inp.addEventListener('input', updateYamlPreview);
+                inp.addEventListener('change', updateYamlPreview);
+            });
+        }
+
+        function initializeFieldValues() {
+            if (!currentRule) return;
+            const rule = RULES[currentRule];
+            rule.fields.forEach(field => {
+                if (field.default !== undefined) {
+                    formData[field.name] = field.default;
+                }
+            });
+        }
+
+        function attachEventListeners() {
+            // Text and number inputs
+            document.querySelectorAll('[data-field]').forEach(input => {
+                input.addEventListener('input', updateYamlPreview);
+                input.addEventListener('change', updateYamlPreview);
+            });
+
+            // Array inputs
+            document.querySelectorAll('[data-array]').forEach(input => {
+                input.addEventListener('input', updateYamlPreview);
+            });
+
+            // Multiselect checkboxes
+            document.querySelectorAll('[data-multiselect]').forEach(input => {
+                input.addEventListener('change', updateYamlPreview);
+            });
+
+            // Line type checkboxes
+            document.querySelectorAll('[data-linetype]').forEach(input => {
+                input.addEventListener('change', updateYamlPreview);
+            });
+        }
+
+        function collectFormData() {
+            if (!currentRule) return {};
+            const rule = RULES[currentRule];
+            const data = {};
+
+            rule.fields.forEach(field => {
+                switch (field.type) {
+                    case 'text':
+                        const textInput = document.querySelector(`[data-field="${field.name}"]`);
+                        if (textInput && textInput.value) {
+                            data[field.name] = textInput.value;
+                        }
+                        break;
+
+                    case 'number':
+                        const numInput = document.querySelector(`[data-field="${field.name}"]`);
+                        if (numInput) {
+                            data[field.name] = parseInt(numInput.value) || 0;
+                        }
+                        break;
+
+                    case 'boolean':
+                        const boolInput = document.querySelector(`[data-field="${field.name}"]`);
+                        if (boolInput) {
+                            data[field.name] = boolInput.checked;
+                        }
+                        break;
+
+                    case 'array':
+                        const arrayInputs = document.querySelectorAll(`[data-array="${field.name}"]`);
+                        const values = [];
+                        arrayInputs.forEach(inp => {
+                            if (inp.value.trim()) values.push(inp.value.trim());
+                        });
+                        if (values.length > 0) {
+                            data[field.name] = values;
+                        }
+                        break;
+
+                    case 'multiselect':
+                        const msInputs = document.querySelectorAll(`[data-multiselect="${field.name}"]:checked`);
+                        const msValues = [];
+                        msInputs.forEach(inp => msValues.push(inp.value));
+                        if (msValues.length > 0) {
+                            data[field.name] = msValues;
+                        }
+                        break;
+
+                    case 'keyValueArray':
+                        data[field.name] = collectKeyValueData(field.name);
+                        break;
+
+                    case 'namespacePatterns':
+                        data[field.name] = collectNamespacePatternsData(field.name);
+                        break;
+
+                    case 'lineTypes':
+                        const ltInputs = document.querySelectorAll(`[data-linetype="${field.name}"]:checked`);
+                        if (ltInputs.length > 0) {
+                            const ltData = {};
+                            ltInputs.forEach(inp => ltData[inp.value] = true);
+                            data[field.name] = ltData;
+                        }
+                        break;
+
+                    case 'returnTypePatterns':
+                        data[field.name] = collectReturnTypePatternsData(field.name);
+                        break;
+
+                    case 'signaturePatterns':
+                        data[field.name] = collectSignaturePatternsData(field.name);
+                        break;
+
+                    case 'layerDependencies':
+                        const useDefaults = document.getElementById('useDefaultLayers');
+                        if (!useDefaults || !useDefaults.checked) {
+                            data[field.name] = collectLayerDependenciesData(field.name);
+                        } else {
+                            data[field.name] = null;
+                        }
+                        break;
+
+                    case 'propertyPatterns':
+                        data[field.name] = collectPropertyPatternsData(field.name);
+                        break;
+                }
+            });
+
+            return data;
+        }
+
+        function collectKeyValueData(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const result = {};
+            if (!container) return result;
+
+            Array.from(container.children).forEach((item, index) => {
+                const keyInput = item.querySelector(`[data-kvkey="${fieldName}"]`);
+                const key = keyInput ? keyInput.value.trim() : '';
+                if (!key) return;
+
+                const valuesContainer = item.querySelector('.kv-values');
+                const values = [];
+                if (valuesContainer) {
+                    valuesContainer.querySelectorAll(`[data-kvvalue="${fieldName}"]`).forEach(inp => {
+                        if (inp.value.trim()) values.push(inp.value.trim());
+                    });
+                }
+                result[key] = values;
+            });
+
+            return result;
+        }
+
+        function collectNamespacePatternsData(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const result = [];
+            if (!container) return result;
+
+            Array.from(container.children).forEach((item, index) => {
+                const nsInput = item.querySelector(`[data-nsnamespace="${fieldName}"]`);
+                const namespace = nsInput ? nsInput.value.trim() : '';
+                if (!namespace) return;
+
+                const classPatterns = [];
+                const patternsContainer = item.querySelector('.ns-classpatterns');
+                if (patternsContainer) {
+                    patternsContainer.querySelectorAll(`[data-nsclass="${fieldName}"]`).forEach(inp => {
+                        if (inp.value.trim()) classPatterns.push(inp.value.trim());
+                    });
+                }
+
+                result.push({ namespace, classPatterns });
+            });
+
+            return result;
+        }
+
+        function collectReturnTypePatternsData(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const result = [];
+            if (!container) return result;
+
+            Array.from(container.children).forEach((item) => {
+                const pattern = item.querySelector(`[data-rtpattern="${fieldName}"]`)?.value.trim();
+                if (!pattern) return;
+
+                const entry = { pattern };
+                const type = item.querySelector(`[data-rttype="${fieldName}"]`)?.value.trim();
+                if (type) entry.type = type;
+
+                const objectType = item.querySelector(`[data-rtobject="${fieldName}"]`)?.value.trim();
+                entry.objectTypePattern = objectType || null;
+
+                entry.nullable = item.querySelector(`[data-rtnullable="${fieldName}"]`)?.checked || false;
+                entry.void = item.querySelector(`[data-rtvoid="${fieldName}"]`)?.checked || false;
+
+                result.push(entry);
+            });
+
+            return result;
+        }
+
+        function collectSignaturePatternsData(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const result = [];
+            if (!container) return result;
+
+            Array.from(container.children).forEach((item, index) => {
+                const pattern = item.querySelector(`[data-sigpattern="${fieldName}"]`)?.value.trim();
+                if (!pattern) return;
+
+                const entry = { pattern };
+                entry.minParameters = parseInt(item.querySelector(`[data-sigmin="${fieldName}"]`)?.value) || 0;
+                entry.maxParameters = parseInt(item.querySelector(`[data-sigmax="${fieldName}"]`)?.value) || 0;
+
+                const visibility = item.querySelector(`[data-sigvisibility="${fieldName}"]`)?.value;
+                if (visibility) entry.visibilityScope = visibility;
+
+                const required = item.querySelector(`[data-sigrequired="${fieldName}"]`)?.checked;
+                if (required) entry.required = true;
+
+                const paramsContainer = item.querySelector(`.sig-params[data-field="${fieldName}-${index}"]`);
+                if (paramsContainer) {
+                    const signature = [];
+                    const paramItems = paramsContainer.querySelectorAll('.nested-item');
+                    paramItems.forEach(paramItem => {
+                        const type = paramItem.querySelector(`[data-sigparamtype="${fieldName}"]`)?.value.trim();
+                        const paramPattern = paramItem.querySelector(`[data-sigparampattern="${fieldName}"]`)?.value.trim();
+                        if (type || paramPattern) {
+                            const param = {};
+                            if (type) param.type = type;
+                            if (paramPattern) param.pattern = paramPattern;
+                            signature.push(param);
+                        }
+                    });
+                    if (signature.length > 0) entry.signature = signature;
+                }
+
+                result.push(entry);
+            });
+
+            return result;
+        }
+
+        function collectLayerDependenciesData(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const result = {};
+            if (!container) return result;
+
+            Array.from(container.children).forEach((item) => {
+                const name = item.querySelector(`[data-layername="${fieldName}"]`)?.value.trim();
+                const deps = item.querySelector(`[data-layerdeps="${fieldName}"]`)?.value.trim();
+                if (!name) return;
+
+                result[name] = deps ? deps.split(',').map(d => d.trim()).filter(d => d) : [];
+            });
+
+            return Object.keys(result).length > 0 ? result : null;
+        }
+
+        function collectPropertyPatternsData(fieldName) {
+            const container = document.getElementById(`${fieldName}-items`);
+            const result = [];
+            if (!container) return result;
+
+            Array.from(container.children).forEach((item, index) => {
+                const classPattern = item.querySelector(`[data-propclass="${fieldName}"]`)?.value.trim();
+                if (!classPattern) return;
+
+                const propsContainer = item.querySelector(`.prop-items[data-field="${fieldName}-${index}"]`);
+                const properties = [];
+
+                if (propsContainer) {
+                    propsContainer.querySelectorAll('.nested-item').forEach(propItem => {
+                        const name = propItem.querySelector(`[data-propname="${fieldName}"]`)?.value.trim();
+                        if (!name) return;
+
+                        const prop = { name };
+                        const type = propItem.querySelector(`[data-proptype="${fieldName}"]`)?.value.trim();
+                        if (type) prop.type = type;
+
+                        const visibility = propItem.querySelector(`[data-propvisibility="${fieldName}"]`)?.value;
+                        if (visibility) prop.visibilityScope = visibility;
+
+                        const required = propItem.querySelector(`[data-proprequired="${fieldName}"]`)?.checked;
+                        if (required) prop.required = true;
+
+                        const nullable = propItem.querySelector(`[data-propnullable="${fieldName}"]`)?.checked;
+                        if (nullable) prop.nullable = true;
+
+                        properties.push(prop);
+                    });
+                }
+
+                result.push({ classPattern, properties });
+            });
+
+            return result;
+        }
+
+        function generateYaml(data) {
+            if (!currentRule) return '';
+
+            const rule = RULES[currentRule];
+            let yaml = '';
+
+            yaml += `<span class="yaml-comment"># ${rule.description}</span>\n`;
+            yaml += `<span class="yaml-key">-</span>\n`;
+            yaml += `    <span class="yaml-key">class:</span> <span class="yaml-string">${rule.class}</span>\n`;
+            yaml += `    <span class="yaml-key">arguments:</span>\n`;
+
+            for (const [key, value] of Object.entries(data)) {
+                yaml += renderYamlValue(key, value, 8);
+            }
+
+            yaml += `    <span class="yaml-key">tags:</span>\n`;
+            yaml += `        <span class="yaml-key">-</span> <span class="yaml-string">phpstan.rules.rule</span>`;
+
+            return yaml;
+        }
+
+        function renderYamlValue(key, value, indent) {
+            const spaces = ' '.repeat(indent);
+            let yaml = '';
+
+            if (value === null) {
+                yaml += `${spaces}<span class="yaml-key">${key}:</span> <span class="yaml-bool">null</span>\n`;
+            } else if (typeof value === 'boolean') {
+                yaml += `${spaces}<span class="yaml-key">${key}:</span> <span class="yaml-bool">${value}</span>\n`;
+            } else if (typeof value === 'number') {
+                yaml += `${spaces}<span class="yaml-key">${key}:</span> <span class="yaml-number">${value}</span>\n`;
+            } else if (typeof value === 'string') {
+                yaml += `${spaces}<span class="yaml-key">${key}:</span> <span class="yaml-string">'${escapeYamlString(value)}'</span>\n`;
+            } else if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    yaml += `${spaces}<span class="yaml-key">${key}:</span> <span class="yaml-comment">[]</span>\n`;
+                } else if (typeof value[0] === 'string') {
+                    yaml += `${spaces}<span class="yaml-key">${key}:</span>\n`;
+                    value.forEach(item => {
+                        yaml += `${spaces}    <span class="yaml-key">-</span> <span class="yaml-string">'${escapeYamlString(item)}'</span>\n`;
+                    });
+                } else if (typeof value[0] === 'object') {
+                    yaml += `${spaces}<span class="yaml-key">${key}:</span>\n`;
+                    value.forEach(item => {
+                        yaml += `${spaces}    <span class="yaml-key">-</span>\n`;
+                        for (const [k, v] of Object.entries(item)) {
+                            yaml += renderYamlValue(k, v, indent + 8);
+                        }
+                    });
+                }
+            } else if (typeof value === 'object') {
+                if (Object.keys(value).length === 0) {
+                    yaml += `${spaces}<span class="yaml-key">${key}:</span> <span class="yaml-comment">{}</span>\n`;
+                } else {
+                    yaml += `${spaces}<span class="yaml-key">${key}:</span>\n`;
+                    for (const [k, v] of Object.entries(value)) {
+                        if (Array.isArray(v)) {
+                            // For key-value arrays like forbiddenDependencies
+                            yaml += `${spaces}    <span class="yaml-string">'${escapeYamlString(k)}'</span><span class="yaml-key">:</span>\n`;
+                            v.forEach(item => {
+                                yaml += `${spaces}        <span class="yaml-key">-</span> <span class="yaml-string">'${escapeYamlString(item)}'</span>\n`;
+                            });
+                        } else if (typeof v === 'boolean') {
+                            yaml += `${spaces}    <span class="yaml-key">${k}:</span> <span class="yaml-bool">${v}</span>\n`;
+                        } else {
+                            yaml += `${spaces}    <span class="yaml-key">${k}:</span> <span class="yaml-string">'${escapeYamlString(String(v))}'</span>\n`;
+                        }
+                    }
+                }
+            }
+
+            return yaml;
+        }
+
+        function escapeYamlString(str) {
+            return str.replace(/'/g, "''");
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function updateYamlPreview() {
+            const preview = document.getElementById('yamlPreview');
+
+            if (!currentRule) {
+                preview.innerHTML = '<span class="placeholder-text">YAML output will appear here</span>';
+                return;
+            }
+
+            const data = collectFormData();
+            if (Object.keys(data).length === 0) {
+                preview.innerHTML = '<span class="placeholder-text">Add some configuration to see the YAML output</span>';
+                return;
+            }
+
+            preview.innerHTML = generateYaml(data);
+        }
+    </script>
+</body>
+</html>
