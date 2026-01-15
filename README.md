@@ -37,6 +37,10 @@ See individual rule documentation for detailed configuration examples. A [full c
 - [Too Many Arguments Rule](docs/rules/Too-Many-Arguments-Rule.md)
 - [Max Line Length Rule](docs/rules/Max-Line-Length-Rule.md)
 
+### Domain Specific Rules / Extending Rules
+
+The rules in this package can be extended at project level to create self-documenting, domain-specific rules. Instead of configuring complex regex patterns in your neon file, you can create custom rule classes that encapsulate the configuration. For example, a class named `DomainClassesMustBeFinalRule` immediately communicates its purpose. See the [Extending Rules](docs/ExtendingRules.md) documentation for examples and best practices.
+
 ### Using Regex in Rules
 
 A lot of the rules use regex patterns to match things. Many people are not good at writing them but thankfully there is AI today.
