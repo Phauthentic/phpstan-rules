@@ -67,18 +67,28 @@ class ForbiddenDependenciesRule implements Rule
     private array $fqcnReferenceTypes;
 
     /**
+     * @var array<string, array<string>>
+     * An array where the key is a regex for the source namespace and the value is
+     * an array of regexes for allowed dependency namespaces that override forbidden ones.
+     */
+    private array $allowedDependencies;
+
+    /**
      * @param array<string, array<string>> $forbiddenDependencies
      * @param bool $checkFqcn Enable checking of fully qualified class names (default: false for backward compatibility)
      * @param array<string> $fqcnReferenceTypes Which reference types to check when checkFqcn is enabled (default: all)
+     * @param array<string, array<string>> $allowedDependencies Whitelist that overrides forbidden dependencies
      */
     public function __construct(
         array $forbiddenDependencies,
         bool $checkFqcn = false,
-        array $fqcnReferenceTypes = self::ALL_REFERENCE_TYPES
+        array $fqcnReferenceTypes = self::ALL_REFERENCE_TYPES,
+        array $allowedDependencies = []
     ) {
         $this->forbiddenDependencies = $forbiddenDependencies;
         $this->checkFqcn = $checkFqcn;
         $this->fqcnReferenceTypes = $fqcnReferenceTypes;
+        $this->allowedDependencies = $allowedDependencies;
     }
 
     public function getNodeType(): string
@@ -131,7 +141,7 @@ class ForbiddenDependenciesRule implements Rule
         foreach ($node->uses as $use) {
             $usedClassName = $use->name->toString();
             foreach ($disallowedDependencyPatterns as $disallowedPattern) {
-                if (preg_match($disallowedPattern, $usedClassName)) {
+                if (preg_match($disallowedPattern, $usedClassName) && !$this->isAllowed($usedClassName, $currentNamespace)) {
                     $errors[] = RuleErrorBuilder::message(sprintf(
                         static::ERROR_MESSAGE,
                         $currentNamespace,
@@ -145,6 +155,30 @@ class ForbiddenDependenciesRule implements Rule
         }
 
         return $errors;
+    }
+
+    /**
+     * Check if a class name is in the allowed list for the current namespace
+     *
+     * @param string $className
+     * @param string $currentNamespace
+     * @return bool
+     */
+    private function isAllowed(string $className, string $currentNamespace): bool
+    {
+        foreach ($this->allowedDependencies as $sourcePattern => $allowedPatterns) {
+            if (!preg_match($sourcePattern, $currentNamespace)) {
+                continue;
+            }
+
+            foreach ($allowedPatterns as $allowedPattern) {
+                if (preg_match($allowedPattern, $className)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -406,7 +440,7 @@ class ForbiddenDependenciesRule implements Rule
             }
 
             foreach ($disallowedDependencyPatterns as $disallowedPattern) {
-                if (preg_match($disallowedPattern, $className)) {
+                if (preg_match($disallowedPattern, $className) && !$this->isAllowed($className, $currentNamespace)) {
                     $errors[] = RuleErrorBuilder::message(sprintf(
                         static::ERROR_MESSAGE,
                         $currentNamespace,
