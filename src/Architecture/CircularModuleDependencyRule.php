@@ -19,8 +19,8 @@ namespace Phauthentic\PHPStanRules\Architecture;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Use_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
@@ -55,6 +55,7 @@ class CircularModuleDependencyRule implements Rule
     }
 
     /**
+     * @return list<IdentifierRuleError>
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array
@@ -153,7 +154,7 @@ class CircularModuleDependencyRule implements Rule
         string $sourceModule,
         string $targetModule,
         int $line
-    ): ?RuleError {
+    ): ?IdentifierRuleError {
         // Check if adding this dependency would create a cycle
         // We're adding: sourceModule → targetModule
         // Check if there's already a path: targetModule → ... → sourceModule

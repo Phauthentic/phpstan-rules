@@ -17,13 +17,10 @@ declare(strict_types=1);
 namespace Phauthentic\PHPStanRules\Architecture;
 
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\MethodReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
-use PHPStan\Type\BooleanType;
-use PHPStan\Type\TypeWithClassName;
 
 /**
  * Specification:
@@ -49,47 +46,49 @@ class MethodsReturningBoolMustFollowNamingConventionRule implements Rule
     /**
      * Skip constructors, destructors, and magic methods
      */
-    private function isSkippableMethod(Node $node): bool
+    private function isSkippableMethod(ClassMethod $node): bool
     {
-        return $node->name->toString() === '__construct' ||
-               $node->name->toString() === '__destruct' ||
-               strpos($node->name->toString(), '__') === 0;
+        $methodName = $node->name->toString();
+        return $methodName === '__construct' ||
+               $methodName === '__destruct' ||
+               str_starts_with($methodName, '__');
     }
 
-    private function hasReturnType(Node $node): bool
+    private function hasReturnType(ClassMethod $node): bool
     {
         return $node->returnType !== null;
     }
 
-    private function hasBooleanReturnType(Node $node, Scope $scope): bool
+    private function hasBooleanReturnType(ClassMethod $node, Scope $scope): bool
     {
         $classReflection = $scope->getClassReflection();
         if ($classReflection === null) {
             return false;
         }
 
-        if (!$classReflection->hasMethod($node->name->toString())) {
+        $methodName = $node->name->toString();
+        if (!$classReflection->hasMethod($methodName)) {
             return false;
         }
 
-        $returnType = $classReflection->getMethod($node->name->toString(), $scope)
+        $returnType = $classReflection->getMethod($methodName, $scope)
             ->getVariants()[0]
             ->getReturnType();
 
-        if (!$returnType instanceof BooleanType) {
-            return false;
-        }
-
-        return true;
+        return $returnType->isBoolean()->yes();
     }
 
     /**
      * @param ClassMethod $node
-     * @param Scope $scope
      * @return list<\PHPStan\Rules\RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        $classReflection = $scope->getClassReflection();
+        if ($classReflection === null) {
+            return [];
+        }
+
         if (
             $this->isSkippableMethod($node) ||
             !$this->hasReturnType($node) ||
@@ -103,7 +102,7 @@ class MethodsReturningBoolMustFollowNamingConventionRule implements Rule
             return [
                 RuleErrorBuilder::message(sprintf(
                     self::ERROR_MESSAGE,
-                    $scope->getClassReflection()->getName(),
+                    $classReflection->getName(),
                     $methodName,
                     $this->regex
                 ))

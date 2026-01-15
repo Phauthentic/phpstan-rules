@@ -182,7 +182,9 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
         $lines = explode("\n", $cleaned);
 
         // Remove leading * and whitespace from each line
-        $lines = array_map(function (string $line): string {
+        /** @var list<string> $result */
+        $result = [];
+        foreach ($lines as $line) {
             $line = ltrim($line);
             if (strpos($line, '*') === 0) {
                 $line = substr($line, 1);
@@ -191,19 +193,22 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
                     $line = substr($line, 1);
                 }
             }
-            return $line;
-        }, $lines);
+            $result[] = $line;
+        }
 
         // Remove empty first and last lines that might be from the /** */ delimiters
-        if ($lines !== [] && trim($lines[0]) === '') {
-            array_shift($lines);
-        }
-        $lastIndex = count($lines) - 1;
-        if ($lastIndex >= 0 && trim($lines[$lastIndex]) === '') {
-            array_pop($lines);
+        // The list is guaranteed to have at least one element (explode always returns at least one)
+        if (trim($result[0]) === '') {
+            array_shift($result);
         }
 
-        return $lines;
+        // Check last element only if list still has elements after possible removal
+        $resultCount = count($result);
+        if ($resultCount > 0 && trim($result[$resultCount - 1]) === '') {
+            array_pop($result);
+        }
+
+        return $result;
     }
 
     /**
