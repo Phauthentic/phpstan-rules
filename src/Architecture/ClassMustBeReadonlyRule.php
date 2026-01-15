@@ -54,9 +54,12 @@ class ClassMustBeReadonlyRule implements Rule
         return Class_::class;
     }
 
+    /**
+     * @param Class_ $node
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Class_ || !isset($node->name)) {
+        if (!isset($node->name)) {
             return [];
         }
 

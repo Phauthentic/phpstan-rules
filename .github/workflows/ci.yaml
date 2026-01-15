@@ -43,3 +43,45 @@ jobs:
       - name: Code Coverage Report
         if: success() && matrix.php-version == '8.3'
         uses: codecov/codecov-action@v4
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: json, fileinfo
+
+      - name: Composer install
+        run: composer install
+
+      - name: Run PHPStan
+        run: bin/phpstan analyse --no-progress
+
+  phpcs:
+    name: PHPCS
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: json, fileinfo
+
+      - name: Composer install
+        run: composer install
+
+      - name: Run PHPCS
+        run: bin/phpcs

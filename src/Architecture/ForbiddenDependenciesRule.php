@@ -456,4 +456,3 @@ class ForbiddenDependenciesRule implements Rule
         return $errors;
     }
 }
-

@@ -25,6 +25,7 @@ use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\TryCatch;
 use PhpParser\NodeTraverser;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
@@ -56,6 +57,7 @@ class ControlStructureNestingRule implements Rule
     }
 
     /**
+     * @return list<IdentifierRuleError>
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array
@@ -66,11 +68,14 @@ class ControlStructureNestingRule implements Rule
             return [];
         }
 
+        /** @var list<IdentifierRuleError> $errors */
         $errors = [];
         $nestingLevel = $this->getNestingLevel($node);
 
         if ($nestingLevel > $this->maxNestingLevel) {
-            $errors = $this->addError($nestingLevel, $node, $errors);
+            /** @var Else_|If_|Catch_|ElseIf_|TryCatch $controlNode */
+            $controlNode = $node;
+            $errors = $this->addError($nestingLevel, $controlNode, $errors);
         }
 
         return $errors;
@@ -87,7 +92,8 @@ class ControlStructureNestingRule implements Rule
 
     private function getNestingLevel(Node $node, int $currentLevel = 1): int
     {
-        $parent = $node->getAttribute('parent');
+        /** @var Node|null $parent */
+        $parent = $node->getAttribute(ParentNodeAttributeVisitor::ATTRIBUTE_NAME);
         if ($parent !== null && $this->nodeIsAControlStructure($parent)) {
             return $this->getNestingLevel($parent, $currentLevel + 1);
         }
@@ -107,10 +113,8 @@ class ControlStructureNestingRule implements Rule
     }
 
     /**
-     * @param int $nestingLevel
-     * @param Else_|If_|Catch_|ElseIf_|TryCatch $node
-     * @param array $errors
-     * @return array
+     * @param list<IdentifierRuleError> $errors
+     * @return list<IdentifierRuleError>
      * @throws ShouldNotHappenException
      */
     public function addError(int $nestingLevel, Else_|If_|Catch_|ElseIf_|TryCatch $node, array $errors): array

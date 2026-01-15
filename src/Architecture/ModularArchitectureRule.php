@@ -19,8 +19,8 @@ namespace Phauthentic\PHPStanRules\Architecture;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Use_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 
@@ -100,6 +100,7 @@ class ModularArchitectureRule implements Rule
     }
 
     /**
+     * @return list<IdentifierRuleError>
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array
@@ -119,6 +120,7 @@ class ModularArchitectureRule implements Rule
             return [];
         }
 
+        /** @var list<IdentifierRuleError> $errors */
         $errors = [];
 
         foreach ($node->uses as $use) {
@@ -134,7 +136,7 @@ class ModularArchitectureRule implements Rule
      *
      * @param \PhpParser\Node\Stmt\UseUse $use
      * @param array{module: string, layer: string|null, fullNamespace: string} $sourceModuleInfo
-     * @return array<RuleError>
+     * @return list<IdentifierRuleError>
      */
     private function processUseStatement($use, array $sourceModuleInfo): array
     {
@@ -173,7 +175,7 @@ class ModularArchitectureRule implements Rule
      *
      * @param array{module: string, layer: string|null, fullNamespace: string} $sourceModuleInfo
      * @param array{module: string, layer: string|null, fullNamespace: string} $targetModuleInfo
-     * @return array<RuleError>
+     * @return list<IdentifierRuleError>
      */
     private function validateIntraModuleDependency(
         array $sourceModuleInfo,
@@ -196,7 +198,7 @@ class ModularArchitectureRule implements Rule
      *
      * @param array{module: string, layer: string|null, fullNamespace: string} $sourceModuleInfo
      * @param array{module: string, layer: string|null, fullNamespace: string} $targetModuleInfo
-     * @return array<RuleError>
+     * @return list<IdentifierRuleError>
      */
     private function validateCrossModuleDependencyWrapper(
         array $sourceModuleInfo,
@@ -253,13 +255,16 @@ class ModularArchitectureRule implements Rule
 
     /**
      * Validate intra-module layer dependencies
+     *
+     * @param array{module: string, layer: string|null, fullNamespace: string} $sourceModuleInfo
+     * @param array{module: string, layer: string|null, fullNamespace: string} $targetModuleInfo
      */
     private function validateLayerDependency(
         array $sourceModuleInfo,
         array $targetModuleInfo,
         string $usedClassName,
         int $line
-    ): ?RuleError {
+    ): ?IdentifierRuleError {
         $sourceLayer = $sourceModuleInfo['layer'];
         $targetLayer = $targetModuleInfo['layer'];
 
@@ -297,13 +302,16 @@ class ModularArchitectureRule implements Rule
 
     /**
      * Validate cross-module dependencies (only facades and DTOs allowed)
+     *
+     * @param array{module: string, layer: string|null, fullNamespace: string} $sourceModuleInfo
+     * @param array{module: string, layer: string|null, fullNamespace: string} $targetModuleInfo
      */
     private function validateCrossModuleDependency(
         array $sourceModuleInfo,
         array $targetModuleInfo,
         string $usedClassName,
         int $line
-    ): ?RuleError {
+    ): ?IdentifierRuleError {
         // Check if it's an allowed cross-module import using the full class name
         $isAllowed = $this->isAllowedCrossModuleImport($usedClassName);
 

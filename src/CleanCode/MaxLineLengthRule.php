@@ -20,7 +20,6 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
 use PHPStan\Analyser\Scope;
-use PHPStan\Node\FileNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -119,7 +118,8 @@ class MaxLineLengthRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         // Skip PHPStan-specific nodes that don't represent actual PHP code
-        if ($node instanceof FileNode) {
+        // We check by class name to avoid instanceof assumption issues
+        if (get_class($node) === 'PHPStan\Node\FileNode') {
             return [];
         }
 
@@ -313,6 +313,9 @@ class MaxLineLengthRule implements Rule
         }
 
         $content = file_get_contents($filePath);
+        if ($content === false) {
+            return [];
+        }
         $lines = explode("\n", $content);
         $lineLengths = [];
 

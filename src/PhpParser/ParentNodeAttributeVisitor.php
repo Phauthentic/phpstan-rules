@@ -26,6 +26,7 @@ use PhpParser\NodeVisitorAbstract;
  */
 class ParentNodeAttributeVisitor extends NodeVisitorAbstract
 {
+    public const ATTRIBUTE_NAME = 'phauthentic_parent';
     /**
      * @return int|Node|null
      */
@@ -51,7 +52,7 @@ class ParentNodeAttributeVisitor extends NodeVisitorAbstract
         }
 
         if ($subNode instanceof Node) {
-            $subNode->setAttribute('parent', $parentNode);
+            $subNode->setAttribute(self::ATTRIBUTE_NAME, $parentNode);
         }
     }
 
@@ -63,7 +64,7 @@ class ParentNodeAttributeVisitor extends NodeVisitorAbstract
     {
         foreach ($nodes as $childNode) {
             if ($childNode instanceof Node) {
-                $childNode->setAttribute('parent', $parentNode);
+                $childNode->setAttribute(self::ATTRIBUTE_NAME, $parentNode);
             }
         }
     }
