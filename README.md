@@ -18,18 +18,19 @@ See individual rule documentation for detailed configuration examples. A [full c
 
 ### Architecture Rules
 
-- [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md)
-- [Modular Architecture Rule](docs/rules/Modular-Architecture-Rule.md)
-- [Circular Module Dependency Rule](docs/rules/Circular-Module-Dependency-Rule.md)
-- [Forbidden Namespaces Rule](docs/rules/Forbidden-Namespaces-Rule.md)
-- [Class Must Be Readonly Rule](docs/rules/Class-Must-Be-Readonly-Rule.md)
-- [Class Must Be Final Rule](docs/rules/Class-Must-Be-Final-Rule.md)
-- [Classname Must Match Pattern Rule](docs/rules/Classname-Must-Match-Pattern-Rule.md)
+- [Attribute Rule](docs/rules/Attribute-Rule.md)
 - [Catch Exception Of Type Not Allowed Rule](docs/rules/Catch-Exception-Of-Type-Not-Allowed-Rule.md)
+- [Circular Module Dependency Rule](docs/rules/Circular-Module-Dependency-Rule.md)
+- [Class Must Be Final Rule](docs/rules/Class-Must-Be-Final-Rule.md)
+- [Class Must Be Readonly Rule](docs/rules/Class-Must-Be-Readonly-Rule.md)
 - [Class Must Have Specification Docblock Rule](docs/rules/Class-Must-Have-Specification-Docblock-Rule.md)
-- [Methods Returning Bool Must Follow Naming Convention Rule](docs/rules/Methods-Returning-Bool-Must-Follow-Naming-Convention-Rule.md)
-- [Method Signature Must Match Rule](docs/rules/Method-Signature-Must-Match-Rule.md)
+- [Classname Must Match Pattern Rule](docs/rules/Classname-Must-Match-Pattern-Rule.md)
+- [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md)
+- [Forbidden Namespaces Rule](docs/rules/Forbidden-Namespaces-Rule.md)
 - [Method Must Return Type Rule](docs/rules/Method-Must-Return-Type-Rule.md)
+- [Method Signature Must Match Rule](docs/rules/Method-Signature-Must-Match-Rule.md)
+- [Methods Returning Bool Must Follow Naming Convention Rule](docs/rules/Methods-Returning-Bool-Must-Follow-Naming-Convention-Rule.md)
+- [Modular Architecture Rule](docs/rules/Modular-Architecture-Rule.md)
 
 ### Clean Code Rules
 
