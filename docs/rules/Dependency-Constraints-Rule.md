@@ -82,6 +82,7 @@ In the example below nothing from `App\Domain` can depend on anything from `App\
 - `forbiddenDependencies`: Array where keys are namespace patterns that should not depend on the namespace patterns in their value arrays.
 - `checkFqcn` (optional, default: `false`): Enable checking of fully qualified class names in addition to use statements.
 - `fqcnReferenceTypes` (optional, default: all types): Array of reference types to check when `checkFqcn` is enabled.
+- `allowedDependencies` (optional, default: `[]`): Whitelist that overrides forbidden dependencies. If a dependency matches both a forbidden pattern and an allowed pattern, it will be allowed.
 
 ## FQCN Reference Types
 
@@ -147,6 +148,51 @@ If you only want to check specific reference types (e.g., to improve performance
             - phpstan.rules.rule
 ```
 
+### Whitelist with allowedDependencies
+
+The `allowedDependencies` parameter lets you create a "forbid everything except X" pattern without complex regex. Dependencies matching both forbidden and allowed patterns will be allowed.
+
+This example forbids all third-party/namespaced dependencies in the domain layer, except for `App\Shared`, `App\Capability`, and `Psr\*`:
+
+```neon
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenDependenciesRule
+        arguments:
+            forbiddenDependencies: [
+                '/^App\\Capability\\.*\\Domain$/': [
+                    '/.*\\\\.*/'  # Match anything with a backslash (namespaced)
+                ]
+            ]
+            checkFqcn: true
+            allowedDependencies: [
+                '/^App\\Capability\\.*\\Domain$/': [
+                    '/^App\\Shared\\/',
+                    '/^App\\Capability\\/',
+                    '/^Psr\\/'
+                ]
+            ]
+        tags:
+            - phpstan.rules.rule
+```
+
+This will:
+
+- **Allow**: `App\Shared\ValueObject\Money`, `App\Capability\Billing\Invoice`, `Psr\Log\LoggerInterface`
+- **Forbid**: `Doctrine\ORM\EntityManager`, `Symfony\Component\HttpFoundation\Request`
+
+Note: Root namespace classes (like `DateTime`, `Exception`) are not matched by the `/.*\\\\.*/'` pattern since they don't contain a backslash, so they are implicitly allowed.
+
+## Diagram
+
+```mermaid
+flowchart TD
+    A[Check Dependency] --> B{Matches forbidden pattern?}
+    B -->|No| C[Allow]
+    B -->|Yes| D{Matches allowed pattern?}
+    D -->|Yes| E[Allow - Override]
+    D -->|No| F[Report Error]
+```
+
 ## Backward Compatibility
 
-By default, `checkFqcn` is `false`, so existing configurations will continue to work exactly as before, checking only `use` statements. The new FQCN checking feature must be explicitly enabled.
+By default, `checkFqcn` is `false` and `allowedDependencies` is empty, so existing configurations will continue to work exactly as before, checking only `use` statements. The new FQCN checking and allowedDependencies features must be explicitly enabled.

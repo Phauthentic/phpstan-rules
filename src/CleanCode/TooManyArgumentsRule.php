@@ -60,11 +60,6 @@ class TooManyArgumentsRule implements Rule
         return ClassMethod::class;
     }
 
-    private function isClassMethod(Node $node): bool
-    {
-        return $node instanceof ClassMethod;
-    }
-
     /**
      * Processes the node and checks if it exceeds the maximum number of arguments.
      *
@@ -73,11 +68,13 @@ class TooManyArgumentsRule implements Rule
      * @return RuleError[] An array of rule errors if any.
      * @throws ShouldNotHappenException
      */
+    /**
+     * @param ClassMethod $node
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         if (
-            !$this->isClassMethod($node)
-            || !$this->matchesPattern($scope)
+            !$this->matchesPattern($scope)
             || !$this->argumentCountIsExceeded($node)
         ) {
             return [];
@@ -92,7 +89,7 @@ class TooManyArgumentsRule implements Rule
         ];
     }
 
-    private function argumentCountIsExceeded(Node $node): bool
+    private function argumentCountIsExceeded(ClassMethod $node): bool
     {
         $numArguments = count($node->params);
 
@@ -101,7 +98,12 @@ class TooManyArgumentsRule implements Rule
 
     private function matchesPattern(Scope $scope): bool
     {
-        $className = $scope->getClassReflection()->getName();
+        $classReflection = $scope->getClassReflection();
+        if ($classReflection === null) {
+            return false;
+        }
+
+        $className = $classReflection->getName();
 
         if (empty($this->patterns)) {
             return true;
@@ -116,16 +118,14 @@ class TooManyArgumentsRule implements Rule
         return false;
     }
 
-    /**
-     * @param Scope $scope
-     * @param Node $node
-     * @return string
-     */
-    public function buildErrorMessage(Scope $scope, Node $node): string
+    public function buildErrorMessage(Scope $scope, ClassMethod $node): string
     {
+        $classReflection = $scope->getClassReflection();
+        $className = $classReflection !== null ? $classReflection->getName() : 'Unknown';
+
         return sprintf(
             self::ERROR_MESSAGE,
-            $scope->getClassReflection()->getName(),
+            $className,
             $node->name->toString(),
             count($node->params),
             $this->maxArguments

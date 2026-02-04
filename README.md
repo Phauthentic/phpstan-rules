@@ -18,26 +18,31 @@ See individual rule documentation for detailed configuration examples. A [full c
 
 ### Architecture Rules
 
-- [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md)
-- [Modular Architecture Rule](docs/rules/Modular-Architecture-Rule.md)
-- [Circular Module Dependency Rule](docs/rules/Circular-Module-Dependency-Rule.md)
-- [Forbidden Namespaces Rule](docs/rules/Forbidden-Namespaces-Rule.md)
-- [Class Must Be Readonly Rule](docs/rules/Class-Must-Be-Readonly-Rule.md)
-- [Class Must Be Final Rule](docs/rules/Class-Must-Be-Final-Rule.md)
-- [Classname Must Match Pattern Rule](docs/rules/Classname-Must-Match-Pattern-Rule.md)
+- [Attribute Rule](docs/rules/Attribute-Rule.md)
 - [Catch Exception Of Type Not Allowed Rule](docs/rules/Catch-Exception-Of-Type-Not-Allowed-Rule.md)
+- [Circular Module Dependency Rule](docs/rules/Circular-Module-Dependency-Rule.md)
+- [Class Must Be Final Rule](docs/rules/Class-Must-Be-Final-Rule.md)
+- [Class Must Be Readonly Rule](docs/rules/Class-Must-Be-Readonly-Rule.md)
 - [Class Must Have Specification Docblock Rule](docs/rules/Class-Must-Have-Specification-Docblock-Rule.md)
-- [Methods Returning Bool Must Follow Naming Convention Rule](docs/rules/Methods-Returning-Bool-Must-Follow-Naming-Convention-Rule.md)
-- [Method Signature Must Match Rule](docs/rules/Method-Signature-Must-Match-Rule.md)
-- [Method Must Return Type Rule](docs/rules/Method-Must-Return-Type-Rule.md)
-- [Property Must Match Rule](docs/rules/Property-Must-Match-Rule.md)
+- [Classname Must Match Pattern Rule](docs/rules/Classname-Must-Match-Pattern-Rule.md)
+- [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md)
 - [Forbidden Accessors Rule](docs/rules/Forbidden-Accessors-Rule.md)
+- [Forbidden Namespaces Rule](docs/rules/Forbidden-Namespaces-Rule.md)
+- [Method Must Return Type Rule](docs/rules/Method-Must-Return-Type-Rule.md)
+- [Method Signature Must Match Rule](docs/rules/Method-Signature-Must-Match-Rule.md)
+- [Methods Returning Bool Must Follow Naming Convention Rule](docs/rules/Methods-Returning-Bool-Must-Follow-Naming-Convention-Rule.md)
+- [Modular Architecture Rule](docs/rules/Modular-Architecture-Rule.md)
+- [Property Must Match Rule](docs/rules/Property-Must-Match-Rule.md)
 
 ### Clean Code Rules
 
 - [Control Structure Nesting Rule](docs/rules/Control-Structure-Nesting-Rule.md)
 - [Too Many Arguments Rule](docs/rules/Too-Many-Arguments-Rule.md)
 - [Max Line Length Rule](docs/rules/Max-Line-Length-Rule.md)
+
+### Domain Specific Rules / Extending Rules
+
+The rules in this package can be extended at project level to create self-documenting, domain-specific rules. Instead of configuring complex regex patterns in your neon file, you can create custom rule classes that encapsulate the configuration. For example, a class named `DomainClassesMustBeFinalRule` immediately communicates its purpose. See the [Extending Rules](docs/ExtendingRules.md) documentation for examples and best practices.
 
 ### Using Regex in Rules
 
