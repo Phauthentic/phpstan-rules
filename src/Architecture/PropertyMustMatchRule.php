@@ -64,6 +64,9 @@ class PropertyMustMatchRule implements Rule
     public function __construct(
         protected array $propertyPatterns
     ) {
+        if ($propertyPatterns === []) {
+            throw new \InvalidArgumentException('At least one property pattern must be provided.');
+        }
     }
 
     public function getNodeType(): string

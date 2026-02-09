@@ -40,6 +40,8 @@ class ForbiddenAccessorsRule implements Rule
     private const GETTER_PATTERN = '/^get[A-Z]/';
     private const SETTER_PATTERN = '/^set[A-Z]/';
 
+    private const VALID_VISIBILITIES = ['public', 'protected', 'private'];
+
     /**
      * @param array<string> $classPatterns Regex patterns to match against class FQCNs.
      * @param bool $forbidGetters Whether to forbid getXxx() methods.
@@ -52,6 +54,20 @@ class ForbiddenAccessorsRule implements Rule
         protected bool $forbidSetters = true,
         protected array $visibility = ['public']
     ) {
+        if ($classPatterns === []) {
+            throw new \InvalidArgumentException('At least one class pattern must be provided.');
+        }
+
+        $invalidVisibilities = array_diff($this->visibility, self::VALID_VISIBILITIES);
+        if ($invalidVisibilities !== []) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Invalid visibility value(s): %s. Must be one of: %s.',
+                    implode(', ', $invalidVisibilities),
+                    implode(', ', self::VALID_VISIBILITIES)
+                )
+            );
+        }
     }
 
     public function getNodeType(): string
