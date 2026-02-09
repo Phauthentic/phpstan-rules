@@ -20,6 +20,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Namespace_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
@@ -51,13 +52,14 @@ class ClassnameMustMatchPatternRule implements Rule
         return Namespace_::class;
     }
 
+    /**
+     * @param Namespace_ $node
+     * @return list<IdentifierRuleError>
+     */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Namespace_) {
-            return [];
-        }
-
         $namespaceName = $node->name ? $node->name->toString() : '';
+        /** @var list<IdentifierRuleError> $errors */
         $errors = [];
 
         foreach ($this->namespaceClassPatterns as $config) {
@@ -118,16 +120,16 @@ class ClassnameMustMatchPatternRule implements Rule
     /**
      * @param string $namespaceName
      * @param string $className
-     * @param $classPatterns
+     * @param array<string> $classPatterns
      * @param Class_ $stmt
-     * @param array $errors
-     * @return array
+     * @param list<IdentifierRuleError> $errors
+     * @return list<IdentifierRuleError>
      * @throws ShouldNotHappenException
      */
     public function buildRuleError(
         string $namespaceName,
         string $className,
-        $classPatterns,
+        array $classPatterns,
         Class_ $stmt,
         array $errors
     ): array {

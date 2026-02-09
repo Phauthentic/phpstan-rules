@@ -19,6 +19,7 @@ namespace Phauthentic\PHPStanRules\Architecture;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
@@ -53,11 +54,12 @@ class ClassMustBeFinalRule implements Rule
     }
 
     /**
+     * @param Class_ $node
      * @throws ShouldNotHappenException
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Class_ || !isset($node->name)) {
+        if (!isset($node->name)) {
             return [];
         }
 
@@ -79,7 +81,7 @@ class ClassMustBeFinalRule implements Rule
         return [];
     }
 
-    private function buildRuleError(string $fullClassName)
+    private function buildRuleError(string $fullClassName): IdentifierRuleError
     {
         return RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
             ->identifier(self::IDENTIFIER)
