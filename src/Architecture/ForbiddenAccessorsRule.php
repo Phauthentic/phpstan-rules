@@ -106,7 +106,13 @@ class ForbiddenAccessorsRule implements Rule
     private function matchesClassPatterns(string $fullClassName): bool
     {
         foreach ($this->classPatterns as $pattern) {
-            if (preg_match($pattern, $fullClassName)) {
+            $result = @preg_match($pattern, $fullClassName);
+            if ($result === false) {
+                throw new \InvalidArgumentException(
+                    sprintf('Invalid regex pattern "%s": %s', $pattern, preg_last_error_msg())
+                );
+            }
+            if ($result === 1) {
                 return true;
             }
         }

@@ -108,7 +108,16 @@ class PropertyMustMatchRule implements Rule
     {
         return array_filter(
             $this->propertyPatterns,
-            fn(array $config): bool => (bool) preg_match($config['classPattern'], $className)
+            function (array $config) use ($className): bool {
+                $result = @preg_match($config['classPattern'], $className);
+                if ($result === false) {
+                    throw new \InvalidArgumentException(
+                        sprintf('Invalid regex pattern "%s": %s', $config['classPattern'], preg_last_error_msg())
+                    );
+                }
+
+                return $result === 1;
+            }
         );
     }
 
