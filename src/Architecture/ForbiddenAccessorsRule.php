@@ -44,7 +44,7 @@ class ForbiddenAccessorsRule implements Rule
      * @param array<string> $classPatterns Regex patterns to match against class FQCNs.
      * @param bool $forbidGetters Whether to forbid getXxx() methods.
      * @param bool $forbidSetters Whether to forbid setXxx() methods.
-     * @param array<string> $visibility Array of visibilities to check ('public', 'protected').
+     * @param array<string> $visibility Array of visibilities to check ('public', 'protected', 'private').
      */
     public function __construct(
         protected array $classPatterns,
