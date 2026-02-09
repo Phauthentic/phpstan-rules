@@ -24,6 +24,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 
 /**
  * Specification:
+ *
  * - Any class method that returns a boolean must follow the naming convention provided by the regex.
  *
  * @implements Rule<ClassMethod>

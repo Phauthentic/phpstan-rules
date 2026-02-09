@@ -33,6 +33,19 @@ use PHPStan\Rules\RuleErrorBuilder;
  * - Checks if the property type matches the expected type.
  * - Checks if the property has the required visibility scope (public, protected, private).
  * - When required is set to true, enforces that matching classes must have the property.
+ *
+ * @phpstan-type PropertyRule array{
+ *     name: string,
+ *     type?: string|null,
+ *     visibilityScope?: string|null,
+ *     required?: bool|null,
+ *     nullable?: bool|null
+ * }
+ * @phpstan-type PatternConfig array{
+ *     classPattern: string,
+ *     properties: array<PropertyRule>
+ * }
+ * @implements Rule<Class_>
  */
 class PropertyMustMatchRule implements Rule
 {
@@ -43,16 +56,7 @@ class PropertyMustMatchRule implements Rule
     private const ERROR_MESSAGE_VISIBILITY_SCOPE = 'Property %s::$%s must be %s.';
 
     /**
-     * @param array<array{
-     *     classPattern: string,
-     *     properties: array<array{
-     *         name: string,
-     *         type?: string|null,
-     *         visibilityScope?: string|null,
-     *         required?: bool|null,
-     *         nullable?: bool|null
-     *     }>
-     * }> $propertyPatterns
+     * @param array<PatternConfig> $propertyPatterns
      */
     public function __construct(
         protected array $propertyPatterns
@@ -95,7 +99,7 @@ class PropertyMustMatchRule implements Rule
     }
 
     /**
-     * @return array<array{classPattern: string, properties: array}>
+     * @return array<PatternConfig>
      */
     private function getMatchingPatterns(string $className): array
     {
@@ -106,7 +110,7 @@ class PropertyMustMatchRule implements Rule
     }
 
     /**
-     * @param array{classPattern: string, properties: array} $patternConfig
+     * @param PatternConfig $patternConfig
      * @param array<string, Property> $classProperties
      * @return array<\PHPStan\Rules\RuleError>
      */
@@ -129,6 +133,7 @@ class PropertyMustMatchRule implements Rule
     }
 
     /**
+     * @param PropertyRule $propertyRule
      * @param array<string, Property> $classProperties
      * @return array<\PHPStan\Rules\RuleError>
      */
@@ -148,6 +153,7 @@ class PropertyMustMatchRule implements Rule
     }
 
     /**
+     * @param PropertyRule $propertyRule
      * @return array<\PHPStan\Rules\RuleError>
      */
     private function handleMissingProperty(
@@ -173,6 +179,7 @@ class PropertyMustMatchRule implements Rule
     }
 
     /**
+     * @param PropertyRule $propertyRule
      * @return array<\PHPStan\Rules\RuleError>
      */
     private function validateExistingProperty(
@@ -209,10 +216,7 @@ class PropertyMustMatchRule implements Rule
     /**
      * Validate property type against expected type.
      *
-     * @param array $propertyRule
-     * @param Property $property
-     * @param string $className
-     * @param string $propertyName
+     * @param PropertyRule $propertyRule
      * @return \PHPStan\Rules\RuleError|null
      */
     private function validatePropertyType(
@@ -221,7 +225,7 @@ class PropertyMustMatchRule implements Rule
         string $className,
         string $propertyName
     ): ?\PHPStan\Rules\RuleError {
-        if (!isset($propertyRule['type']) || $propertyRule['type'] === null) {
+        if (!isset($propertyRule['type'])) {
             return null;
         }
 
@@ -284,10 +288,7 @@ class PropertyMustMatchRule implements Rule
     /**
      * Validate property visibility scope.
      *
-     * @param array $propertyRule
-     * @param Property $property
-     * @param string $className
-     * @param string $propertyName
+     * @param PropertyRule $propertyRule
      * @return \PHPStan\Rules\RuleError|null
      */
     private function validateVisibilityScope(
@@ -296,7 +297,7 @@ class PropertyMustMatchRule implements Rule
         string $className,
         string $propertyName
     ): ?\PHPStan\Rules\RuleError {
-        if (!isset($propertyRule['visibilityScope']) || $propertyRule['visibilityScope'] === null) {
+        if (!isset($propertyRule['visibilityScope'])) {
             return null;
         }
 
