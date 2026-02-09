@@ -136,10 +136,7 @@ class ForbiddenAccessorsRule implements Rule
         return 'private';
     }
 
-    /**
-     * @return \PHPStan\Rules\RuleError
-     */
-    private function buildGetterError(string $fullClassName, string $visibility, string $methodName, int $line)
+    private function buildGetterError(string $fullClassName, string $visibility, string $methodName, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(self::ERROR_MESSAGE_GETTER, $fullClassName, $visibility, $methodName)
@@ -149,10 +146,7 @@ class ForbiddenAccessorsRule implements Rule
             ->build();
     }
 
-    /**
-     * @return \PHPStan\Rules\RuleError
-     */
-    private function buildSetterError(string $fullClassName, string $visibility, string $methodName, int $line)
+    private function buildSetterError(string $fullClassName, string $visibility, string $methodName, int $line): \PHPStan\Rules\RuleError
     {
         return RuleErrorBuilder::message(
             sprintf(self::ERROR_MESSAGE_SETTER, $fullClassName, $visibility, $methodName)

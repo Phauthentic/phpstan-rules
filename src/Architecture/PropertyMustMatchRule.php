@@ -342,7 +342,7 @@ class PropertyMustMatchRule implements Rule
 
     /**
      * Convert a type node to string representation.
-     */
+git s     */
     private function getTypeAsString(ComplexType|Identifier|Name|null $type): ?string
     {
         return match (true) {
