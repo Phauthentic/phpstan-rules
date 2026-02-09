@@ -306,7 +306,9 @@ class PropertyMustMatchRule implements Rule
             'public' => $property->isPublic(),
             'protected' => $property->isProtected(),
             'private' => $property->isPrivate(),
-            default => true,
+            default => throw new \InvalidArgumentException(
+                sprintf('Invalid visibilityScope "%s". Must be one of: public, protected, private.', $expectedVisibility)
+            ),
         };
 
         if (!$isValid) {
