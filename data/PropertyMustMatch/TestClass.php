@@ -99,3 +99,18 @@ class WrongTypeAllowedHandler
 {
     private string $id;
 }
+
+// Union type property - used to test union type support
+class UnionTypeCommand
+{
+    private string|int $value;
+}
+
+// Intersection type property - used to test intersection type support
+interface Loggable {}
+interface Serializable {}
+
+class IntersectionTypeCommand
+{
+    private \Countable&\Iterator $collection;
+}
