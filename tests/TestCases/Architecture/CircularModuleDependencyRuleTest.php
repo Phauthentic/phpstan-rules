@@ -34,6 +34,33 @@ class CircularModuleDependencyRuleTest extends RuleTestCase
         );
     }
 
+    public function testNonModularNamespaceIsSkipped(): void
+    {
+        // A class outside the modular namespace should be ignored
+        $this->analyse(
+            [__DIR__ . '/../../../data/ModularArchitectureTest/NonModular/OutsideClass.php'],
+            []
+        );
+    }
+
+    public function testSameModuleImportIsSkipped(): void
+    {
+        // Importing from the same module should not trigger any errors
+        $this->analyse(
+            [__DIR__ . '/../../../data/ModularArchitectureTest/Capability/UserManagement/Application/SameModuleImport.php'],
+            []
+        );
+    }
+
+    public function testModularFileImportingNonModularClassIsSkipped(): void
+    {
+        // A modular file importing a non-modular class (e.g., DateTime) should be skipped
+        $this->analyse(
+            [__DIR__ . '/../../../data/ModularArchitectureTest/Capability/ProductCatalog/Application/NonModularImport.php'],
+            []
+        );
+    }
+
     public function testCircularDependencyDetection(): void
     {
         // Reset to ensure clean state

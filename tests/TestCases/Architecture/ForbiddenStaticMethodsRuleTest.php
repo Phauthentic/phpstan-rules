@@ -65,4 +65,10 @@ class ForbiddenStaticMethodsRuleTest extends RuleTestCase
         // DateTime::getLastErrors is allowed, only createFromFormat is forbidden
         $this->analyse([__DIR__ . '/../../../data/ForbiddenStaticMethods/AllowedMethodOnForbiddenClass.php'], []);
     }
+
+    public function testDynamicCallsAreSkipped(): void
+    {
+        // Dynamic method names ($method) and dynamic class names ($class) should be skipped
+        $this->analyse([__DIR__ . '/../../../data/ForbiddenStaticMethods/DynamicCall.php'], []);
+    }
 }

@@ -48,4 +48,10 @@ class ForbiddenAccessorsRuleTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/ForbiddenAccessors/ServiceWithAccessors.php'], []);
     }
+
+    public function testAnonymousClassIsSkipped(): void
+    {
+        // Anonymous classes should be skipped (resolveFullClassName returns null)
+        $this->analyse([__DIR__ . '/../../../data/ForbiddenAccessors/AnonymousClassWithAccessors.php'], []);
+    }
 }

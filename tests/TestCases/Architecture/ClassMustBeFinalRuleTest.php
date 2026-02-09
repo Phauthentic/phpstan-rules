@@ -33,4 +33,16 @@ class ClassMustBeFinalRuleTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/../../../data/Service/AbstractServiceClass.php'], []);
     }
+
+    public function testFinalClassMatchingPatternPassesRule(): void
+    {
+        // A class that matches the pattern but is already final should produce no errors
+        $this->analyse([__DIR__ . '/../../../data/Service/FinalRuleService.php'], []);
+    }
+
+    public function testAnonymousClassIsSkipped(): void
+    {
+        // Anonymous classes should be skipped (no class name to match)
+        $this->analyse([__DIR__ . '/../../../data/Service/AnonymousServiceClass.php'], []);
+    }
 }
