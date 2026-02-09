@@ -35,8 +35,8 @@ class PropertyMustMatchRuleNullableTest extends RuleTestCase
         $this->analyse([__DIR__ . '/../../../data/PropertyMustMatch/TestClass.php'], [
             // WrongTypeAllowedHandler - wrong type entirely (string instead of int or ?int)
             [
-                'Property WrongTypeAllowedHandler::$id should be of type int or ?int, string given.',
-                98,
+                'Property App\PropertyMustMatch\WrongTypeAllowedHandler::$id should be of type int or ?int, string given.',
+                100,
             ],
         ]);
     }

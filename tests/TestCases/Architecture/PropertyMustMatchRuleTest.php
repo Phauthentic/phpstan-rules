@@ -27,7 +27,7 @@ class PropertyMustMatchRuleTest extends RuleTestCase
                     ],
                     [
                         'name' => 'repository',
-                        'type' => 'DummyRepository',
+                        'type' => 'App\PropertyMustMatch\DummyRepository',
                         'visibilityScope' => 'private',
                         'required' => true,
                     ],
@@ -38,7 +38,7 @@ class PropertyMustMatchRuleTest extends RuleTestCase
                 'properties' => [
                     [
                         'name' => 'logger',
-                        'type' => 'LoggerInterface',
+                        'type' => 'App\PropertyMustMatch\LoggerInterface',
                         'visibilityScope' => 'private',
                         'required' => false,
                     ],
@@ -52,53 +52,53 @@ class PropertyMustMatchRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/../../../data/PropertyMustMatch/TestClass.php'], [
             // MissingPropertyController - missing required property 'id'
             [
-                'Class MissingPropertyController must have property $id.',
-                17,
+                'Class App\PropertyMustMatch\MissingPropertyController must have property $id.',
+                19,
             ],
 
             // WrongTypeController - wrong type for 'id' (string instead of int)
             [
-                'Property WrongTypeController::$id should be of type int, string given.',
-                25,
+                'Property App\PropertyMustMatch\WrongTypeController::$id should be of type int, string given.',
+                27,
             ],
 
             // WrongVisibilityController - wrong visibility for 'id' (public instead of private)
             [
-                'Property WrongVisibilityController::$id must be private.',
-                32,
+                'Property App\PropertyMustMatch\WrongVisibilityController::$id must be private.',
+                34,
             ],
 
             // MultipleErrorsController - wrong type and wrong visibility for 'id'
             [
-                'Property MultipleErrorsController::$id should be of type int, string given.',
-                39,
+                'Property App\PropertyMustMatch\MultipleErrorsController::$id should be of type int, string given.',
+                41,
             ],
             [
-                'Property MultipleErrorsController::$id must be private.',
-                39,
+                'Property App\PropertyMustMatch\MultipleErrorsController::$id must be private.',
+                41,
             ],
             // MultipleErrorsController - wrong visibility for 'repository' (protected instead of private)
             [
-                'Property MultipleErrorsController::$repository must be private.',
-                40,
+                'Property App\PropertyMustMatch\MultipleErrorsController::$repository must be private.',
+                42,
             ],
 
             // NoTypeController - missing type on 'id' property
             [
-                'Property NoTypeController::$id should be of type int, none given.',
-                46,
+                'Property App\PropertyMustMatch\NoTypeController::$id should be of type int, none given.',
+                48,
             ],
 
             // NullableTypeController - nullable type doesn't match expected 'int'
             [
-                'Property NullableTypeController::$id should be of type int, ?int given.',
-                53,
+                'Property App\PropertyMustMatch\NullableTypeController::$id should be of type int, ?int given.',
+                55,
             ],
 
             // WrongLoggerTypeService - wrong type for optional 'logger' property
             [
-                'Property WrongLoggerTypeService::$logger should be of type LoggerInterface, string given.',
-                72,
+                'Property App\PropertyMustMatch\WrongLoggerTypeService::$logger should be of type App\PropertyMustMatch\LoggerInterface, string given.',
+                74,
             ],
         ]);
     }

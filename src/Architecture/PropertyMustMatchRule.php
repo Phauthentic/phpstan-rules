@@ -67,24 +67,27 @@ class PropertyMustMatchRule implements Rule
     /**
      * @param Class_ $node
      * @param Scope $scope
-     * @return array
+     * @return array<\PHPStan\Rules\RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $className = $node->name?->toString() ?? '';
+        $shortClassName = $node->name?->toString() ?? '';
 
-        if ($className === '') {
+        if ($shortClassName === '') {
             return [];
         }
 
+        $namespaceName = $scope->getNamespace() ?? '';
+        $fullClassName = $namespaceName !== '' ? $namespaceName . '\\' . $shortClassName : $shortClassName;
+
         $classProperties = $this->getClassProperties($node);
-        $matchingPatterns = $this->getMatchingPatterns($className);
+        $matchingPatterns = $this->getMatchingPatterns($fullClassName);
 
         $errors = [];
         foreach ($matchingPatterns as $patternConfig) {
             $errors = array_merge(
                 $errors,
-                $this->validatePatternProperties($patternConfig, $classProperties, $className, $node->getLine())
+                $this->validatePatternProperties($patternConfig, $classProperties, $fullClassName, $node->getLine())
             );
         }
 
