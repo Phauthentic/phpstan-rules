@@ -76,7 +76,6 @@ class PropertyMustMatchRule implements Rule
      * @return array<\PHPStan\Rules\RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
-
     {
         $fullClassName = $this->resolveFullClassName($node, $scope);
         if ($fullClassName === null) {
