@@ -32,6 +32,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ClassMustBeReadonlyRule implements Rule
 {
+    use ClassNameResolver;
+
     private const ERROR_MESSAGE = 'Class %s must be readonly.';
 
     private const IDENTIFIER = 'phauthentic.architecture.classMustBeReadonly';
@@ -59,22 +61,17 @@ class ClassMustBeReadonlyRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!isset($node->name)) {
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
             return [];
         }
 
-        $className = $node->name->toString();
-        $namespaceName = $scope->getNamespace() ?? '';
-        $fullClassName = $namespaceName . '\\' . $className;
-
-        foreach ($this->patterns as $pattern) {
-            if (preg_match($pattern, $fullClassName) && !$node->isReadonly()) {
-                return [
-                    RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
-                        ->identifier(self::IDENTIFIER)
-                        ->build(),
-                ];
-            }
+        if ($this->matchesAnyPattern($fullClassName, $this->patterns) && !$node->isReadonly()) {
+            return [
+                RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $fullClassName))
+                    ->identifier(self::IDENTIFIER)
+                    ->build(),
+            ];
         }
 
         return [];

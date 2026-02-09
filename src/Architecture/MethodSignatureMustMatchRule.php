@@ -18,9 +18,6 @@ namespace Phauthentic\PHPStanRules\Architecture;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
-use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -42,6 +39,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class MethodSignatureMustMatchRule implements Rule
 {
+    use ClassNameResolver;
+
     private const IDENTIFIER = 'phauthentic.architecture.methodSignatureMustMatch';
 
     private const ERROR_MESSAGE_MISSING_PARAMETER = 'Method %s is missing parameter #%d of type %s.';
@@ -81,11 +80,14 @@ class MethodSignatureMustMatchRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $className = $node->name?->toString() ?? '';
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
+            return [];
+        }
 
         return [
-            ...$this->checkRequiredMethods($node, $className),
-            ...$this->validateMethods($node->getMethods(), $className),
+            ...$this->checkRequiredMethods($node, $fullClassName),
+            ...$this->validateMethods($node->getMethods(), $fullClassName),
         ];
     }
 
@@ -288,18 +290,6 @@ class MethodSignatureMustMatchRule implements Rule
             return $param->var->name;
         }
         return null;
-    }
-
-    private function getTypeAsString(mixed $type): ?string
-    {
-        return match (true) {
-            $type === null => null,
-            $type instanceof Identifier => $type->name,
-            $type instanceof Name => $type->toString(),
-            $type instanceof NullableType =>
-                ($inner = $this->getTypeAsString($type->type)) !== null ? '?' . $inner : null,
-            default => null,
-        };
     }
 
     /**

@@ -34,14 +34,14 @@ class MethodSignatureMustMatchRuleRequiredTest extends RuleTestCase
         $this->analyse([__DIR__ . '/../../../data/MethodSignatureMustMatch/RequiredMethodTestClass.php'], [
             // MyTestController is missing the required execute method
             [
-                'Class MyTestController must implement method execute with signature: public function execute(int $param1).',
+                'Class Phauthentic\PHPStanRules\Tests\Data\MethodSignatureMustMatch\MyTestController must implement method execute with signature: public function execute(int $param1).',
                 8,
             ],
             // AnotherTestController implements the method correctly - no error expected
 
             // YetAnotherTestController is missing the required execute method
             [
-                'Class YetAnotherTestController must implement method execute with signature: public function execute(int $param1).',
+                'Class Phauthentic\PHPStanRules\Tests\Data\MethodSignatureMustMatch\YetAnotherTestController must implement method execute with signature: public function execute(int $param1).',
                 24,
             ],
             // NotAController doesn't match the pattern - no error expected

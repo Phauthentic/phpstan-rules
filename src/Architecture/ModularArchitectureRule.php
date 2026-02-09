@@ -32,6 +32,7 @@ use PHPStan\ShouldNotHappenException;
  * 2. Cross-module dependencies (only facades and DTOs allowed)
  *
  * Specification:
+ *
  * - Domain layer cannot import from Application, Infrastructure, or Presentation
  * - Application layer can import Domain; cannot import Infrastructure or Presentation
  * - Infrastructure layer can import Domain and Application; cannot import Presentation

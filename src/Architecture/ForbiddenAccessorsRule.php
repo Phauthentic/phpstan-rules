@@ -1,0 +1,153 @@
+<?php
+
+/**
+ * Copyright (c) Florian Krämer (https://florian-kraemer.net)
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE file
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright Copyright (c) Florian Krämer (https://florian-kraemer.net)
+ * @author    Florian Krämer
+ * @link      https://github.com/Phauthentic
+ * @license   https://opensource.org/licenses/MIT MIT License
+ */
+
+declare(strict_types=1);
+
+namespace Phauthentic\PHPStanRules\Architecture;
+
+use PhpParser\Node;
+use PhpParser\Node\Stmt\Class_;
+use PHPStan\Analyser\Scope;
+use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
+
+/**
+ * Specification:
+ *
+ * - Checks if a class matches a given regex pattern.
+ * - Forbids public and/or protected getters (getXxx) and/or setters (setXxx) on matched classes.
+ * - Accessor types (getters/setters) and visibility are configurable.
+ *
+ * @implements Rule<Class_>
+ */
+class ForbiddenAccessorsRule implements Rule
+{
+    use ClassNameResolver;
+
+    private const ERROR_MESSAGE_GETTER = 'Class %s must not have a %s getter method %s().';
+    private const ERROR_MESSAGE_SETTER = 'Class %s must not have a %s setter method %s().';
+    private const IDENTIFIER = 'phauthentic.architecture.forbiddenAccessors';
+
+    private const GETTER_PATTERN = '/^get[A-Z]/';
+    private const SETTER_PATTERN = '/^set[A-Z]/';
+
+    private const VALID_VISIBILITIES = ['public', 'protected', 'private'];
+
+    /**
+     * @param array<string> $classPatterns Regex patterns to match against class FQCNs.
+     * @param bool $forbidGetters Whether to forbid getXxx() methods.
+     * @param bool $forbidSetters Whether to forbid setXxx() methods.
+     * @param array<string> $visibility Array of visibilities to check ('public', 'protected', 'private').
+     */
+    public function __construct(
+        protected array $classPatterns,
+        protected bool $forbidGetters = true,
+        protected bool $forbidSetters = true,
+        protected array $visibility = ['public']
+    ) {
+        if ($classPatterns === []) {
+            throw new \InvalidArgumentException('At least one class pattern must be provided.');
+        }
+
+        $invalidVisibilities = array_diff($this->visibility, self::VALID_VISIBILITIES);
+        if ($invalidVisibilities !== []) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Invalid visibility value(s): %s. Must be one of: %s.',
+                    implode(', ', $invalidVisibilities),
+                    implode(', ', self::VALID_VISIBILITIES)
+                )
+            );
+        }
+    }
+
+    public function getNodeType(): string
+    {
+        return Class_::class;
+    }
+
+    /**
+     * @param Class_ $node
+     * @param Scope $scope
+     * @return array<\PHPStan\Rules\RuleError>
+     */
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
+            return [];
+        }
+
+        if (!$this->matchesAnyPattern($fullClassName, $this->classPatterns)) {
+            return [];
+        }
+
+        $errors = [];
+
+        foreach ($node->getMethods() as $method) {
+            $methodName = $method->name->toString();
+            $methodVisibility = $this->getMethodVisibility($method);
+
+            if (!in_array($methodVisibility, $this->visibility, true)) {
+                continue;
+            }
+
+            if ($this->forbidGetters && preg_match(self::GETTER_PATTERN, $methodName)) {
+                $errors[] = $this->buildGetterError($fullClassName, $methodVisibility, $methodName, $method->getLine());
+            }
+
+            if ($this->forbidSetters && preg_match(self::SETTER_PATTERN, $methodName)) {
+                $errors[] = $this->buildSetterError($fullClassName, $methodVisibility, $methodName, $method->getLine());
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Get the visibility of a method as a string.
+     */
+    private function getMethodVisibility(Node\Stmt\ClassMethod $method): string
+    {
+        if ($method->isPublic()) {
+            return 'public';
+        }
+
+        if ($method->isProtected()) {
+            return 'protected';
+        }
+
+        return 'private';
+    }
+
+    private function buildGetterError(string $fullClassName, string $visibility, string $methodName, int $line): \PHPStan\Rules\RuleError
+    {
+        return RuleErrorBuilder::message(
+            sprintf(self::ERROR_MESSAGE_GETTER, $fullClassName, $visibility, $methodName)
+        )
+            ->identifier(self::IDENTIFIER)
+            ->line($line)
+            ->build();
+    }
+
+    private function buildSetterError(string $fullClassName, string $visibility, string $methodName, int $line): \PHPStan\Rules\RuleError
+    {
+        return RuleErrorBuilder::message(
+            sprintf(self::ERROR_MESSAGE_SETTER, $fullClassName, $visibility, $methodName)
+        )
+            ->identifier(self::IDENTIFIER)
+            ->line($line)
+            ->build();
+    }
+}
