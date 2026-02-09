@@ -32,22 +32,27 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class CatchExceptionOfTypeNotAllowedRule implements Rule
 {
+    use ClassNameResolver;
+
     private const ERROR_MESSAGE = 'Catching exception of type %s is not allowed.';
 
     private const IDENTIFIER = 'phauthentic.architecture.catchExceptionOfTypeNotAllowed';
 
     /**
-     * @var array<string> An array of exception class names that are not allowed to be caught.
-     * e.g., ['Exception', 'Error', 'Throwable']
+     * @var array<string> Normalized forbidden exception types (without leading backslash)
      */
-    private array $forbiddenExceptionTypes;
+    private array $normalizedForbiddenTypes;
 
     /**
      * @param array<string> $forbiddenExceptionTypes An array of exception class names that are not allowed to be caught.
      */
     public function __construct(array $forbiddenExceptionTypes)
     {
-        $this->forbiddenExceptionTypes = $forbiddenExceptionTypes;
+        // Normalize all forbidden types by removing leading backslash
+        $this->normalizedForbiddenTypes = array_map(
+            fn(string $type): string => $this->normalizeClassName($type),
+            $forbiddenExceptionTypes
+        );
     }
 
     public function getNodeType(): string
@@ -64,9 +69,11 @@ class CatchExceptionOfTypeNotAllowedRule implements Rule
 
         foreach ($node->types as $type) {
             $exceptionType = $type->toString();
+            // Normalize the caught exception type for comparison
+            $normalizedType = $this->normalizeClassName($exceptionType);
 
             // Check if the caught exception type is in the forbidden list
-            if (in_array($exceptionType, $this->forbiddenExceptionTypes, true)) {
+            if (in_array($normalizedType, $this->normalizedForbiddenTypes, true)) {
                 $errors[] = RuleErrorBuilder::message(sprintf(self::ERROR_MESSAGE, $exceptionType))
                     ->line($node->getLine())
                     ->identifier(self::IDENTIFIER)

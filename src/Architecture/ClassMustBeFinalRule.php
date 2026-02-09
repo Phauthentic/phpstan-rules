@@ -34,6 +34,8 @@ use PHPStan\ShouldNotHappenException;
  */
 class ClassMustBeFinalRule implements Rule
 {
+    use ClassNameResolver;
+
     private const ERROR_MESSAGE = 'Class %s must be final.';
 
     private const IDENTIFIER = 'phauthentic.architecture.classMustBeFinal';
@@ -59,7 +61,8 @@ class ClassMustBeFinalRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!isset($node->name)) {
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
             return [];
         }
 
@@ -68,14 +71,8 @@ class ClassMustBeFinalRule implements Rule
             return [];
         }
 
-        $className = $node->name->toString();
-        $namespaceName = $scope->getNamespace() ?? '';
-        $fullClassName = $namespaceName . '\\' . $className;
-
-        foreach ($this->patterns as $pattern) {
-            if (preg_match($pattern, $fullClassName) && !$node->isFinal()) {
-                return [$this->buildRuleError($fullClassName)];
-            }
+        if ($this->matchesAnyPattern($fullClassName, $this->patterns) && !$node->isFinal()) {
+            return [$this->buildRuleError($fullClassName)];
         }
 
         return [];

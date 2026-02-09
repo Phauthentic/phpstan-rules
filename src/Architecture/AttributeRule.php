@@ -54,6 +54,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class AttributeRule implements Rule
 {
+    use ClassNameResolver;
+
     private const ERROR_FORBIDDEN = 'Attribute %s is forbidden on %s %s.';
 
     private const ERROR_NOT_ALLOWED = 'Attribute %s is not in the allowed list for %s %s. Allowed patterns: %s';
@@ -104,13 +106,10 @@ class AttributeRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!isset($node->name)) {
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
             return [];
         }
-
-        $className = $node->name->toString();
-        $namespaceName = $scope->getNamespace() ?? '';
-        $fullClassName = $namespaceName !== '' ? $namespaceName . '\\' . $className : $className;
 
         /** @var list<IdentifierRuleError> $errors */
         $errors = [];

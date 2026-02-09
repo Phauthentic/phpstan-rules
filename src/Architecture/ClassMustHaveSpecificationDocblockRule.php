@@ -39,6 +39,8 @@ use PHPStan\ShouldNotHappenException;
  */
 class ClassMustHaveSpecificationDocblockRule implements Rule
 {
+    use ClassNameResolver;
+
     private const ERROR_MESSAGE_MISSING = '%s %s must have a docblock with a "%s" section.';
     private const ERROR_MESSAGE_INVALID = '%s %s has an invalid specification docblock. %s';
     private const IDENTIFIER = 'phauthentic.architecture.classMustHaveSpecificationDocblock';
@@ -96,20 +98,18 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
             return [];
         }
 
-        if (!isset($node->name)) {
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
             return [];
         }
 
         $errors = [];
-        $className = $node->name->toString();
-        $namespaceName = $scope->getNamespace() ?? '';
-        $fullClassName = $namespaceName . '\\' . $className;
 
         // Determine the type for error messages
         $type = $node instanceof Interface_ ? 'Interface' : 'Class';
 
         // Check class/interface docblock
-        if ($this->matchesPatterns($fullClassName, $this->classPatterns)) {
+        if ($this->matchesAnyPattern($fullClassName, $this->classPatterns)) {
             $docComment = $node->getDocComment();
             if ($docComment === null) {
                 $errors[] = $this->buildMissingDocblockError($type, $fullClassName, $node);
@@ -123,7 +123,7 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
             $methodName = $method->name->toString();
             $fullMethodName = $fullClassName . '::' . $methodName;
 
-            if ($this->matchesPatterns($fullMethodName, $this->methodPatterns)) {
+            if ($this->matchesAnyPattern($fullMethodName, $this->methodPatterns)) {
                 $docComment = $method->getDocComment();
                 if ($docComment === null) {
                     $errors[] = $this->buildMissingDocblockError('Method', $fullMethodName, $method);
@@ -134,20 +134,6 @@ class ClassMustHaveSpecificationDocblockRule implements Rule
         }
 
         return $errors;
-    }
-
-    /**
-     * @param array<string> $patterns
-     */
-    private function matchesPatterns(string $target, array $patterns): bool
-    {
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $target)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function isValidSpecificationDocblock(Doc $docComment): bool

@@ -17,14 +17,8 @@ declare(strict_types=1);
 namespace Phauthentic\PHPStanRules\Architecture;
 
 use PhpParser\Node;
-use PhpParser\Node\ComplexType;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\IntersectionType;
-use PhpParser\Node\Name;
-use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
-use PhpParser\Node\UnionType;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -52,6 +46,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class PropertyMustMatchRule implements Rule
 {
+    use ClassNameResolver;
+
     private const IDENTIFIER = 'phauthentic.architecture.propertyMustMatch';
 
     private const ERROR_MESSAGE_MISSING_PROPERTY = 'Class %s must have property $%s.';
@@ -80,15 +76,12 @@ class PropertyMustMatchRule implements Rule
      * @return array<\PHPStan\Rules\RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
-    {
-        $shortClassName = $node->name?->toString() ?? '';
 
-        if ($shortClassName === '') {
+    {
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
             return [];
         }
-
-        $namespaceName = $scope->getNamespace() ?? '';
-        $fullClassName = $namespaceName !== '' ? $namespaceName . '\\' . $shortClassName : $shortClassName;
 
         $classProperties = $this->getClassProperties($node);
         $matchingPatterns = $this->getMatchingPatterns($fullClassName);
@@ -341,26 +334,5 @@ class PropertyMustMatchRule implements Rule
         }
 
         return null;
-    }
-
-    /**
-     * Convert a type node to string representation.
-     */
-    private function getTypeAsString(ComplexType|Identifier|Name|null $type): ?string
-    {
-        return match (true) {
-            $type === null => null,
-            $type instanceof Identifier => $type->name,
-            $type instanceof Name => $type->toString(),
-            $type instanceof NullableType =>
-                ($inner = $this->getTypeAsString($type->type)) !== null ? '?' . $inner : null,
-            $type instanceof UnionType => implode('|', array_filter(
-                array_map(fn ($t) => $this->getTypeAsString($t), $type->types)
-            )),
-            $type instanceof IntersectionType => implode('&', array_filter(
-                array_map(fn ($t) => $this->getTypeAsString($t), $type->types)
-            )),
-            default => null,
-        };
     }
 }

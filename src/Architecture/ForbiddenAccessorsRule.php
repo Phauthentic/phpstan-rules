@@ -33,6 +33,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ForbiddenAccessorsRule implements Rule
 {
+    use ClassNameResolver;
+
     private const ERROR_MESSAGE_GETTER = 'Class %s must not have a %s getter method %s().';
     private const ERROR_MESSAGE_SETTER = 'Class %s must not have a %s setter method %s().';
     private const IDENTIFIER = 'phauthentic.architecture.forbiddenAccessors';
@@ -82,15 +84,12 @@ class ForbiddenAccessorsRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!isset($node->name)) {
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
             return [];
         }
 
-        $className = $node->name->toString();
-        $namespaceName = $scope->getNamespace() ?? '';
-        $fullClassName = $namespaceName !== '' ? $namespaceName . '\\' . $className : $className;
-
-        if (!$this->matchesClassPatterns($fullClassName)) {
+        if (!$this->matchesAnyPattern($fullClassName, $this->classPatterns)) {
             return [];
         }
 
@@ -114,26 +113,6 @@ class ForbiddenAccessorsRule implements Rule
         }
 
         return $errors;
-    }
-
-    /**
-     * Check if the class FQCN matches any of the configured patterns.
-     */
-    private function matchesClassPatterns(string $fullClassName): bool
-    {
-        foreach ($this->classPatterns as $pattern) {
-            $result = @preg_match($pattern, $fullClassName);
-            if ($result === false) {
-                throw new \InvalidArgumentException(
-                    sprintf('Invalid regex pattern "%s": %s', $pattern, preg_last_error_msg())
-                );
-            }
-            if ($result === 1) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

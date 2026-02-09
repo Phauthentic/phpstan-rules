@@ -37,21 +37,16 @@ class RegexAllOfRuleTest extends RuleTestCase
 
     public function testRule(): void
     {
+        // With the improved getTypeAsString() from ClassNameResolver trait,
+        // union types are now properly parsed, so the valid cases pass.
+        // Only the invalid cases (missing required types) should report errors.
         $this->analyse([__DIR__ . '/../../../data/MethodMustReturnType/RegexAllOfTestClass.php'], [
             [
-                'Method RegexAllOfTestClass::validUnionWithUser must have a return type of all of: regex:/^UserEntity$/, int.',
-                6,
-            ],
-            [
-                'Method RegexAllOfTestClass::validUnionWithProduct must have a return type of all of: regex:/^ProductEntity$/, string.',
-                7,
-            ],
-            [
-                'Method RegexAllOfTestClass::invalidUnionMissingUser must have a return type of all of: regex:/^UserEntity$/, int.',
+                'Method RegexAllOfTestClass::invalidUnionMissingUser must have all of the return types: regex:/^UserEntity$/, int, OtherClass|int given.',
                 10,
             ],
             [
-                'Method RegexAllOfTestClass::invalidUnionMissingProduct must have a return type of all of: regex:/^ProductEntity$/, string.',
+                'Method RegexAllOfTestClass::invalidUnionMissingProduct must have all of the return types: regex:/^ProductEntity$/, string, UserEntity|OtherClass given.',
                 11,
             ],
         ]);

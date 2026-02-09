@@ -39,6 +39,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class MethodMustReturnTypeRule implements Rule
 {
+    use ClassNameResolver;
+
     private const IDENTIFIER = 'phauthentic.architecture.methodMustReturnType';
 
     private const ERROR_MESSAGE_VOID = 'Method %s must have a void return type.';
@@ -78,12 +80,16 @@ class MethodMustReturnTypeRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        $fullClassName = $this->resolveFullClassName($node, $scope);
+        if ($fullClassName === null) {
+            return [];
+        }
+
         $errors = [];
-        $className = $node->name ? $node->name->toString() : '';
 
         foreach ($node->getMethods() as $method) {
             $methodName = $method->name->toString();
-            $fullName = $className . '::' . $methodName;
+            $fullName = $fullClassName . '::' . $methodName;
 
             foreach ($this->returnTypePatterns as $patternConfig) {
                 if (!preg_match($patternConfig['pattern'], $fullName)) {
@@ -447,22 +453,6 @@ class MethodMustReturnTypeRule implements Rule
         ->identifier(self::IDENTIFIER)
         ->line($line)
         ->build();
-    }
-
-    private function getTypeAsString(mixed $type): ?string
-    {
-        $nullableInner = null;
-        if ($type instanceof NullableType) {
-            $nullableInner = $this->getTypeAsString($type->type);
-        }
-
-        return match (true) {
-            $type === null => null,
-            $type instanceof Identifier => $type->name,
-            $type instanceof Name => $type->toString(),
-            $type instanceof NullableType => $nullableInner !== null ? '?' . $nullableInner : null,
-            default => null,
-        };
     }
 
     private function isNullableType(mixed $type): bool
