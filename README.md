@@ -25,9 +25,11 @@ See individual rule documentation for detailed configuration examples. A [full c
 - [Class Must Be Readonly Rule](docs/rules/Class-Must-Be-Readonly-Rule.md)
 - [Class Must Have Specification Docblock Rule](docs/rules/Class-Must-Have-Specification-Docblock-Rule.md)
 - [Classname Must Match Pattern Rule](docs/rules/Classname-Must-Match-Pattern-Rule.md)
-- [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md)
+- [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md) *(deprecated, use Forbidden Dependencies Rule)*
 - [Forbidden Accessors Rule](docs/rules/Forbidden-Accessors-Rule.md)
+- [Forbidden Dependencies Rule](docs/rules/Forbidden-Dependencies-Rule.md)
 - [Forbidden Namespaces Rule](docs/rules/Forbidden-Namespaces-Rule.md)
+- [Forbidden Static Methods Rule](docs/rules/Forbidden-Static-Methods-Rule.md)
 - [Method Must Return Type Rule](docs/rules/Method-Must-Return-Type-Rule.md)
 - [Method Signature Must Match Rule](docs/rules/Method-Signature-Must-Match-Rule.md)
 - [Methods Returning Bool Must Follow Naming Convention Rule](docs/rules/Methods-Returning-Bool-Must-Follow-Naming-Convention-Rule.md)

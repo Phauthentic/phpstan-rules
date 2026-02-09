@@ -22,6 +22,18 @@ Forbids public and/or protected getters and setters on classes matching specifie
 
 See [Forbidden Accessors Rule documentation](rules/Forbidden-Accessors-Rule.md) for detailed information.
 
+## Forbidden Dependencies Rule
+
+Enforces dependency constraints between namespaces by checking `use` statements and optionally fully qualified class names (FQCNs). This rule prevents classes in one namespace from depending on classes in another, helping enforce architectural boundaries like layer separation.
+
+See [Forbidden Dependencies Rule documentation](rules/Forbidden-Dependencies-Rule.md) for detailed information.
+
+## Forbidden Static Methods Rule
+
+Forbids specific static method calls matching regex patterns. Supports namespace-level, class-level, and method-level granularity. The rule resolves `self`, `static`, and `parent` keywords to actual class names.
+
+See [Forbidden Static Methods Rule documentation](rules/Forbidden-Static-Methods-Rule.md) for detailed information.
+
 ## Property Must Match Rule
 
 Ensures that classes matching specified patterns have properties with expected names, types, and visibility scopes. Can optionally enforce that matching classes must have certain properties.
@@ -221,6 +233,16 @@ services:
             ## new code in other types of presentations!
                 '/^App\\Capability\\[^\\]+\\Presentation\\(?!Http$|PublicAPI$|InternalAPI$)[^\\]+$/'
             ]
+        tags:
+            - phpstan.rules.rule
+
+    # Forbid specific static method calls
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenStaticMethodsRule
+        arguments:
+            forbiddenStaticMethods:
+                - '/^App\\Legacy\\.*::.*/'
+                - '/^DateTime::createFromFormat$/'
         tags:
             - phpstan.rules.rule
 
