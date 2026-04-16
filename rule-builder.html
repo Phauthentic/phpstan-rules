@@ -340,6 +340,7 @@
                             <option value="ClassnameMustMatchPatternRule">ClassnameMustMatchPatternRule</option>
                             <option value="ControlStructureNestingRule">ControlStructureNestingRule</option>
                             <option value="ForbiddenDependenciesRule">ForbiddenDependenciesRule</option>
+                            <option value="ForbiddenDateTimeComparisonRule">ForbiddenDateTimeComparisonRule</option>
                             <option value="ForbiddenAccessorsRule">ForbiddenAccessorsRule</option>
                             <option value="ForbiddenNamespacesRule">ForbiddenNamespacesRule</option>
                             <option value="MaxLineLengthRule">MaxLineLengthRule</option>
@@ -551,6 +552,20 @@
                         required: false,
                         help: 'Reference types to check when checkFqcn is enabled',
                         options: ['new', 'param', 'return', 'property', 'static_call', 'static_property', 'class_const', 'instanceof', 'catch', 'extends', 'implements'],
+                        default: []
+                    }
+                ]
+            },
+            ForbiddenDateTimeComparisonRule: {
+                description: 'Forbids === and !== between DateTimeInterface values (identity vs same instant). Optional patterns on Fqcn::methodName; empty patterns = global.',
+                class: 'Phauthentic\\PHPStanRules\\Architecture\\ForbiddenDateTimeComparisonRule',
+                fields: [
+                    {
+                        name: 'patterns',
+                        label: 'Method patterns (Fqcn::methodName)',
+                        type: 'array',
+                        required: false,
+                        help: 'PCRE regexes matched against Full\\Class\\Name::methodName. Leave empty for global (all code).',
                         default: []
                     }
                 ]
@@ -1719,10 +1734,12 @@
             yaml += `<span class="yaml-comment"># ${rule.description}</span>\n`;
             yaml += `<span class="yaml-key">-</span>\n`;
             yaml += `    <span class="yaml-key">class:</span> <span class="yaml-string">${rule.class}</span>\n`;
-            yaml += `    <span class="yaml-key">arguments:</span>\n`;
-
-            for (const [key, value] of Object.entries(data)) {
-                yaml += renderYamlValue(key, value, 8);
+            const dataKeys = Object.keys(data);
+            if (dataKeys.length > 0) {
+                yaml += `    <span class="yaml-key">arguments:</span>\n`;
+                for (const [key, value] of Object.entries(data)) {
+                    yaml += renderYamlValue(key, value, 8);
+                }
             }
 
             yaml += `    <span class="yaml-key">tags:</span>\n`;

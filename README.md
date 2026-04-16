@@ -27,7 +27,9 @@ See individual rule documentation for detailed configuration examples. A [full c
 - [Classname Must Match Pattern Rule](docs/rules/Classname-Must-Match-Pattern-Rule.md)
 - [Dependency Constraints Rule](docs/rules/Dependency-Constraints-Rule.md) *(deprecated, use Forbidden Dependencies Rule)*
 - [Forbidden Accessors Rule](docs/rules/Forbidden-Accessors-Rule.md)
+- [Forbidden Business Logic Rule](docs/rules/Forbidden-Business-Logic-Rule.md)
 - [Forbidden Dependencies Rule](docs/rules/Forbidden-Dependencies-Rule.md)
+- [Forbidden Date Time Comparison Rule](docs/rules/Forbidden-Date-Time-Comparison-Rule.md)
 - [Forbidden Namespaces Rule](docs/rules/Forbidden-Namespaces-Rule.md)
 - [Forbidden Static Methods Rule](docs/rules/Forbidden-Static-Methods-Rule.md)
 - [Method Must Return Type Rule](docs/rules/Method-Must-Return-Type-Rule.md)
@@ -39,6 +41,7 @@ See individual rule documentation for detailed configuration examples. A [full c
 ### Clean Code Rules
 
 - [Control Structure Nesting Rule](docs/rules/Control-Structure-Nesting-Rule.md)
+- [Forbidden Else Statements Rule](docs/rules/Forbidden-Else-Statements-Rule.md)
 - [Too Many Arguments Rule](docs/rules/Too-Many-Arguments-Rule.md)
 - [Max Line Length Rule](docs/rules/Max-Line-Length-Rule.md)
 
@@ -50,7 +53,7 @@ The rules in this package can be extended at project level to create self-docume
 
 A lot of the rules use regex patterns to match things. Many people are not good at writing them but thankfully there is AI today.
 
-If you struggle to write the regex patterns you need, you can use AI tools like [ChatGPT](https://chat.openai.com/) to help you generate them. Just describe what you want to match, and it can provide you with a regex pattern that fits your needs.  The regex can be tested using online tools like [regex101](https://regex101.com/).
+If you struggle to write the regex patterns you need, you can use AI agents to help you generate them. Just describe what you want to match, and it can provide you with a regex pattern that fits your needs.  The regex can be tested using online tools like [regex101](https://regex101.com/).
 
 ## Why PHPStan to enforce Architectural Rules?
 

@@ -8,11 +8,11 @@ use Phauthentic\PHPStanRules\Architecture\ClassMustBeReadonlyRule;
 use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<ClassMustBeReadonlyRuleTest>
+ * @extends RuleTestCase<ClassMustBeReadonlyRule>
  */
 class ClassMustBeReadonlyRuleTest extends RuleTestCase
 {
-    protected function getRule(): \PHPStan\Rules\Rule
+    protected function getRule(): ClassMustBeReadonlyRule
     {
         return new ClassMustBeReadonlyRule([
             '/Controller$/', // all classes that end with "Controller"

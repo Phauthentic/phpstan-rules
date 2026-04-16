@@ -57,8 +57,8 @@ class MethodSignatureMustMatchRule implements Rule
      *     minParameters: null|int,
      *     maxParameters: null|int,
      *     signature: array<array{
-     *         type: string,
-     *         pattern: string|null,
+     *         type?: string,
+     *         pattern?: string|null,
      *     }>,
      *     visibilityScope?: string|null,
      *     required?: bool|null
@@ -125,7 +125,7 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
-     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type: string, pattern: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
+     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type?: string, pattern?: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
      * @return list<IdentifierRuleError>
      */
     private function validateMethodAgainstConfig(ClassMethod $method, array $config, string $fullName): array
@@ -228,7 +228,7 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
-     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type: string, pattern: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
+     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type?: string, pattern?: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
      */
     private function checkVisibility(array $config, ClassMethod $method, string $fullName): ?IdentifierRuleError
     {
@@ -255,7 +255,7 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
-     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type: string, pattern: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
+     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type?: string, pattern?: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
      */
     private function checkMinParameters(array $config, int $paramCount, string $fullName, int $line): ?IdentifierRuleError
     {
@@ -270,7 +270,7 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
-     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type: string, pattern: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
+     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type?: string, pattern?: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
      */
     private function checkMaxParameters(array $config, int $paramCount, string $fullName, int $line): ?IdentifierRuleError
     {
@@ -339,7 +339,7 @@ class MethodSignatureMustMatchRule implements Rule
     /**
      * Format the expected method signature for error messages.
      *
-     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type: string, pattern: string|null}>, visibilityScope?: string|null, required?: bool|null} $patternConfig
+     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type?: string, pattern?: string|null}>, visibilityScope?: string|null, required?: bool|null} $patternConfig
      */
     private function formatSignatureForError(array $patternConfig): string
     {
@@ -364,7 +364,7 @@ class MethodSignatureMustMatchRule implements Rule
         if (!empty($patternConfig['signature'])) {
             foreach ($patternConfig['signature'] as $i => $sig) {
                 $paramParts = [];
-                if ($sig['type'] !== '') {
+                if (($sig['type'] ?? '') !== '') {
                     $paramParts[] = $sig['type'];
                 }
                 $paramParts[] = '$param' . ($i + 1);
@@ -397,7 +397,7 @@ class MethodSignatureMustMatchRule implements Rule
     }
 
     /**
-     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type: string, pattern: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
+     * @param array{pattern: string, minParameters: int|null, maxParameters: int|null, signature: array<array{type?: string, pattern?: string|null}>, visibilityScope?: string|null, required?: bool|null} $config
      * @param array<string> $implementedMethods
      */
     private function checkRequiredMethod(array $config, string $className, array $implementedMethods, int $line): ?IdentifierRuleError
