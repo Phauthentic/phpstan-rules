@@ -22,11 +22,23 @@ Forbids public and/or protected getters and setters on classes matching specifie
 
 See [Forbidden Accessors Rule documentation](rules/Forbidden-Accessors-Rule.md) for detailed information.
 
+## Forbidden Business Logic Rule
+
+Forbids configured control structures (`if`, `for`, `foreach`, `while`, `switch`) inside class methods. A global `forbiddenStatements` list applies to all such methods; optional `patterns` (regex on `Fqcn::methodName`) may supply `forbiddenStatements` per match, which replace the effective list for that method (last matching override wins).
+
+See [Forbidden Business Logic Rule documentation](rules/Forbidden-Business-Logic-Rule.md) for detailed information.
+
 ## Forbidden Dependencies Rule
 
 Enforces dependency constraints between namespaces by checking `use` statements and optionally fully qualified class names (FQCNs). This rule prevents classes in one namespace from depending on classes in another, helping enforce architectural boundaries like layer separation.
 
 See [Forbidden Dependencies Rule documentation](rules/Forbidden-Dependencies-Rule.md) for detailed information.
+
+## Forbidden Date Time Comparison Rule
+
+Forbids `===` and `!==` when both sides are definitely `DateTimeInterface`, because strict equality is object identity, not same instant. Optional `patterns` (regex on `Fqcn::methodName`) limit the rule to matching class methods; an empty `patterns` list applies globally (unlike Forbidden Else Statements Rule, where empty `patterns` disables the rule).
+
+See [Forbidden Date Time Comparison Rule documentation](rules/Forbidden-Date-Time-Comparison-Rule.md) for detailed information.
 
 ## Forbidden Static Methods Rule
 
@@ -39,6 +51,12 @@ See [Forbidden Static Methods Rule documentation](rules/Forbidden-Static-Methods
 Ensures that classes matching specified patterns have properties with expected names, types, and visibility scopes. Can optionally enforce that matching classes must have certain properties.
 
 See [Property Must Match Rule documentation](rules/Property-Must-Match-Rule.md) for detailed information.
+
+## Forbidden Else Statements Rule
+
+Forbids plain `else` in class methods whose `Full\Class\Name::methodName` matches any configured regex, using the same `Fqcn::methodName` convention as other method-scoped rules. Empty `patterns` disables the rule.
+
+See [Forbidden Else Statements Rule documentation](rules/Forbidden-Else-Statements-Rule.md) for detailed information.
 
 ## Full Configuration Example
 
@@ -246,6 +264,25 @@ services:
         tags:
             - phpstan.rules.rule
 
+    # Forbid selected control structures (global + optional per-regex overrides)
+    -
+        class: Phauthentic\PHPStanRules\Architecture\ForbiddenBusinessLogicRule
+        arguments:
+            forbiddenStatements:
+                - if
+                - for
+                - foreach
+                - while
+                - switch
+            patterns:
+                -
+                    pattern: '/^App\\Capability\\.*\\Domain\\.*::/'
+                    forbiddenStatements:
+                        - if
+                        - switch
+        tags:
+            - phpstan.rules.rule
+
     # Forbid accessors on domain entities
     -
         class: Phauthentic\PHPStanRules\Architecture\ForbiddenAccessorsRule
@@ -266,6 +303,15 @@ services:
         class: Phauthentic\PHPStanRules\CleanCode\ControlStructureNestingRule
         arguments:
             maxNestingLevel: 3
+        tags:
+            - phpstan.rules.rule
+
+    # Forbid else in selected class methods (regex on Fqcn::methodName)
+    -
+        class: Phauthentic\PHPStanRules\CleanCode\ForbiddenElseStatementsRule
+        arguments:
+            patterns:
+                - '/^App\\Capability\\.*\\Presentation\\Http\\.*Controller::(handle|__invoke)$/'
         tags:
             - phpstan.rules.rule
 ```
