@@ -58,6 +58,12 @@ Forbids plain `else` in class methods whose `Full\Class\Name::methodName` matche
 
 See [Forbidden Else Statements Rule documentation](rules/Forbidden-Else-Statements-Rule.md) for detailed information.
 
+## Forbidden Super Globals Rule
+
+Forbids direct use of PHP superglobals (`$GLOBALS`, `$_GET`, `$_POST`, and the other built-ins). Optional `patterns` (regex on `Fqcn::methodName`) limit the rule to matching class methods; an empty `patterns` list applies globally (unlike Forbidden Else Statements Rule, where empty `patterns` disables the rule).
+
+See [Forbidden Super Globals Rule documentation](rules/Forbidden-Super-Globals-Rule.md) for detailed information.
+
 ## Full Configuration Example
 
 Here is a full example for a modular monolith with clean architecture rules.
@@ -312,6 +318,14 @@ services:
         arguments:
             patterns:
                 - '/^App\\Capability\\.*\\Presentation\\Http\\.*Controller::(handle|__invoke)$/'
+        tags:
+            - phpstan.rules.rule
+
+    # Forbidden superglobals (empty patterns = entire codebase)
+    -
+        class: Phauthentic\PHPStanRules\CleanCode\ForbiddenSuperGlobalsRule
+        arguments:
+            patterns: []
         tags:
             - phpstan.rules.rule
 ```

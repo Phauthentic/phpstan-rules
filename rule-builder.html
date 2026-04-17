@@ -339,6 +339,7 @@
                             <option value="ClassMustHaveSpecificationDocblockRule">ClassMustHaveSpecificationDocblockRule</option>
                             <option value="ClassnameMustMatchPatternRule">ClassnameMustMatchPatternRule</option>
                             <option value="ControlStructureNestingRule">ControlStructureNestingRule</option>
+                            <option value="ForbiddenSuperGlobalsRule">ForbiddenSuperGlobalsRule</option>
                             <option value="ForbiddenDependenciesRule">ForbiddenDependenciesRule</option>
                             <option value="ForbiddenDateTimeComparisonRule">ForbiddenDateTimeComparisonRule</option>
                             <option value="ForbiddenAccessorsRule">ForbiddenAccessorsRule</option>
@@ -523,6 +524,20 @@
                         required: true,
                         help: 'Maximum allowed nesting level for control structures',
                         default: 3
+                    }
+                ]
+            },
+            ForbiddenSuperGlobalsRule: {
+                description: 'Forbids PHP superglobals. Optional patterns on Fqcn::methodName; empty patterns = global.',
+                class: 'Phauthentic\\PHPStanRules\\CleanCode\\ForbiddenSuperGlobalsRule',
+                fields: [
+                    {
+                        name: 'patterns',
+                        label: 'Method patterns (Fqcn::methodName)',
+                        type: 'array',
+                        required: false,
+                        help: 'PCRE regexes matched against Full\\Class\\Name::methodName. Leave empty for global (all code).',
+                        default: []
                     }
                 ]
             },

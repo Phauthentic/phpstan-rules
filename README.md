@@ -42,6 +42,7 @@ See individual rule documentation for detailed configuration examples. A [full c
 
 - [Control Structure Nesting Rule](docs/rules/Control-Structure-Nesting-Rule.md)
 - [Forbidden Else Statements Rule](docs/rules/Forbidden-Else-Statements-Rule.md)
+- [Forbidden Super Globals Rule](docs/rules/Forbidden-Super-Globals-Rule.md)
 - [Too Many Arguments Rule](docs/rules/Too-Many-Arguments-Rule.md)
 - [Max Line Length Rule](docs/rules/Max-Line-Length-Rule.md)
 
